@@ -30,19 +30,22 @@ public final class TestResultInterfacePlugin implements Plugin
 	
 	public void loadPlugIn(PluginCollection aPluginCollection, Configuration aConfig) throws ConfigurationException
 	{
-		String configDir = aConfig.getConfigDirectory();
-		File configFile = new File( configDir + File.separator + "testResultConfiguration.xml" );
-		TestResultInterfaceConfiguration config = readConfigFile( configFile );
+		File configDir = aConfig.getConfigDir();
+		File trConfigFile = new File( configDir, "testResultConfiguration.xml" );
+		TestResultInterfaceConfiguration trConfig = readConfigFile( trConfigFile );
 		
 		// Factories
 
 		// Executors
 		
 		// Input and ouput interfaces
-		File xslDir = config.getXslDir();
+		File xslDir = trConfig.getXslDir();
 		String testEnvironment = aConfig.getTestEnvironment();
 		String testPhase = aConfig.getTestPhase();
-		TestRunResultXmlWriter aWriter = new TestRunResultXmlWriter( xslDir, testEnvironment, testPhase );
+		File logDir = aConfig.getTestResultBaseDir();
+    	File resultFile = new File( logDir.getAbsolutePath(), "results.xml" );
+
+		TestRunResultXmlWriter aWriter = new TestRunResultXmlWriter( resultFile, xslDir, testEnvironment, testPhase );
 		aPluginCollection.addTestRunResultWriter( aWriter );
 	}
 	

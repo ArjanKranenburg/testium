@@ -11,8 +11,8 @@ import org.testtoolinterfaces.utils.DateFormat;
 public class Configuration
 {
 	private File myTestResultBaseDir;
-	private String myPluginLoaders = "";
-	private String myPluginsDirectory = "";
+	private ArrayList<String> myPluginLoaders;
+	private File myPluginsDirectory;
 	private File myConfigDirectory;
 	private String myEnvironment = "Unknown";
 	private String myTestPhase = "Unknown";
@@ -21,23 +21,23 @@ public class Configuration
 
 	/**
 	 * @param aTestResultBaseDir
-	 * @param aPluginLoaders
-	 * @param aPluginsDirectory
+	 * @param myTempPluginLoaders
+	 * @param myTempPluginsDirectory
 	 * @param aConfigDir
 	 * @param anEnvironment 
 	 * @param aTestPhase
 	 */
 	public Configuration( File aTestResultBaseDir, 
-						  String aPluginLoaders,
-						  String aPluginsDirectory,
+						  ArrayList<String> myTempPluginLoaders,
+						  File myTempPluginsDirectory,
 						  File aConfigDir,
 						  String anEnvironment,
 						  String aTestPhase,
 						  String aSettingsFileName )
 	{
 		myTestResultBaseDir = aTestResultBaseDir;
-		myPluginLoaders = aPluginLoaders;
-		myPluginsDirectory = aPluginsDirectory;
+		myPluginLoaders = myTempPluginLoaders;
+		myPluginsDirectory = myTempPluginsDirectory;
 		myConfigDirectory = aConfigDir;
 		myEnvironment = anEnvironment;
 		myTestPhase = aTestPhase;
@@ -51,35 +51,21 @@ public class Configuration
 	 */
 	public ArrayList<String> getPluginLoaders()
 	{
-		ArrayList<String> pluginLoaders = new ArrayList<String>();
-    	if ( ! myPluginLoaders.isEmpty() )
-    	{
-        	String[] classNames = myPluginLoaders.trim().split(";");
-        	if ( classNames.length != 0 )
-        	{
-            	for ( String className : classNames )
-            	{
-            		className = className.replace('\t', ' ').trim();
-            		pluginLoaders.add( className );
-            	}
-        	}
-    	}
-
-		return pluginLoaders;
+		return myPluginLoaders;
 	}
 
 	/**
 	 * @return the configuration directory
 	 */
-	public String getConfigDirectory()
+	public File getConfigDir()
 	{
-		return myConfigDirectory.getAbsolutePath();
+		return myConfigDirectory;
 	}
 
 	/**
 	 * @return the PluginsDirectory
 	 */
-	public String getPluginsDirectory()
+	public File getPluginsDirectory()
 	{
 		return myPluginsDirectory;
 	}
@@ -90,8 +76,13 @@ public class Configuration
 	 */
 	public File getTestResultBaseDir()
 	{
+		if ( myTestResultBaseDir == null )
+		{
+			return null;
+		}
+
 		// TODO Get datestamp from Run-time data (as start-date)
-		File logDir = new File( myTestResultBaseDir.getAbsolutePath(), myDateStamp );
+		File logDir = new File( myTestResultBaseDir, myDateStamp );
 
 		if( ! logDir.isDirectory() )
 		{

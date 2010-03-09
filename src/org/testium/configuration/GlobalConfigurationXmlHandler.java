@@ -42,9 +42,9 @@ public class GlobalConfigurationXmlHandler extends XmlHandler
 	private static final String CFG_TRACE_LEVEL = "TraceLevel";
 	private static final String CFG_TRACE_DEPTH = "TraceDepth";
 
-	private String myTempResultBaseDir = "";
-	private String myTempPluginLoaders = "";
-	private String myTempPluginsDirectory = "";
+	private File myTempResultBaseDir;
+	private ArrayList<String> myTempPluginLoaders;
+	private File myTempPluginsDirectory;
 	private String myTempEnvironment = "Unknown";
 	private String myTempTestPhase = "Unknown";
 	private String myTempSettingsFileName = ".testium";
@@ -78,16 +78,16 @@ public class GlobalConfigurationXmlHandler extends XmlHandler
 	    }
 	}
 
-	public GlobalConfigurationXmlHandler( XMLReader anXmlReader, File aConfigDir, Configuration aGlobalConfig )
+	public GlobalConfigurationXmlHandler( XMLReader anXmlReader, Configuration aGlobalConfig )
 	{
-		this( anXmlReader, aConfigDir );
+		this( anXmlReader, aGlobalConfig.getConfigDir() );
 	    
-		myTempResultBaseDir = "";
-		myTempPluginLoaders = "";
-		myTempPluginsDirectory = "";
+		myTempResultBaseDir = aGlobalConfig.getTestResultBaseDir();
+		myTempPluginLoaders = aGlobalConfig.getPluginLoaders();
+		myTempPluginsDirectory = aGlobalConfig.getPluginsDirectory();
 		myTempEnvironment = aGlobalConfig.getTestEnvironment();
 		myTempTestPhase = aGlobalConfig.getTestPhase();
-		myTempSettingsFileName = ".testium";
+		myTempSettingsFileName = aGlobalConfig.getSettingsFileName();
 	}
 
 	@Override
@@ -126,17 +126,20 @@ public class GlobalConfigurationXmlHandler extends XmlHandler
 	            + aQualifiedName + " )", true );
 		if (aQualifiedName.equalsIgnoreCase(CFG_TEST_RESULT_OUTPUT_BASE_DIRECTORY))
     	{
-			myTempResultBaseDir = aChildXmlHandler.getValue();
+			String resultBaseDirName = aChildXmlHandler.getValue();
+			myTempResultBaseDir = new File( resultBaseDirName );
 			aChildXmlHandler.reset();
     	}
 		else if (aQualifiedName.equalsIgnoreCase(CFG_PLUGIN_LOADERS))
     	{
-			myTempPluginLoaders = aChildXmlHandler.getValue();
+			String pluginLoaders = aChildXmlHandler.getValue();
+			myTempPluginLoaders = convertStringToPluginLoaders(pluginLoaders);
 			aChildXmlHandler.reset();
     	}
 		else if (aQualifiedName.equalsIgnoreCase(CFG_PLUGINS_DIRECTORY))
     	{
-			myTempPluginsDirectory = aChildXmlHandler.getValue();
+			String pluginsDirName = aChildXmlHandler.getValue();
+			myTempPluginsDirectory = new File( pluginsDirName );
 			aChildXmlHandler.reset();
     	}
 		else if (aQualifiedName.equalsIgnoreCase(CFG_TESTENVIRONMENT))
@@ -184,18 +187,7 @@ public class GlobalConfigurationXmlHandler extends XmlHandler
 	
 	public Configuration getConfiguration() throws ConfigurationException
 	{
-//		if ( myTempResultBaseDir.isEmpty() )
-//		{
-//			throw new ConfigurationException( CFG_TEST_RESULT_OUTPUT_BASE_DIRECTORY + " is not set" );
-//		}
-
-		File baseResultDir = new File( myTempResultBaseDir );
-//		if ( !baseResultDir.isDirectory() )
-//		{
-//			throw new ConfigurationException( "Directory does not exist: " + baseResultDir.getAbsolutePath() );
-//		}
-
-		return new Configuration( baseResultDir,
+		return new Configuration( myTempResultBaseDir,
 		                          myTempPluginLoaders,
 		                          myTempPluginsDirectory,
 		                          myConfigDirectory,
@@ -203,12 +195,34 @@ public class GlobalConfigurationXmlHandler extends XmlHandler
 		                          myTempTestPhase,
 		                          myTempSettingsFileName );
 	}
-	
+
+	/**
+	 * @return the PluginLoaders
+	 */
+	public ArrayList<String> convertStringToPluginLoaders( String aPluginLoadersString )
+	{
+		ArrayList<String> pluginLoaders = new ArrayList<String>();
+    	if ( ! aPluginLoadersString.isEmpty() )
+    	{
+        	String[] classNames = aPluginLoadersString.trim().split(";");
+        	if ( classNames.length != 0 )
+        	{
+            	for ( String className : classNames )
+            	{
+            		className = className.replace('\t', ' ').trim();
+            		pluginLoaders.add( className );
+            	}
+        	}
+    	}
+
+		return pluginLoaders;
+	}
+
 	public void reset()
 	{
-		myTempResultBaseDir = "";
-		myTempPluginLoaders = "";
-		myTempPluginsDirectory = "";
+		myTempResultBaseDir = null;
+		myTempPluginLoaders = null;
+		myTempPluginsDirectory = null;
 		myTempEnvironment = "Unknown";
 		myTempTestPhase = "Unknown";
 		myTempSettingsFileName = ".testium";

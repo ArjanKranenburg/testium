@@ -25,10 +25,10 @@ public class Main
 {
 	private static final String APPLICATIONNAME = "Testium";
 
-	private static final String SWITCH_TESTSUITE_FILENAME = "-f";
-	private static final String SWITCH_CONFIG_FILENAME =    "-c";
-	private static final String SWITCH_PLUGINS_DIRECTORY =  "-p";
-	private static final String SWITCH_SETTINGS_FILENAME =  "-s";
+	private static final String SWITCH_TESTSUITE_FILENAME		 = "-f";
+	private static final String SWITCH_GLOBAL_CONFIG_FILENAME	 = "-c";
+	private static final String SWITCH_PLUGINS_DIRECTORY		 = "-p";
+	private static final String SWITCH_PERSONAL_CONFIG_FILENAME	 = "-s";
 
 	/**
 	 * @param args
@@ -37,7 +37,7 @@ public class Main
 	{
 		File testGroupFile = null;
 		File testiumBaseDir = null;
-		String settingsFileName = "";
+		String personalConfigFileName = "";
 
 		try
 		{
@@ -72,7 +72,7 @@ public class Main
 				{
 					testGroupFile = new File( args[++index] );
 				}
-				else if( args[index].equals(SWITCH_CONFIG_FILENAME) )
+				else if( args[index].equals(SWITCH_GLOBAL_CONFIG_FILENAME) )
 				{
 					configFile = new File( args[++index] );
 				}
@@ -80,9 +80,9 @@ public class Main
 				{
 					pluginDirectoryName = args[++index];
 				}
-				else if( args[index].equals(SWITCH_SETTINGS_FILENAME) )
+				else if( args[index].equals(SWITCH_PERSONAL_CONFIG_FILENAME) )
 				{
-					settingsFileName = args[++index];
+					personalConfigFileName = args[++index];
 				}
 				else
 				{
@@ -105,13 +105,16 @@ public class Main
 		try
 		{
 			// Read in the Global Configuration file
-			Configuration config = readConfigFile( configFile );
+			Configuration globalConfig = readConfigFile( configFile );
+
+			// Set the personal Configuration file
+			File personalConfigFile = getPersonalConfigFile( personalConfigFileName, globalConfig );
+			Configuration config = readConfigFile( personalConfigFile, globalConfig );
 
 			// Load plugins
 			PluginCollection plugins = loadPlugins(testiumBaseDir, pluginDirectoryName, config);
 
-			File settingsFile = getSettingsFile( settingsFileName, config );
-			testium = new Testium( plugins, config, settingsFile );
+			testium = new Testium( plugins, config );
 		}
 		catch (ConfigurationException e)
 		{
@@ -149,7 +152,7 @@ public class Main
 		}
 	}
 
-	private static File getSettingsFile( String aSettingsFileName,
+	private static File getPersonalConfigFile( String aSettingsFileName,
 	                                     Configuration aConfig )
 	{
 		File settingsFile;
@@ -180,9 +183,9 @@ public class Main
 		{
 			pluginDirectory = new File( aPluginDirectoryName );
 		}
-		else if( ! aConfig.getPluginsDirectory().isEmpty() )
+		else if( aConfig.getPluginsDirectory() != null )
 		{
-			pluginDirectory = new File( aConfig.getPluginsDirectory() );
+			pluginDirectory = aConfig.getPluginsDirectory();
 		}
 		else
 		{
@@ -191,7 +194,7 @@ public class Main
 
 		if ( ! pluginDirectory.isAbsolute() )
 		{
-			pluginDirectory = new File( aTestiumBaseDir, aConfig.getPluginsDirectory() );
+			pluginDirectory = new File( aTestiumBaseDir, aConfig.getPluginsDirectory().getPath() );
 		}
 
 		if ( ! pluginDirectory.isDirectory() )
@@ -244,15 +247,56 @@ public class Main
 		
 		return handler.getConfiguration();
 	}
-	
+
+	private static Configuration readConfigFile( File aConfigFile, Configuration aGlobalConfig ) throws ConfigurationException
+	{
+		Trace.println(Trace.UTIL, "readConfigFile( " + aConfigFile.getName() + " )", true );
+        // create a parser
+        SAXParserFactory spf = SAXParserFactory.newInstance();
+        spf.setNamespaceAware(false);
+        SAXParser saxParser;
+        ConfigurationXmlHandler handler = null;
+		try
+		{
+			saxParser = spf.newSAXParser();
+			XMLReader xmlReader = saxParser.getXMLReader();
+
+	        // create a handler
+			handler = new ConfigurationXmlHandler(xmlReader, aGlobalConfig);
+
+	        // assign the handler to the parser
+	        xmlReader.setContentHandler(handler);
+
+	        // parse the document
+	        xmlReader.parse( aConfigFile.getAbsolutePath() );
+		}
+		catch (ParserConfigurationException e)
+		{
+			Trace.print(Trace.UTIL, e);
+			throw new ConfigurationException( e );
+		}
+		catch (SAXException e)
+		{
+			Trace.print(Trace.UTIL, e);
+			throw new ConfigurationException( e );
+		}
+		catch (IOException e)
+		{
+			Trace.print(Trace.UTIL, e);
+			throw new ConfigurationException( e );
+		}
+		
+		return handler.getConfiguration();
+	}
+
 	private static void printUsage()
 	{
 		System.out.println( );
 		System.out.println( "Usage:" );
 		System.out.println( APPLICATIONNAME + " "
 							+ SWITCH_TESTSUITE_FILENAME + " <testgroup filename> "
-							+ "[" + SWITCH_SETTINGS_FILENAME + " <settings filename>] "
-							+ "[" + SWITCH_CONFIG_FILENAME +    " <configuration filename>] "
+							+ "[" + SWITCH_PERSONAL_CONFIG_FILENAME + " <settings filename>] "
+							+ "[" + SWITCH_GLOBAL_CONFIG_FILENAME +    " <configuration filename>] "
 							+ "[" + SWITCH_PLUGINS_DIRECTORY +  " <plugin directory>] " );
 	}
 }

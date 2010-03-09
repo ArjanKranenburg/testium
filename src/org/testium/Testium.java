@@ -34,6 +34,13 @@ public class Testium
 	
 	private ArrayList<TestRunResultWriter>	myTestResultWriters;
 
+	/**
+	 * @deprecated
+	 * @param aPlugins
+	 * @param aGlobalConfig
+	 * @param aSettingsFile
+	 * @throws ConfigurationException
+	 */
 	public Testium(PluginCollection aPlugins, Configuration aGlobalConfig, File aSettingsFile ) throws ConfigurationException
 	{
 		myTestGroupReader = aPlugins.getTestGroupReader();
@@ -43,6 +50,18 @@ public class Testium
 		myConfiguration = readConfigFile( aSettingsFile, aGlobalConfig );
 	}
 
+	public Testium(PluginCollection aPlugins, Configuration aConfig ) throws ConfigurationException
+	{
+		myTestGroupReader = aPlugins.getTestGroupReader();
+		myTestResultWriters = aPlugins.getTestRunResultWriters();
+		myTestSuiteExecutor = aPlugins.getTestSuiteExecutor();
+		
+		myConfiguration = aConfig;
+	}
+
+	/**
+	 * @deprecated
+	 */
 	private Configuration readConfigFile( File aConfigFile, Configuration aGlobalConfig ) throws ConfigurationException
 	{
 		Trace.println(Trace.UTIL, "readConfigFile( " + aConfigFile.getName() + " )", true );
@@ -57,7 +76,7 @@ public class Testium
 			XMLReader xmlReader = saxParser.getXMLReader();
 
 	        // create a handler
-			handler = new ConfigurationXmlHandler(xmlReader, aConfigFile.getParentFile(), aGlobalConfig);
+			handler = new ConfigurationXmlHandler(xmlReader, aGlobalConfig);
 
 	        // assign the handler to the parser
 	        xmlReader.setContentHandler(handler);
@@ -104,11 +123,11 @@ public class Testium
     	                                                    logDir,
     	                                                    date );
 
-    	File resultFile = new File( logDir.getAbsolutePath(), "results.xml" );
+ //   	File resultFile = new File( logDir.getAbsolutePath(), "results.xml" );
     	
 	    for (TestRunResultWriter resultWriter : myTestResultWriters)
 	    {
-		    resultWriter.writeToFile( result, resultFile );
+		    resultWriter.write( result );
 	    }
 
 	}

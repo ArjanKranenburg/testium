@@ -34,12 +34,12 @@ public class ConfigurationXmlHandler extends XmlHandler
 		myGlobalConfigurationXmlHandler.addEndElementHandler(GlobalConfigurationXmlHandler.START_ELEMENT, this);
 	}
 
-	public ConfigurationXmlHandler( XMLReader anXmlReader, File aConfigDir, Configuration aGlobalConfig )
+	public ConfigurationXmlHandler( XMLReader anXmlReader, Configuration aGlobalConfig )
 	{
 		super(anXmlReader, START_ELEMENT);
 		Trace.println(Trace.LEVEL.CONSTRUCTOR);
 
-		myGlobalConfigurationXmlHandler = new GlobalConfigurationXmlHandler(anXmlReader, aConfigDir, aGlobalConfig);
+		myGlobalConfigurationXmlHandler = new GlobalConfigurationXmlHandler(anXmlReader, aGlobalConfig);
 		this.addStartElementHandler(GlobalConfigurationXmlHandler.START_ELEMENT, myGlobalConfigurationXmlHandler);
 		myGlobalConfigurationXmlHandler.addEndElementHandler(GlobalConfigurationXmlHandler.START_ELEMENT, this);
 	}
