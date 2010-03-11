@@ -40,10 +40,11 @@ public final class TestResultInterfacePlugin implements Plugin
 		
 		// Input and ouput interfaces
 		File xslDir = trConfig.getXslDir();
+		String fileName = trConfig.getFileName();
 		String testEnvironment = aConfig.getTestEnvironment();
 		String testPhase = aConfig.getTestPhase();
 		File logDir = aConfig.getTestResultBaseDir();
-    	File resultFile = new File( logDir.getAbsolutePath(), "results.xml" );
+    	File resultFile = new File( logDir.getAbsolutePath(), fileName );
 
 		TestRunResultXmlWriter aWriter = new TestRunResultXmlWriter( resultFile, xslDir, testEnvironment, testPhase );
 		aPluginCollection.addTestRunResultWriter( aWriter );

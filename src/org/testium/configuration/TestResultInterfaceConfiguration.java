@@ -22,15 +22,18 @@ import org.xml.sax.XMLReader;
 public class TestResultInterfaceConfiguration
 {
 	private File myXslDir;
+	private String myFileName;
 
 	/**
 	 * @param aXslDir
+	 * @param aFileName 
 	 */
-	public TestResultInterfaceConfiguration( File aXslDir )
+	public TestResultInterfaceConfiguration( File aXslDir, String aFileName )
 	{
 	    Trace.println(Trace.LEVEL.CONSTRUCTOR);
 
 	    myXslDir = aXslDir;
+	    myFileName = aFileName;
 	}
 
 	public void readConfigFile( File aConfigFile )
@@ -73,5 +76,13 @@ public class TestResultInterfaceConfiguration
 	public File getXslDir()
 	{
 		return myXslDir;
+	}
+
+	/**
+	 * @return the myFileName
+	 */
+	public String getFileName()
+	{
+		return myFileName;
 	}
 }

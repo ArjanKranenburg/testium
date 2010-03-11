@@ -15,8 +15,10 @@ public class TestResultInterfaceConfigurationXmlHandler extends XmlHandler
 	private static final String START_ELEMENT = "TestResultWriter";
 
 	private static final String	CFG_XSLDIR_FILE	= "xslDir";
+	private static final String	CFG_OUTPUT_FILENAME	= "fileName";
 
 	private File myTempXslDir;
+	private String myTempFileName = "result.xml";
 
 	public TestResultInterfaceConfigurationXmlHandler(XMLReader anXmlReader)
 	{
@@ -26,6 +28,7 @@ public class TestResultInterfaceConfigurationXmlHandler extends XmlHandler
 
 	    ArrayList<XmlHandler> xmlHandlers = new ArrayList<XmlHandler>();
 	    xmlHandlers.add(new GenericTagAndStringXmlHandler(anXmlReader, CFG_XSLDIR_FILE));
+	    xmlHandlers.add(new GenericTagAndStringXmlHandler(anXmlReader, CFG_OUTPUT_FILENAME));
 
 	    for (XmlHandler handler : xmlHandlers)
 	    {
@@ -75,13 +78,18 @@ public class TestResultInterfaceConfigurationXmlHandler extends XmlHandler
 			myTempXslDir = new File( aChildXmlHandler.getValue() );
 			aChildXmlHandler.reset();
     	}
+		if (aQualifiedName.equalsIgnoreCase(CFG_OUTPUT_FILENAME))
+    	{
+			myTempFileName = aChildXmlHandler.getValue();
+			aChildXmlHandler.reset();
+    	}
 
    		aChildXmlHandler.reset();
 	}
 	
 	public TestResultInterfaceConfiguration getConfiguration() throws ConfigurationException
 	{
-		return new TestResultInterfaceConfiguration( myTempXslDir );
+		return new TestResultInterfaceConfiguration( myTempXslDir, myTempFileName );
 	}
 	
 	public void reset()
