@@ -31,7 +31,7 @@ abstract public class TestCaseScriptAbstractExecutor implements TestCaseScriptEx
 	
 	private TestStepExecutor		myTestStepExecutor;
 
-	abstract public TestCaseResult execute(TestCaseLink aTestCaseLink, File aScriptDir, File aLogDir);
+	abstract public void execute(TestCaseLink aTestCaseLink, File aScriptDir, File aLogDir, TestCaseResult aResult);
 	abstract public String getScriptType();
 
 	/**
@@ -49,13 +49,6 @@ abstract public class TestCaseScriptAbstractExecutor implements TestCaseScriptEx
     		TestStep step = anInitSteps.get(key);
 			TestStepResult tsResult = myTestStepExecutor.execute(step, aScriptDir, aLogDir);
 			aResult.addInitialization(tsResult);
-
-//			String message = "Initialization Step " + step.getId() + " failed:\n"
-//					+ e.getMessage()
-//					+ "\nTrying to continue, but this will probably affect further execution...";
-//				aResult.addComment(message);
-//				Warning.println(message);
-//				Trace.printException(Trace.LEVEL.ALL, e);
     	}
 	}
 
@@ -79,13 +72,6 @@ abstract public class TestCaseScriptAbstractExecutor implements TestCaseScriptEx
     		TestStep step = aRestoreSteps.get(key);
 			TestStepResult tsResult = myTestStepExecutor.execute(step, aScriptDir, aLogDir);
 			aResult.addRestore(tsResult);
-
-//			String message = "Restore Step " + step.getId() + " failed:\n"
-//					+ e.getMessage()
-//					+ "\nTrying to continue, but this will probably affect further execution...";
-//				aResult.addComment(message);
-//				Warning.println(message);
-//				Trace.printException(Trace.LEVEL.ALL, e);
     	}
 	}
 

@@ -8,5 +8,8 @@ import org.testtoolinterfaces.testsuite.TestGroupLink;
 
 public interface TestGroupLinkExecutor
 {
-	TestGroupResult execute( TestGroupLink aTestGroupLink, File aScriptDir, File aLogDir );
+	public void execute( TestGroupLink aTestGroupLink,
+						 File aScriptDir,
+						 File aLogDir,
+						 TestGroupResult aResult );
 }

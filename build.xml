@@ -5,7 +5,7 @@
 		<jar destfile="Testium.jar">
 			<zipfileset dir="bin" prefix="" />
 			<zipfileset src="lib/TestResultInterface.jar" />
-			<zipfileset src="lib/TestSuiteInterface_0.1.0.jar" />
+			<zipfileset src="lib/TestSuiteInterface.jar" />
 			<manifest>
 				<attribute name="Main-Class" value="org.testium.Main" />
 			</manifest>

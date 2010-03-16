@@ -7,6 +7,7 @@ import java.util.ArrayList;
 
 import org.testtoolinterfaces.testresult.TestCaseResult;
 import org.testtoolinterfaces.testresult.TestStepResult;
+import org.testtoolinterfaces.testresultinterface.TestRunResultWriter;
 import org.testtoolinterfaces.testsuite.TestCase;
 import org.testtoolinterfaces.testsuite.TestStep;
 import org.testtoolinterfaces.utils.Trace;
@@ -15,19 +16,23 @@ import org.testtoolinterfaces.utils.Trace;
 public class TestCaseExecutorImpl implements TestCaseExecutor
 {
 	private TestStepExecutor		myTestStepExecutor;
+	private TestRunResultWriter 	myTestRunResultWriter;
 
 	/**
-	 * @param myTestStepExecutor
-	 * @param myTestCaseExecutor
-	 * @param myTestCaseScriptExecutor
-	 * @param myTestGroupLinkExecutor
+	 * @param aTestStepExecutor
+	 * @param aTestRunResultWriter 
 	 */
-	public TestCaseExecutorImpl(TestStepExecutor aTestStepExecutor)
+	public TestCaseExecutorImpl( TestStepExecutor aTestStepExecutor,
+								 TestRunResultWriter aTestRunResultWriter )
 	{
 		myTestStepExecutor = aTestStepExecutor;
+		myTestRunResultWriter = aTestRunResultWriter;
 	}
 
-	public TestCaseResult execute(TestCase aTestCase, File aScriptDir, File aLogDir)
+	public void execute( TestCase aTestCase,
+						 File aScriptDir,
+						 File aLogDir,
+						 TestCaseResult aResult )
 	{
 		if ( !aLogDir.isDirectory() )
 		{
@@ -44,18 +49,17 @@ public class TestCaseExecutorImpl implements TestCaseExecutor
 		File groupLogDir = new File(aLogDir.getAbsolutePath() + File.separator + aTestCase.getId());
 		groupLogDir.mkdir();
 
-    	TestCaseResult result = new TestCaseResult(aTestCase);
-    	
     	ArrayList<TestStep> initSteps = aTestCase.getInitializationSteps();
-    	executeInitSteps(initSteps, result, aScriptDir, aLogDir);
+    	executeInitSteps(initSteps, aResult, aScriptDir, aLogDir);
 
     	ArrayList<TestStep> execSteps = aTestCase.getExecutionSteps();
-    	executeExecSteps(execSteps, result, aScriptDir, aLogDir);
+    	executeExecSteps(execSteps, aResult, aScriptDir, aLogDir);
 
     	ArrayList<TestStep> restoreSteps = aTestCase.getRestoreSteps();
-    	executeRestoreSteps(restoreSteps, result, aScriptDir, aLogDir);
-    	
-		return result;
+    	executeRestoreSteps(restoreSteps, aResult, aScriptDir, aLogDir);
+
+    	// We write intermediate results after each Test Case, not each Test Step
+		myTestRunResultWriter.intermediateWrite();
 	}
 	
 	public void executeInitSteps(ArrayList<TestStep> anInitSteps, TestCaseResult aResult, File aScriptDir, File aLogDir)
@@ -66,12 +70,8 @@ public class TestCaseExecutorImpl implements TestCaseExecutor
 			TestStepResult tsResult = myTestStepExecutor.execute(step, aScriptDir, aLogDir);
 			aResult.addInitialization(tsResult);
 
-//			String message = "Initialization Step " + step.getId() + " failed:\n"
-//					+ e.getMessage()
-//					+ "\nTrying to continue, but this will probably affect further execution...";
-//				aResult.addComment(message);
-//				Warning.println(message);
-//				Trace.printException(Trace.LEVEL.ALL, e);
+			// Enable this if we want intermediate results written after each Test Step
+			// myTestRunResultWriter.intermediateWrite();
     	}
 	}
 
@@ -82,6 +82,9 @@ public class TestCaseExecutorImpl implements TestCaseExecutor
 			TestStep step = anExecSteps.get(key);
 			TestStepResult tsResult = myTestStepExecutor.execute(step, aScriptDir, aLogDir);
 			aResult.addExecution(tsResult);
+
+			// Enable this if we want intermediate results written after each Test Step
+			// myTestRunResultWriter.intermediateWrite();
     	}
 	}
 
@@ -93,12 +96,8 @@ public class TestCaseExecutorImpl implements TestCaseExecutor
 			TestStepResult tsResult = myTestStepExecutor.execute(step, aScriptDir, aLogDir);
 			aResult.addRestore(tsResult);
 
-//			String message = "Restore Step " + step.getId() + " failed:\n"
-//					+ e.getMessage()
-//					+ "\nTrying to continue, but this will probably affect further execution...";
-//				aResult.addComment(message);
-//				Warning.println(message);
-//				Trace.printException(Trace.LEVEL.ALL, e);
+			// Enable this if we want intermediate results written after each Test Step
+			// myTestRunResultWriter.intermediateWrite();
     	}
 	}
 }

@@ -5,6 +5,7 @@ import java.util.Hashtable;
 
 import org.testtoolinterfaces.testresult.TestCaseResult;
 import org.testtoolinterfaces.testresult.TestResult;
+import org.testtoolinterfaces.testresultinterface.TestRunResultWriter;
 import org.testtoolinterfaces.testsuite.TestCaseLink;
 import org.testtoolinterfaces.utils.Trace;
 import org.testtoolinterfaces.utils.Warning;
@@ -15,32 +16,36 @@ public class TestCaseScriptMetaExecutor implements TestCaseScriptExecutor
 	private static String SCRIPT_TYPE = "";
 	
 	private Hashtable<String, TestCaseScriptExecutor> myExecutors;
+	private TestRunResultWriter myTestResultWriter;
 
-	public TestCaseScriptMetaExecutor( Hashtable<String, TestCaseScriptExecutor> aTestCaseScriptExecutors )
+	public TestCaseScriptMetaExecutor( Hashtable<String, TestCaseScriptExecutor> aTestCaseScriptExecutors,
+									   TestRunResultWriter aTestRunResultWriter )
 	{
 		myExecutors = aTestCaseScriptExecutors;
+		myTestResultWriter = aTestRunResultWriter;
 	}
 
-	public TestCaseResult execute(TestCaseLink aTestCaseLink, File aScriptDir, File aLogDir)
+	public void execute( TestCaseLink aTestCaseLink,
+						 File aScriptDir,
+						 File aLogDir,
+						 TestCaseResult aResult )
 	{
-		TestCaseResult result;
 		if ( myExecutors.containsKey( aTestCaseLink.getScriptType() ) )
 		{
 			TestCaseScriptExecutor executor = myExecutors.get( aTestCaseLink.getScriptType() );
-			result = executor.execute(aTestCaseLink, aScriptDir, aLogDir);
+			executor.execute(aTestCaseLink, aScriptDir, aLogDir, aResult);
 		}
 		else
 		{
-			result = new TestCaseResult( aTestCaseLink );
-			result.setResult(TestResult.FAILED);
+			aResult.setResult(TestResult.FAILED);
 
 			String message = "Cannot execute test case scripts of type " + aTestCaseLink.getScriptType() + "\n";
-			result.addComment(message);
+			aResult.addComment(message);
 			Warning.println(message);
 			Trace.print(Trace.ALL, "Cannot execute " + aTestCaseLink.toString());
+
+	    	myTestResultWriter.intermediateWrite();
 		}
-		
-		return result;
 	}
 
 	public String getScriptType()

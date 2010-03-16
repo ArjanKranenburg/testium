@@ -3,6 +3,7 @@ package org.testium.executor;
 import java.io.File;
 
 import org.testtoolinterfaces.testresult.TestGroupResult;
+import org.testtoolinterfaces.testresultinterface.TestRunResultWriter;
 import org.testtoolinterfaces.testsuite.TestEntry;
 import org.testtoolinterfaces.testsuite.TestGroup;
 import org.testtoolinterfaces.testsuite.TestGroupLink;
@@ -17,9 +18,11 @@ public class TestGroupMetaExecutor implements TestGroupExecutor
 	/**
 	 * @param aTestGroupExecutor
 	 * @param aTestGroupLinkExecutor
+	 * @param aTestRunResultWriter 
 	 */
 	public TestGroupMetaExecutor( TestGroupExecutor aTestGroupExecutor,
-	                              TestGroupLinkExecutor aTestGroupLinkExecutor )
+	                              TestGroupLinkExecutor aTestGroupLinkExecutor,
+	                              TestRunResultWriter aTestRunResultWriter )
 	{
 		Trace.println(Trace.CONSTRUCTOR, "TestGroupMetaExecutor( " 
 						+ aTestGroupExecutor + ", "
@@ -28,24 +31,25 @@ public class TestGroupMetaExecutor implements TestGroupExecutor
 		myTestGroupLinkExecutor = aTestGroupLinkExecutor;
 	}
 
-	public TestGroupResult execute(TestGroup aTestGroup, File aScriptDir, File aLogDir)
+	@Override
+	public void execute( TestGroup aTestGroup,
+						 File aScriptDir,
+						 File aLogDir,
+						 TestGroupResult aResult )
 	{
 		Trace.println(Trace.EXEC, "execute( " 
 				+ aTestGroup + ", "
 	            + aScriptDir.getAbsolutePath() + ", "
 	            + aLogDir.getAbsolutePath() + " )", true );
 
-		TestGroupResult aTestGroupResult;
 		if( aTestGroup.getType().equals(TestEntry.TYPE.GroupLink) )
 		{
-			aTestGroupResult = myTestGroupLinkExecutor.execute((TestGroupLink) aTestGroup, aScriptDir, aLogDir);
+			myTestGroupLinkExecutor.execute((TestGroupLink) aTestGroup, aScriptDir, aLogDir, aResult);
 		}
 		else
 		{
-			aTestGroupResult = myTestGroupExecutor.execute(aTestGroup, aScriptDir, aLogDir);
+			myTestGroupExecutor.execute(aTestGroup, aScriptDir, aLogDir, aResult);
 		}
-		
-		return aTestGroupResult;
 	}
 
 	public void setTestCaseExecutor(TestCaseExecutor aTestCaseExecutor)

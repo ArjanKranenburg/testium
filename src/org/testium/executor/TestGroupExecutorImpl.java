@@ -7,6 +7,7 @@ import java.io.IOError;
 import org.testtoolinterfaces.testresult.TestCaseResult;
 import org.testtoolinterfaces.testresult.TestGroupResult;
 import org.testtoolinterfaces.testresult.TestStepResult;
+import org.testtoolinterfaces.testresultinterface.TestRunResultWriter;
 import org.testtoolinterfaces.testsuite.TestCase;
 import org.testtoolinterfaces.testsuite.TestCaseLink;
 import org.testtoolinterfaces.testsuite.TestEntry;
@@ -26,17 +27,20 @@ public class TestGroupExecutorImpl implements TestGroupExecutor
 	private TestCaseScriptExecutor	myTestCaseScriptExecutor;
 	private TestGroupExecutor		myTestGroupExecutor;
 	private TestGroupLinkExecutor	myTestGroupLinkExecutor;
+	private TestRunResultWriter 	myTestRunResultWriter;
 
 	/**
+	 * @param aTestRunResultWriter 
 	 * @param myTestStepExecutor
 	 * @param myTestCaseScriptExecutor
 	 */
 	public TestGroupExecutorImpl(TestStepExecutor aTestStepExecutor,
-			TestCaseScriptExecutor aTestCaseScriptExecutor)
+			TestCaseScriptExecutor aTestCaseScriptExecutor, TestRunResultWriter aTestRunResultWriter)
 	{
 		myTestStepExecutor = aTestStepExecutor;
 		myTestCaseScriptExecutor = aTestCaseScriptExecutor;
 		myTestGroupExecutor = this;
+		myTestRunResultWriter = aTestRunResultWriter;
 	}
 
 	public void setTestGroupLinkExecutor( TestGroupLinkExecutor aTestGroupLinkExecutor )
@@ -44,7 +48,11 @@ public class TestGroupExecutorImpl implements TestGroupExecutor
 		myTestGroupLinkExecutor = aTestGroupLinkExecutor;
 	}
 
-	public TestGroupResult execute(TestGroup aTestGroup, File aScriptDir, File aLogDir)
+	@Override
+	public void execute( TestGroup aTestGroup,
+						 File aScriptDir,
+						 File aLogDir,
+						 TestGroupResult aResult )
 	{
 		if ( !aLogDir.isDirectory() )
 		{
@@ -61,18 +69,14 @@ public class TestGroupExecutorImpl implements TestGroupExecutor
 		File groupLogDir = new File(aLogDir.getAbsolutePath() + File.separator + aTestGroup.getId());
 		groupLogDir.mkdir();
 
-    	TestGroupResult result = new TestGroupResult(aTestGroup);
-    	
     	TestStepArrayList initSteps = aTestGroup.getInitializationSteps();
-    	executeInitSteps(initSteps, result, aScriptDir, groupLogDir);
+    	executeInitSteps(initSteps, aResult, aScriptDir, groupLogDir);
 
     	TestEntryArrayList execSteps = aTestGroup.getExecutionEntries();
-		executeExecSteps(execSteps, result, aScriptDir, groupLogDir);
+		executeExecSteps(execSteps, aResult, aScriptDir, groupLogDir);
 
     	TestStepArrayList restoreSteps = aTestGroup.getRestoreSteps();
-    	executeRestoreSteps(restoreSteps, result, aScriptDir, groupLogDir);
-    	
-		return result;
+    	executeRestoreSteps(restoreSteps, aResult, aScriptDir, groupLogDir);
 	}
 	
 	public void executeInitSteps(TestStepArrayList anInitSteps, TestGroupResult aResult, File aScriptDir, File aLogDir)
@@ -88,12 +92,7 @@ public class TestGroupExecutorImpl implements TestGroupExecutor
 			TestStepResult tsResult = myTestStepExecutor.execute(step, aScriptDir, aLogDir);
 			aResult.addInitialization(tsResult);
 
-//			String message = "Initialization Step " + step.getId() + " failed:\n"
-//					+ e.getMessage()
-//					+ "\nTrying to continue, but this will probably affect further execution...";
-//				aResult.addComment(message);
-//				Warning.println(message);
-//				Trace.printException(Trace.LEVEL.ALL, e);
+			myTestRunResultWriter.intermediateWrite();
     	}
 	}
 
@@ -112,8 +111,10 @@ public class TestGroupExecutorImpl implements TestGroupExecutor
 			{
 				if ( entry.getType() == TestEntry.TYPE.Group )
 				{
-					TestGroupResult tgResult = myTestGroupExecutor.execute((TestGroup) entry, aScriptDir, aLogDir);
-					aResult.addTestGroup(tgResult);
+			    	TestGroupResult subTgResult = new TestGroupResult((TestGroup) entry);
+			    	aResult.addTestGroup(subTgResult);
+
+					myTestGroupExecutor.execute((TestGroup) entry, aScriptDir, aLogDir, subTgResult);
 				}
 				else if ( entry.getType() == TestEntry.TYPE.GroupLink )
 				{
@@ -121,18 +122,24 @@ public class TestGroupExecutorImpl implements TestGroupExecutor
 					{
 						throw new Error("No Executor is defined for TestGroupLinks");
 					}
-					TestGroupResult tgResult = myTestGroupLinkExecutor.execute((TestGroupLink) entry, aScriptDir, aLogDir);
-					aResult.addTestGroup(tgResult);
+			    	TestGroupResult subTgLinkResult = new TestGroupResult((TestGroupLink) entry);
+					aResult.addTestGroup(subTgLinkResult);
+
+					myTestGroupLinkExecutor.execute((TestGroupLink) entry, aScriptDir, aLogDir, subTgLinkResult);
 				}
 				else if ( entry.getType() == TestEntry.TYPE.Case )
 				{
-					TestCaseResult tcResult = myTestCaseExecutor.execute((TestCase) entry, aScriptDir, aLogDir);
+			    	TestCaseResult tcResult = new TestCaseResult((TestCase) entry);
 					aResult.addTestCase(tcResult);
+
+					myTestCaseExecutor.execute((TestCase) entry, aScriptDir, aLogDir, tcResult);
 				}
 				else if ( entry.getType() == TestEntry.TYPE.CaseLink )
 				{
-					TestCaseResult tcResult = myTestCaseScriptExecutor.execute((TestCaseLink) entry, aScriptDir, aLogDir);
+			    	TestCaseResult tcResult = new TestCaseResult((TestCaseLink) entry);
 					aResult.addTestCase(tcResult);
+
+					myTestCaseScriptExecutor.execute((TestCaseLink) entry, aScriptDir, aLogDir, tcResult);
 				}
 				else
 				{
@@ -148,6 +155,8 @@ public class TestGroupExecutorImpl implements TestGroupExecutor
 				Warning.println(message);
 				Trace.print(Trace.ALL, e);
 			}
+
+			myTestRunResultWriter.intermediateWrite();
     	}
 	}
 
@@ -164,12 +173,7 @@ public class TestGroupExecutorImpl implements TestGroupExecutor
 			TestStepResult tsResult = myTestStepExecutor.execute(step, aScriptDir, aLogDir);
 			aResult.addRestore(tsResult);
 
-//			String message = "Restore Step " + step.getId() + " failed:\n"
-//					+ e.getMessage()
-//					+ "\nTrying to continue, but this will probably affect further execution...";
-//				aResult.addComment(message);
-//				Warning.println(message);
-//				Trace.printException(Trace.LEVEL.ALL, e);
+			myTestRunResultWriter.intermediateWrite();
     	}
 	}
 

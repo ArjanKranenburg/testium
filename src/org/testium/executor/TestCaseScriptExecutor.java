@@ -8,7 +8,10 @@ import org.testtoolinterfaces.testsuite.TestCaseLink;
 
 public interface TestCaseScriptExecutor
 {
-	TestCaseResult execute( TestCaseLink aTestCaseLink, File aScriptDir, File aLogDir );
+	public void execute( TestCaseLink aTestCaseLink,
+						 File aScriptDir,
+						 File aLogDir,
+						 TestCaseResult aResult );
 	
-	String getScriptType();
+	public String getScriptType();
 }

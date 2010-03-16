@@ -1,8 +1,8 @@
 package org.testium.plugins;
 
-import java.util.ArrayList;
 import java.util.Hashtable;
 
+import org.testium.MetaTestRunResultWriter;
 import org.testium.TestCaseMetaFactory;
 import org.testium.TestGroupMetaFactory;
 import org.testium.TestStepMetaFactory;
@@ -35,7 +35,7 @@ import org.testtoolinterfaces.testsuiteinterface.TestGroupReader;
 public class PluginCollection
 {
 	private TestGroupReader	myTestGroupReader;
-	private ArrayList<TestRunResultWriter>	myTestRunResultWriters;
+	private MetaTestRunResultWriter myTestRunResultWriter;
 	
 	private Hashtable<String, TestStepFactory>	myTestStepFactories;
 	private Hashtable<String, TestCaseFactory>	myTestCaseFactories;
@@ -69,7 +69,7 @@ public class PluginCollection
 		myTestStepExecutors = new Hashtable<String, TestStepExecutor>();
 		myTestCaseScriptExecutors = new Hashtable<String, TestCaseScriptExecutor>();
 
-		myTestRunResultWriters = new ArrayList<TestRunResultWriter>();
+		myTestRunResultWriter = new MetaTestRunResultWriter();
 		
 		// Default SUT Control
 		mySutControl = new DummySutControl( );
@@ -89,30 +89,36 @@ public class PluginCollection
 
 		// Default Executors
 		addTestStepExecutor(new TestStepWaitExecutor());
-		myTestStepExecutor = new TestStepMetaExecutor( myTestStepExecutors );
+		myTestStepExecutor = new TestStepMetaExecutor( myTestStepExecutors, myTestRunResultWriter );
 		
-		myTestCaseExecutor = new TestCaseExecutorImpl( myTestStepExecutor );
-		myTestCaseScriptExecutor = new TestCaseScriptMetaExecutor( myTestCaseScriptExecutors );
+		myTestCaseExecutor = new TestCaseExecutorImpl( myTestStepExecutor, myTestRunResultWriter );
+		myTestCaseScriptExecutor = new TestCaseScriptMetaExecutor( myTestCaseScriptExecutors, myTestRunResultWriter );
 		
 		TestGroupExecutor testGroupExecutor = new TestGroupExecutorImpl( myTestStepExecutor,
-														 myTestCaseScriptExecutor );
+																		 myTestCaseScriptExecutor,
+																		 myTestRunResultWriter );
 		testGroupExecutor.setTestCaseExecutor( myTestCaseExecutor );
 
-		myTestGroupLinkExecutor = new TestGroupLinkExecutorImpl( myTestGroupReader, testGroupExecutor );
+		myTestGroupLinkExecutor = new TestGroupLinkExecutorImpl( myTestGroupReader,
+																 testGroupExecutor,
+																 myTestRunResultWriter );
 		testGroupExecutor.setTestGroupLinkExecutor(myTestGroupLinkExecutor);
 
 		myTestGroupExecutor = new TestGroupMetaExecutor( testGroupExecutor,
-		                                                 myTestGroupLinkExecutor );
+		                                                 myTestGroupLinkExecutor,
+		                                                 myTestRunResultWriter );
 		
-		myTestSuiteExecutor = new TestSuiteExecutorImpl( myTestGroupExecutor, mySutControl );
+		myTestSuiteExecutor = new TestSuiteExecutorImpl( myTestGroupExecutor,
+														 mySutControl,
+														 myTestRunResultWriter );
 	}
 
 	/**
-	 * @return the myTestRunResultXmlWriter
+	 * @return the myTestRunResultWriter
 	 */
-	public ArrayList<TestRunResultWriter> getTestRunResultWriters()
+	public TestRunResultWriter getTestRunResultWriter()
 	{
-		return myTestRunResultWriters;
+		return myTestRunResultWriter;
 	}
 
 	/**
@@ -120,7 +126,7 @@ public class PluginCollection
 	 */
 	public void addTestRunResultWriter( TestRunResultWriter aTestRunResultWriter )
 	{
-		myTestRunResultWriters.add( aTestRunResultWriter );
+		myTestRunResultWriter.add( aTestRunResultWriter );
 	}
 
 	/**
@@ -137,7 +143,7 @@ public class PluginCollection
 	public void setTestGroupReader(TestGroupReader aTestGroupReader)
 	{
 		myTestGroupReader = aTestGroupReader;
-		if (myTestGroupLinkExecutor.getClass().isInstance(new TestGroupLinkExecutorImpl( myTestGroupReader, myTestGroupExecutor )))
+		if (myTestGroupLinkExecutor.getClass().isInstance(new TestGroupLinkExecutorImpl( myTestGroupReader, myTestGroupExecutor, myTestRunResultWriter )))
 		{
 			((TestGroupLinkExecutorImpl) myTestGroupLinkExecutor).setTestGroupReader(aTestGroupReader);
 		}

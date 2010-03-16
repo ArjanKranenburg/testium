@@ -5,6 +5,7 @@ import java.util.Hashtable;
 
 import org.testtoolinterfaces.testresult.TestResult;
 import org.testtoolinterfaces.testresult.TestStepResult;
+import org.testtoolinterfaces.testresultinterface.TestRunResultWriter;
 import org.testtoolinterfaces.testsuite.TestStep;
 import org.testtoolinterfaces.utils.Trace;
 import org.testtoolinterfaces.utils.Warning;
@@ -15,10 +16,13 @@ public class TestStepMetaExecutor implements TestStepExecutor
 	private static String COMMAND = "";
 	
 	private Hashtable<String, TestStepExecutor> myExecutors;
+	private TestRunResultWriter myTestResultWriter;
 
-	public TestStepMetaExecutor( Hashtable<String, TestStepExecutor> aTestStepExecutors )
+	public TestStepMetaExecutor( Hashtable<String, TestStepExecutor> aTestStepExecutors,
+								 TestRunResultWriter aTestRunResultWriter )
 	{
 		myExecutors = aTestStepExecutors;
+		myTestResultWriter = aTestRunResultWriter;
 	}
 
 	public TestStepResult execute(TestStep aStep, File aScriptDir, File aLogDir)
@@ -47,7 +51,9 @@ public class TestStepMetaExecutor implements TestStepExecutor
 			Warning.println(message);
 			Trace.println(Trace.ALL, "Cannot execute " + aStep.toString());
 		}
-		
+
+		myTestResultWriter.intermediateWrite();
+
 		return result;
 	}
 

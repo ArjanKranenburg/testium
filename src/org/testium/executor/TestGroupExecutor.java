@@ -8,7 +8,7 @@ import org.testtoolinterfaces.testsuite.TestGroup;
 
 public interface TestGroupExecutor
 {
-	TestGroupResult execute( TestGroup aTestGroup, File aScriptDir, File aLogDir );
+	void execute( TestGroup aTestGroup, File aScriptDir, File aLogDir, TestGroupResult aResult );
 	
 	public void setTestCaseExecutor( TestCaseExecutor aTestCaseExecutor );
 	

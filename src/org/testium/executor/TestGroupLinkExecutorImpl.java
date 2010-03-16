@@ -3,6 +3,7 @@ package org.testium.executor;
 import java.io.File;
 
 import org.testtoolinterfaces.testresult.TestGroupResult;
+import org.testtoolinterfaces.testresultinterface.TestRunResultWriter;
 import org.testtoolinterfaces.testsuite.TestGroup;
 import org.testtoolinterfaces.testsuite.TestGroupLink;
 import org.testtoolinterfaces.testsuiteinterface.TestGroupReader;
@@ -10,20 +11,29 @@ import org.testtoolinterfaces.testsuiteinterface.TestGroupReader;
 
 public class TestGroupLinkExecutorImpl implements TestGroupLinkExecutor
 {
-	TestGroupReader myTestGroupReader;
-	TestGroupExecutor myTestGroupExecutor;
+	private TestGroupReader myTestGroupReader;
+	private TestGroupExecutor myTestGroupExecutor;
+	private TestRunResultWriter myTestRunResultWriter;
 
 	/**
 	 * @param aTestGroupReader
 	 * @param aTestGroupExecutor
+	 * @param aTestRunResultWriter 
 	 */
-	public TestGroupLinkExecutorImpl(TestGroupReader aTestGroupReader, TestGroupExecutor aTestGroupExecutor)
+	public TestGroupLinkExecutorImpl( TestGroupReader aTestGroupReader,
+									  TestGroupExecutor aTestGroupExecutor,
+									  TestRunResultWriter aTestRunResultWriter )
 	{
 		myTestGroupReader = aTestGroupReader;
 		myTestGroupExecutor = aTestGroupExecutor;
+		myTestRunResultWriter = aTestRunResultWriter;
 	}
 
-	public TestGroupResult execute(TestGroupLink aTestGroupLink, File aScriptDir, File aLogDir)
+	@Override
+	public void execute( TestGroupLink aTestGroupLink,
+						 File aScriptDir,
+						 File aLogDir,
+						 TestGroupResult aResult )
 	{
 		File script = new File( aScriptDir + File.separator + aTestGroupLink.getTestGroupScript().getExecutionScript() );
 		TestGroup testGroup = myTestGroupReader.readTgFile(script);
@@ -36,12 +46,12 @@ public class TestGroupLinkExecutorImpl implements TestGroupLinkExecutor
 //		File newLogDir = new File (aLogDir.getAbsoluteFile() + File.separator + logSubDir);
 //		newLogDir.mkdir();
 		
-		return myTestGroupExecutor.execute(testGroup, newScriptDir, aLogDir);
+		myTestGroupExecutor.execute(testGroup, newScriptDir, aLogDir, aResult);
+		myTestRunResultWriter.intermediateWrite();
 	}
 	
 	public void setTestGroupReader(TestGroupReader aTestGroupReader)
 	{
 		myTestGroupReader = aTestGroupReader;
 	}
-	
 }

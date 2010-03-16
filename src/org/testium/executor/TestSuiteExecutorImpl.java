@@ -8,6 +8,7 @@ import org.testium.systemundertest.SutControl;
 import org.testtoolinterfaces.testresult.SutInfo;
 import org.testtoolinterfaces.testresult.TestGroupResult;
 import org.testtoolinterfaces.testresult.TestRunResult;
+import org.testtoolinterfaces.testresultinterface.TestRunResultWriter;
 import org.testtoolinterfaces.testsuite.TestGroup;
 import org.testtoolinterfaces.utils.Trace;
 
@@ -16,17 +17,20 @@ public class TestSuiteExecutorImpl implements TestSuiteExecutor
 {
 	private TestGroupExecutor myTestGroupExecutor;
 	private SutControl mySutControl;
+	private TestRunResultWriter myTestRunResultWriter;
 	
 	/**
 	 * @param aTestGroupExecutor	Executor for Test Groups
+	 * @param aTestRunResultWriter 
 	 */
-	public TestSuiteExecutorImpl( TestGroupExecutor aTestGroupExecutor, SutControl aSutControl )
+	public TestSuiteExecutorImpl( TestGroupExecutor aTestGroupExecutor, SutControl aSutControl, TestRunResultWriter aTestRunResultWriter )
 	{
 		myTestGroupExecutor = aTestGroupExecutor;
 		mySutControl = aSutControl;
+		myTestRunResultWriter = aTestRunResultWriter;
 	}
 
-	public TestRunResult execute(TestGroup aTestGroup, File aScriptDir, File aLogDir, Calendar aDate) throws TestExecutionException
+	public void execute(TestGroup aTestGroup, File aScriptDir, File aLogDir, Calendar aDate) throws TestExecutionException
 	{
 		if ( !aLogDir.isDirectory() )
 		{
@@ -58,12 +62,16 @@ public class TestSuiteExecutorImpl implements TestSuiteExecutor
 		                                          aDate,
 		                                          TestRunResult.STARTED );
 
-		TestGroupResult aTestGroupResult = myTestGroupExecutor.execute(aTestGroup, aScriptDir, aLogDir);
-		result.setTestGroup(aTestGroupResult);
+		myTestRunResultWriter.setResult( result );
+    	TestGroupResult tgResult = new TestGroupResult(aTestGroup);
+		result.setTestGroup(tgResult);
+
+		myTestGroupExecutor.execute(aTestGroup, aScriptDir, aLogDir, tgResult);
 		
 		result.setEndDate( Calendar.getInstance() );
 		result.setStatus(TestRunResult.FINISHED);
-		return result;
+		
+		myTestRunResultWriter.write( result );
 	}
 
 	/**
