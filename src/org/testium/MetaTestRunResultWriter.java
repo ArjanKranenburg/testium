@@ -36,11 +36,11 @@ public class MetaTestRunResultWriter implements TestRunResultWriter
 	}
 
 	@Override
-	public void write(TestRunResult aResult)
+	public void write()
 	{
 	    for (TestRunResultWriter resultWriter : myWriters)
 	    {
-		    resultWriter.write( aResult );
+		    resultWriter.write();
 	    }
 	}
 

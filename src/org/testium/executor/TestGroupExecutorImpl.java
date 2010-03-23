@@ -64,8 +64,6 @@ public class TestGroupExecutorImpl implements TestGroupExecutor
 	            + aScriptDir.getAbsolutePath() + ", "
 	            + aLogDir.getAbsolutePath() + " )", true );
 
-		System.out.println("Executing Test Group: " + aTestGroup.getId());
-
 		File groupLogDir = new File(aLogDir.getAbsolutePath() + File.separator + aTestGroup.getId());
 		groupLogDir.mkdir();
 

@@ -38,7 +38,6 @@ public class Testium
 	public void execute( TestGroup aTestGroup, File aBaseExecutionDir ) throws TestExecutionException
 	{
 		Trace.println(Trace.EXEC, "execute( " + aTestGroup.getId() + " )", true);
-    	System.out.println("Executing " + aTestGroup.getId());
 
     	// TODO Move date as start-date to run-time data
 		Calendar date = Calendar.getInstance();

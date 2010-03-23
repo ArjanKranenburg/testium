@@ -7,6 +7,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
+import org.testium.TestRunResultStdOutWriter;
 import org.testium.configuration.Configuration;
 import org.testium.configuration.ConfigurationException;
 import org.testium.configuration.TestResultInterfaceConfiguration;
@@ -39,15 +40,24 @@ public final class TestResultInterfacePlugin implements Plugin
 		// Executors
 		
 		// Input and ouput interfaces
-		File xslDir = trConfig.getXslDir();
-		String fileName = trConfig.getFileName();
-		String testEnvironment = aConfig.getTestEnvironment();
-		String testPhase = aConfig.getTestPhase();
-		File logDir = aConfig.getTestResultBaseDir();
-    	File resultFile = new File( logDir.getAbsolutePath(), fileName );
+    	if ( trConfig.getStdOutEnabled() )
+    	{
+    		TestRunResultStdOutWriter stdOutWriter = new TestRunResultStdOutWriter();
+    		aPluginCollection.addTestRunResultWriter( stdOutWriter );
+    	}
 
-		TestRunResultXmlWriter aWriter = new TestRunResultXmlWriter( resultFile, xslDir, testEnvironment, testPhase );
-		aPluginCollection.addTestRunResultWriter( aWriter );
+    	if ( trConfig.getFileEnabled() )
+    	{
+    		File xslDir = trConfig.getXslDir();
+    		String fileName = trConfig.getFileName();
+    		String testEnvironment = aConfig.getTestEnvironment();
+    		String testPhase = aConfig.getTestPhase();
+    		File logDir = aConfig.getTestResultBaseDir();
+        	File resultFile = new File( logDir.getAbsolutePath(), fileName );
+
+        	TestRunResultXmlWriter xmlWriter = new TestRunResultXmlWriter( resultFile, xslDir, testEnvironment, testPhase );
+    		aPluginCollection.addTestRunResultWriter( xmlWriter );
+    	}
 	}
 	
 	public TestResultInterfaceConfiguration readConfigFile( File aConfigFile ) throws ConfigurationException

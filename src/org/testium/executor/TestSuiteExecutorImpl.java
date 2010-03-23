@@ -71,7 +71,7 @@ public class TestSuiteExecutorImpl implements TestSuiteExecutor
 		result.setEndDate( Calendar.getInstance() );
 		result.setStatus(TestRunResult.FINISHED);
 		
-		myTestRunResultWriter.write( result );
+		myTestRunResultWriter.write();
 	}
 
 	/**

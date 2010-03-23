@@ -4,16 +4,8 @@ package org.testium.configuration;
  */
 
 import java.io.File;
-import java.io.IOException;
-
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
 
 import org.testtoolinterfaces.utils.Trace;
-import org.xml.sax.SAXException;
-import org.xml.sax.XMLReader;
-
 
 /**
  * @author Arjan Kranenburg
@@ -21,53 +13,28 @@ import org.xml.sax.XMLReader;
  */
 public class TestResultInterfaceConfiguration
 {
+	private boolean myStdOutEnabled;
+	private boolean myFileEnabled;
 	private File myXslDir;
 	private String myFileName;
 
 	/**
+	 * @param myFileEnabled 
+	 * @param myStdOutEnabled 
 	 * @param aXslDir
 	 * @param aFileName 
 	 */
-	public TestResultInterfaceConfiguration( File aXslDir, String aFileName )
+	public TestResultInterfaceConfiguration( boolean aStdOutEnabled,
+											 boolean aFileEnabled,
+											 File aXslDir,
+											 String aFileName )
 	{
 	    Trace.println(Trace.LEVEL.CONSTRUCTOR);
 
+	    myStdOutEnabled = aStdOutEnabled;
+	    myFileEnabled = aFileEnabled;
 	    myXslDir = aXslDir;
 	    myFileName = aFileName;
-	}
-
-	public void readConfigFile( File aConfigFile )
-	{
-	    Trace.println(Trace.UTIL, "readConfigFile( " + aConfigFile + " )", true);
-	    SAXParser saxParser;
-	
-	    SAXParserFactory spf = SAXParserFactory.newInstance();
-	    spf.setNamespaceAware(false);
-	
-	    TestResultInterfaceConfigurationXmlHandler handler = null;
-	    try
-	    {
-		    saxParser = spf.newSAXParser();
-		    XMLReader xmlReader = saxParser.getXMLReader();
-	
-		    handler = new TestResultInterfaceConfigurationXmlHandler(xmlReader);
-	
-		    xmlReader.setContentHandler(handler);
-	
-		    xmlReader.parse(aConfigFile.getAbsolutePath());
-	    }
-	    catch (ParserConfigurationException e)
-	    {
-	    	e.printStackTrace();
-	    }
-	    catch (SAXException e)
-	    {
-	    	e.printStackTrace();
-	    }
-	    catch (IOException e)
-	    {
-	    	e.printStackTrace();
-	    }
 	}
 
 	/**
@@ -84,5 +51,21 @@ public class TestResultInterfaceConfiguration
 	public String getFileName()
 	{
 		return myFileName;
+	}
+
+	/**
+	 * @return the myStdOutEnabled
+	 */
+	public boolean getStdOutEnabled()
+	{
+		return myStdOutEnabled;
+	}
+
+	/**
+	 * @return the myFileEnabled
+	 */
+	public boolean getFileEnabled()
+	{
+		return myFileEnabled;
 	}
 }

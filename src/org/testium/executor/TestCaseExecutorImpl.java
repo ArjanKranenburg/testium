@@ -44,8 +44,6 @@ public class TestCaseExecutorImpl implements TestCaseExecutor
 	            + aLogDir.getAbsolutePath()
 	            + " )", true );
 
-		System.out.println("Executing Test Group: " + aTestCase.getId());
-
 		File groupLogDir = new File(aLogDir.getAbsolutePath() + File.separator + aTestCase.getId());
 		groupLogDir.mkdir();
 
