@@ -3,10 +3,11 @@ package org.testium.configuration;
 import java.io.File;
 import java.util.ArrayList;
 
+import org.testtoolinterfaces.utils.GenericTagAndBooleanXmlHandler;
 import org.testtoolinterfaces.utils.GenericTagAndStringXmlHandler;
+import org.testtoolinterfaces.utils.RunTimeData;
 import org.testtoolinterfaces.utils.Trace;
 import org.testtoolinterfaces.utils.XmlHandler;
-import org.testtoolinterfaces.utils.RunTimeData;
 import org.testtoolinterfaces.utils.RunTimeVariable;
 import org.xml.sax.Attributes;
 import org.xml.sax.XMLReader;
@@ -15,52 +16,43 @@ import org.xml.sax.XMLReader;
 /**
  * @author Arjan Kranenburg 
  * 
- *  <GlobalConfiguration>
+ *  <Configuration>
  *    <TestResultOutputBaseDirectory>...</TestResultOutputBaseDirectory>
- *    <DefaultUserConfigurationFile>...</DefaultUserConfigurationFile>
- *    <TraceBaseClass>...</TraceBaseClass>
- *    <PluginLoaders>...</PluginLoaders>
- *    <PluginsDirectory>...</PluginsDirectory>
+ *    <TraceEnabled>...</TraceEnabled>
  *    <TestEnvironment>...</TestEnvironment>
  *    <TestPhase>...</TestPhase>
  *  ...
- *  </GlobalConfiguration>
+ *  </Configuration>
  * 
  */
-public class GlobalConfigurationXmlHandler extends XmlHandler
+public class PersonalConfigurationXmlHandler extends XmlHandler
 {
-	public static final String START_ELEMENT = "GlobalConfiguration";
+	public static final String START_ELEMENT = "Configuration";
 
 	public static final String CFG_TEST_RESULT_OUTPUT_BASE_DIRECTORY = "TestResultOutputBaseDirectory";
-	public static final String CFG_PLUGIN_LOADERS = "PluginLoaders";
-	public static final String CFG_PLUGINS_DIRECTORY = "PluginsDirectory";
 	public static final String CFG_TESTENVIRONMENT = "TestEnvironment";
 	public static final String CFG_TESTPHASE = "TestPhase";
-	public static final String CFG_SETTINGS_FILE = "DefaultUserConfigurationFile";
 
-	private static final String CFG_TRACE_BASECLASS = "TraceBaseClass";
+	private static final String CFG_TRACE_ENABLED = "TraceEnabled";
 	private static final String CFG_TRACE_CLASS = "TraceClass";
 	private static final String CFG_TRACE_LEVEL = "TraceLevel";
 	private static final String CFG_TRACE_DEPTH = "TraceDepth";
 
 	private RunTimeData myRunTimeData;
 	
-	public GlobalConfigurationXmlHandler( XMLReader anXmlReader, RunTimeData aRtData )
+	public PersonalConfigurationXmlHandler( XMLReader anXmlReader, RunTimeData anRtData )
 	{
 		super(anXmlReader, START_ELEMENT);
 		Trace.println(Trace.CONSTRUCTOR);
 		
-		myRunTimeData = aRtData;
+		myRunTimeData = anRtData;
 
 	    ArrayList<XmlHandler> xmlHandlers = new ArrayList<XmlHandler>();
 	    xmlHandlers.add(new GenericTagAndStringXmlHandler(anXmlReader, CFG_TEST_RESULT_OUTPUT_BASE_DIRECTORY));
-	    xmlHandlers.add(new GenericTagAndStringXmlHandler(anXmlReader, CFG_PLUGIN_LOADERS));
-	    xmlHandlers.add(new GenericTagAndStringXmlHandler(anXmlReader, CFG_PLUGINS_DIRECTORY));
 	    xmlHandlers.add(new GenericTagAndStringXmlHandler(anXmlReader, CFG_TESTENVIRONMENT));
 	    xmlHandlers.add(new GenericTagAndStringXmlHandler(anXmlReader, CFG_TESTPHASE));
-	    xmlHandlers.add(new GenericTagAndStringXmlHandler(anXmlReader, CFG_SETTINGS_FILE));
 
-	    xmlHandlers.add(new GenericTagAndStringXmlHandler(anXmlReader, CFG_TRACE_BASECLASS));
+	    xmlHandlers.add(new GenericTagAndBooleanXmlHandler(anXmlReader, CFG_TRACE_ENABLED));
 	    xmlHandlers.add(new GenericTagAndStringXmlHandler(anXmlReader, CFG_TRACE_CLASS));
 	    xmlHandlers.add(new GenericTagAndStringXmlHandler(anXmlReader, CFG_TRACE_LEVEL));
 	    xmlHandlers.add(new GenericTagAndStringXmlHandler(anXmlReader, CFG_TRACE_DEPTH));
@@ -113,27 +105,6 @@ public class GlobalConfigurationXmlHandler extends XmlHandler
 			File resultBaseDir = new File( resultBaseDirName );
 			rtVar = new RunTimeVariable(KEYS.RESULT_BASE_DIR.toString(), resultBaseDir);
     	}
-		else if (aQualifiedName.equalsIgnoreCase(CFG_PLUGIN_LOADERS))
-    	{
-			String pluginLoaderStr = aChildXmlHandler.getValue();
-			ArrayList<String> pluginLoaders = convertStringToPluginLoaders(pluginLoaderStr);
-			rtVar = new RunTimeVariable(KEYS.PLUGIN_LOADERS.toString(), pluginLoaders);
-    	}
-		else if (aQualifiedName.equalsIgnoreCase(CFG_PLUGINS_DIRECTORY))
-    	{
-			if ( myRunTimeData.containsKey(KEYS.PLUGINSDIRECTORY.toString()) )
-			{
-				String pluginsDirName = aChildXmlHandler.getValue();
-				File pluginsDirectory = new File( pluginsDirName );
-				if ( ! pluginsDirectory.isAbsolute() )
-				{
-					File baseDir = (File) myRunTimeData.getValue( KEYS.BASE_DIR.toString() );
-					pluginsDirectory = new File( baseDir, pluginsDirectory.getPath() );
-				}
-
-				rtVar = new RunTimeVariable(KEYS.PLUGINSDIRECTORY.toString(), pluginsDirectory);
-			}
-    	}
 		else if (aQualifiedName.equalsIgnoreCase(CFG_TESTENVIRONMENT))
     	{
 			String testEnvironment = aChildXmlHandler.getValue();
@@ -144,20 +115,10 @@ public class GlobalConfigurationXmlHandler extends XmlHandler
 			String testPhase = aChildXmlHandler.getValue();
 			rtVar = new RunTimeVariable(KEYS.TEST_PHASE.toString(), testPhase);
     	}
-		else if (aQualifiedName.equalsIgnoreCase(CFG_SETTINGS_FILE))
+		else if (aQualifiedName.equalsIgnoreCase(CFG_TRACE_ENABLED))
     	{
-			String configFileName = aChildXmlHandler.getValue();
-			File userHomeDir = (File) myRunTimeData.getValue(KEYS.USER_HOME.toString());
-			File configFile = new File( userHomeDir, configFileName );
-			rtVar = new RunTimeVariable(KEYS.CONFIGFILENAME.toString(), configFile);
-    	}
-		else if (aQualifiedName.equalsIgnoreCase(CFG_TRACE_BASECLASS))
-    	{
-			String traceBaseClass = aChildXmlHandler.getValue();
-			Trace.getInstance().addBaseClass(traceBaseClass);
-			String pkgBases = (String) myRunTimeData.getValue(KEYS.TRACE_PKG_BASES.toString());
-			pkgBases += ";" + traceBaseClass;
-			rtVar = new RunTimeVariable(KEYS.TRACE_PKG_BASES.toString(), pkgBases);
+			boolean traceEnabled = aChildXmlHandler.getValue().equalsIgnoreCase("true");
+			rtVar = new RunTimeVariable(KEYS.TRACE_ENABLED.toString(), traceEnabled);
     	}
 		else if (aQualifiedName.equalsIgnoreCase(CFG_TRACE_CLASS))
     	{
@@ -182,7 +143,6 @@ public class GlobalConfigurationXmlHandler extends XmlHandler
 		{
 			myRunTimeData.add( rtVar );
 		}
-
 		aChildXmlHandler.reset();
 	}
 	

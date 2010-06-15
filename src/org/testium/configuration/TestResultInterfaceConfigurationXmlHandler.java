@@ -5,6 +5,7 @@ import java.util.ArrayList;
 
 import org.testtoolinterfaces.utils.GenericTagAndBooleanXmlHandler;
 import org.testtoolinterfaces.utils.GenericTagAndStringXmlHandler;
+import org.testtoolinterfaces.utils.RunTimeData;
 import org.testtoolinterfaces.utils.Trace;
 import org.testtoolinterfaces.utils.XmlHandler;
 import org.xml.sax.Attributes;
@@ -25,11 +26,15 @@ public class TestResultInterfaceConfigurationXmlHandler extends XmlHandler
 	private String myTempFileName = "result.xml";
 	private File myTempXslDir;
 
-	public TestResultInterfaceConfigurationXmlHandler(XMLReader anXmlReader)
+	private RunTimeData myRunTimeData;
+
+	public TestResultInterfaceConfigurationXmlHandler(XMLReader anXmlReader, RunTimeData anRtData)
 	{
 	    super(anXmlReader, START_ELEMENT);
 	    Trace.println(Trace.LEVEL.CONSTRUCTOR);
 	    reset();
+
+		myRunTimeData = anRtData;
 
 	    ArrayList<XmlHandler> xmlHandlers = new ArrayList<XmlHandler>();
 	    xmlHandlers.add(new GenericTagAndBooleanXmlHandler(anXmlReader, CFG_STDOUT_ENABLED));
@@ -77,7 +82,7 @@ public class TestResultInterfaceConfigurationXmlHandler extends XmlHandler
 	@Override
 	public void handleReturnFromChildElement(String aQualifiedName, XmlHandler aChildXmlHandler)
 	{
-	    Trace.println(Trace.LEVEL.UTIL, "handleReturnFromChildElement( " + 
+	    Trace.println(Trace.UTIL, "handleReturnFromChildElement( " + 
 	    	      aQualifiedName + " )", true);
 	    
 		if (aQualifiedName.equalsIgnoreCase(CFG_STDOUT_ENABLED))
@@ -92,12 +97,13 @@ public class TestResultInterfaceConfigurationXmlHandler extends XmlHandler
     	}
 		if (aQualifiedName.equalsIgnoreCase(CFG_XSLDIR_FILE))
     	{
-			myTempXslDir = new File( aChildXmlHandler.getValue() );
+			String xslDirName = myRunTimeData.substituteVars( aChildXmlHandler.getValue() );
+			myTempXslDir = new File( xslDirName );
 			aChildXmlHandler.reset();
     	}
 		if (aQualifiedName.equalsIgnoreCase(CFG_OUTPUT_FILENAME))
     	{
-			myTempFileName = aChildXmlHandler.getValue();
+			myTempFileName = myRunTimeData.substituteVars( aChildXmlHandler.getValue() );
 			aChildXmlHandler.reset();
     	}
 

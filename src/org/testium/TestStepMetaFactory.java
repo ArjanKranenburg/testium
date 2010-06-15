@@ -2,7 +2,7 @@ package org.testium;
 
 import java.util.Hashtable;
 
-import org.testtoolinterfaces.testsuite.ParameterTable;
+import org.testtoolinterfaces.testsuite.ParameterArrayList;
 import org.testtoolinterfaces.testsuite.TestStep;
 import org.testtoolinterfaces.testsuite.TestStepFactory;
 import org.testtoolinterfaces.testsuite.TestStep.ActionType;
@@ -27,7 +27,7 @@ public class TestStepMetaFactory implements TestStepFactory
 	                        int aSequence,
 	                        String aDescription,
 	                        String aCommand,
-	                        ParameterTable aParameters )
+	                        ParameterArrayList aParameters )
 	{
 		Trace.println(Trace.SUITE, "create( " + anActionType + ", " 
 		              						  + aType + ", "

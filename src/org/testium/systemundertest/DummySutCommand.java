@@ -6,7 +6,7 @@ package org.testium.systemundertest;
 import java.io.File;
 import java.util.ArrayList;
 
-import org.testium.executor.runTimeData;
+import org.testtoolinterfaces.utils.RunTimeData;
 import org.testtoolinterfaces.utils.Trace;
 
 
@@ -32,14 +32,14 @@ public final class DummySutCommand implements SutIfCommand
 		return myAction;
 	}
 
-	public boolean doAction(runTimeData aVariables, File aLogDir)
+	public boolean doAction(RunTimeData aVariables, File aLogDir)
 	{
 		Trace.println( Trace.EXEC );
 		// NOP
 		return true;
 	}
 
-	public boolean verifyParameters(runTimeData aVariables)
+	public boolean verifyParameters(RunTimeData aVariables)
 	{
 		return true;
 	}

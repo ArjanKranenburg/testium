@@ -35,9 +35,9 @@ public class TestCaseResultStdOutWriter
 		String indent = repeat( ' ', myIndentLevel );
 		String tcId = indent + aResult.getId();
 		int spaceleft = 1;
-		if ( tcId.length() < 40 )
+		if ( tcId.length() < 80 )
 		{
-			spaceleft = 40 - tcId.length();
+			spaceleft = 80 - tcId.length();
 		}
 		
 		String outline = repeat( ' ', spaceleft );

@@ -13,8 +13,9 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
 
-import org.testium.configuration.Configuration;
 import org.testium.configuration.ConfigurationException;
+import org.testium.configuration.KEYS;
+import org.testtoolinterfaces.utils.RunTimeData;
 import org.testtoolinterfaces.utils.Trace;
 import org.testtoolinterfaces.utils.Warning;
 
@@ -45,9 +46,10 @@ public class PluginClassLoader extends URLClassLoader
 		return super.findClass(aClassName);
     }
     
-	public static PluginCollection loadPlugins( File aPluginDir, Configuration aConfig ) throws ConfigurationException
+	@SuppressWarnings("unchecked")
+	public static PluginCollection loadPlugins( File aPluginDir, RunTimeData aRtData ) throws ConfigurationException
 	{
-		Trace.println(Trace.LEVEL.UTIL, "loadPlugins( )", true);
+		Trace.println(Trace.UTIL, "loadPlugins( )", true);
 
     	ArrayList<URL> urlArray = new ArrayList<URL>();
     	for ( File file : aPluginDir.listFiles(new JarFileFilter()) )
@@ -69,10 +71,10 @@ public class PluginClassLoader extends URLClassLoader
     	
     	// Load default plugins
     	TestResultInterfacePlugin testResultInterfacePlugin = new TestResultInterfacePlugin();
-    	testResultInterfacePlugin.loadPlugIn(pluginCollection, aConfig);
+    	testResultInterfacePlugin.loadPlugIn(pluginCollection, aRtData);
     	
     	// Load configured plugins
-		ArrayList<String> pluginLoaders = aConfig.getPluginLoaders();
+		ArrayList<String> pluginLoaders = (ArrayList<String>) aRtData.getValue(KEYS.PLUGIN_LOADERS.toString());
     	for ( String className : pluginLoaders )
     	{
 			try
@@ -83,12 +85,13 @@ public class PluginClassLoader extends URLClassLoader
 			{
 				throw new ConfigurationException( "Class \"" + className + "\" could not be loaded:\n" + e.getMessage(), e );
 			}
-			plugin.loadPlugIn( pluginCollection, aConfig );
+			plugin.loadPlugIn( pluginCollection, aRtData );
     	}
     	
     	return pluginCollection;
 	}
 	
+	@SuppressWarnings("unchecked")
 	public static void addJarToClassLoader(File aFile) throws MalformedURLException
 	{
 		Trace.println(Trace.LEVEL.UTIL, "addJarToClassLoader( " + aFile.getName() + " )", true);

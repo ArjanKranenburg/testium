@@ -3,19 +3,23 @@ package org.testium;
 import java.io.File;
 import java.io.IOError;
 import java.io.IOException;
-import java.net.URISyntaxException;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
-import org.testium.configuration.Configuration;
 import org.testium.configuration.ConfigurationException;
-import org.testium.configuration.ConfigurationXmlHandler;
+import org.testium.configuration.KEYS;
+import org.testium.configuration.GlobalConfigurationXmlHandler;
+import org.testium.configuration.PersonalConfigurationXmlHandler;
 import org.testium.executor.TestExecutionException;
 import org.testium.plugins.PluginClassLoader;
 import org.testium.plugins.PluginCollection;
+import org.testtoolinterfaces.cmdline.CmdLineExecutionParser;
+import org.testtoolinterfaces.cmdline.CmdLineParser;
+import org.testtoolinterfaces.cmdline.ParameterException;
 import org.testtoolinterfaces.testsuite.TestGroup;
+import org.testtoolinterfaces.utils.RunTimeData;
 import org.testtoolinterfaces.utils.Trace;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
@@ -23,98 +27,47 @@ import org.xml.sax.XMLReader;
 
 public class Main
 {
-	private static final String APPLICATIONNAME = "Testium";
-
-	private static final String SWITCH_TESTSUITE_FILENAME		 = "-f";
-	private static final String SWITCH_GLOBAL_CONFIG_FILENAME	 = "-c";
-	private static final String SWITCH_PLUGINS_DIRECTORY		 = "-p";
-	private static final String SWITCH_PERSONAL_CONFIG_FILENAME	 = "-s";
+	public static final String APPLICATIONNAME = "Testium";
 
 	/**
 	 * @param args
 	 */
 	public static void main(String[] args)
 	{
-		File testGroupFile = null;
-		File testiumBaseDir = null;
-		String personalConfigFileName = "";
-
-		try
-		{
-			File jarFile = new File(  org.testium.Main.class.getProtectionDomain()
-			                         						.getCodeSource()
-			                         						.getLocation()
-			                         						.toURI() );
-			testiumBaseDir = jarFile.getParentFile().getParentFile();
-		}
-		catch (URISyntaxException exc)
-		{
-			System.out.println("ERROR: Cannot determine " + APPLICATIONNAME + "'s basedir: ");
-			System.out.println( exc.getMessage() );
-//			exc.printStackTrace();
-		}
-		
-		File configDir = new File( testiumBaseDir, "config" );
-		File configFile = new File( configDir, "global.xml" );
-
-		String pluginDirectoryName = "";
 		Trace.getInstance().addBaseClass("org.testium");
 		Trace.getInstance().addBaseClass("org.testtoolinterfaces");
 
-		// First we parse the command line parameters
-		Trace.print(Trace.UTIL, "Parsing commandline parameters( ");
-		if (args.length > 0) 
-		{
-			for (int index=0; index<args.length; index++)
-			{
-				Trace.print(Trace.UTIL, args[index] + " " + args[index+1] );
-				if( args[index].equals(SWITCH_TESTSUITE_FILENAME) )
-				{
-					testGroupFile = new File( args[++index] );
-				}
-				else if( args[index].equals(SWITCH_GLOBAL_CONFIG_FILENAME) )
-				{
-					configFile = new File( args[++index] );
-				}
-				else if( args[index].equals(SWITCH_PLUGINS_DIRECTORY) )
-				{
-					pluginDirectoryName = args[++index];
-				}
-				else if( args[index].equals(SWITCH_PERSONAL_CONFIG_FILENAME) )
-				{
-					personalConfigFileName = args[++index];
-				}
-				else
-				{
-					System.out.println( "ERROR: Unknown switch " + args[index] );
-					printUsage();
-					return;
-				}
-			}
-		}
-		Trace.println(Trace.UTIL, " )");
+		CmdLineParser cmdLine = new CmdLineExecutionParser( APPLICATIONNAME );
+		RunTimeData rtData = new RunTimeData();
 
-		if ( testGroupFile == null )
+		try 
 		{
-			System.out.println( "ERROR: Missing testgroup filename (" + SWITCH_TESTSUITE_FILENAME +")" );
-			printUsage();
-			return;
+			rtData = cmdLine.parse(args);
+		}
+		catch (ParameterException pe)
+		{
+			System.out.println( "Error on command line." );
+			System.out.println( pe.getMessage() );
+			cmdLine.printHelpOn(System.out);
+			Trace.print(Trace.UTIL, pe);
 		}
 
-		Testium testium;
+        Testium testium;
+
 		try
 		{
 			// Read in the Global Configuration file
-			Configuration globalConfig = readConfigFile( configFile );
-
-			// Set the personal Configuration file
-			File personalConfigFile = getPersonalConfigFile( personalConfigFileName, globalConfig );
-			Configuration config = readConfigFile( personalConfigFile, globalConfig );
+			readGlobalConfigFile( 
+				(File) rtData.getValue(CmdLineExecutionParser.GLOBAL.toString()), rtData );
+ 
+			// Read the personal Configuration file
+			readPersonalConfigFile( 
+				(File) rtData.getValue(KEYS.CONFIGFILENAME.toString()), rtData );
 
 			// Load plugins
-			PluginCollection plugins = loadPlugins(testiumBaseDir, pluginDirectoryName, config);
+			PluginCollection plugins = loadPlugins( rtData );
 
-			testium = new Testium( plugins, config );
+			testium = new Testium( plugins, rtData );
 		}
 		catch (ConfigurationException e)
 		{
@@ -125,14 +78,15 @@ public class Main
 		}
 
 		// Read the Test Group
+		File tgFile = (File) rtData.getValue(CmdLineExecutionParser.FILENAME.toString());
 		TestGroup testGroup;
 		try
 		{
-			testGroup = testium.readTestGroup( testGroupFile );
+			testGroup = testium.readTestGroup( tgFile );
 		}
 		catch (IOError e)
 		{
-			System.out.println( "ERROR: TestGroup could not be read." );
+			System.out.println( "ERROR: TestGroup could not be read: " + tgFile.getAbsolutePath() );
 			System.out.println( e.getMessage() );
 			Trace.print(Trace.UTIL, e);
 			return;
@@ -141,7 +95,7 @@ public class Main
 		// Execute the Test Group
 		try
 		{
-			testium.execute( testGroup, testGroupFile.getParentFile() );
+			testium.execute( testGroup, tgFile.getParentFile(), rtData );
 		}
 		catch (TestExecutionException e)
 		{
@@ -152,151 +106,97 @@ public class Main
 		}
 	}
 
-	private static File getPersonalConfigFile( String aSettingsFileName,
-	                                     Configuration aConfig )
+	private static void readGlobalConfigFile( File aConfigFile, RunTimeData anRtData ) throws ConfigurationException
 	{
-		File settingsFile;
-		if ( ! aSettingsFileName.isEmpty() )
-		{
-			settingsFile = new File( aSettingsFileName );
-		}
-		else
-		{
-			String settingsFileName = aConfig.getSettingsFileName();
-			settingsFile = new File( settingsFileName );
-		}
+		Trace.println(Trace.UTIL, "readConfigFile( " + aConfigFile.getName() + ", runTimeData )", true );
 
-		if ( ! settingsFile.isAbsolute() )
+		// create a parser
+        SAXParserFactory spf = SAXParserFactory.newInstance();
+        spf.setNamespaceAware(false);
+        SAXParser saxParser;
+        GlobalConfigurationXmlHandler handler = null;
+		try
 		{
-			File userHome = new File( System.getProperty("user.home") );
-			settingsFile = new File( userHome, settingsFile.getName() );
+			saxParser = spf.newSAXParser();
+			XMLReader xmlReader = saxParser.getXMLReader();
+
+	        // create a handler
+			handler = new GlobalConfigurationXmlHandler(xmlReader, anRtData);
+
+	        // assign the handler to the parser
+	        xmlReader.setContentHandler(handler);
+
+	        // parse the document
+	        xmlReader.parse( aConfigFile.getAbsolutePath() );
 		}
-		return settingsFile;
+		catch (ParserConfigurationException e)
+		{
+			Trace.print(Trace.UTIL, e);
+			throw new ConfigurationException( e );
+		}
+		catch (SAXException e)
+		{
+			Trace.print(Trace.UTIL, e);
+			throw new ConfigurationException( e );
+		}
+		catch (IOException e)
+		{
+			Trace.print(Trace.UTIL, e);
+			throw new ConfigurationException( e );
+		}
 	}
 
-	private static PluginCollection loadPlugins( File aTestiumBaseDir,
-	                                             String aPluginDirectoryName,
-	                                             Configuration aConfig ) throws ConfigurationException
+	private static void readPersonalConfigFile( File aConfigFile, RunTimeData anRtData ) throws ConfigurationException
 	{
-		File pluginDirectory = null;
-		if ( ! aPluginDirectoryName.isEmpty() )
-		{
-			pluginDirectory = new File( aPluginDirectoryName );
-		}
-		else if( aConfig.getPluginsDirectory() != null )
-		{
-			pluginDirectory = aConfig.getPluginsDirectory();
-		}
-		else
-		{
-			pluginDirectory = new File( "plugins" );
-		}
+		Trace.println(Trace.UTIL, "readConfigFile( " + aConfigFile.getName() + ", runTimeData )", true );
 
-		if ( ! pluginDirectory.isAbsolute() )
+		// create a parser
+        SAXParserFactory spf = SAXParserFactory.newInstance();
+        spf.setNamespaceAware(false);
+        SAXParser saxParser;
+        PersonalConfigurationXmlHandler handler = null;
+		try
 		{
-			pluginDirectory = new File( aTestiumBaseDir, aConfig.getPluginsDirectory().getPath() );
+			saxParser = spf.newSAXParser();
+			XMLReader xmlReader = saxParser.getXMLReader();
+
+	        // create a handler
+			handler = new PersonalConfigurationXmlHandler(xmlReader, anRtData);
+
+	        // assign the handler to the parser
+	        xmlReader.setContentHandler(handler);
+
+	        // parse the document
+	        xmlReader.parse( aConfigFile.getAbsolutePath() );
 		}
+		catch (ParserConfigurationException e)
+		{
+			Trace.print(Trace.UTIL, e);
+			throw new ConfigurationException( e );
+		}
+		catch (SAXException e)
+		{
+			Trace.print(Trace.UTIL, e);
+			throw new ConfigurationException( e );
+		}
+		catch (IOException e)
+		{
+			Trace.print(Trace.UTIL, e);
+			throw new ConfigurationException( e );
+		}
+	}
+
+	private static PluginCollection loadPlugins( RunTimeData anRtData ) throws ConfigurationException
+	{
+		File pluginDirectory = (File) anRtData.getValue( KEYS.PLUGINSDIRECTORY.toString() );
 
 		if ( ! pluginDirectory.isDirectory() )
 		{
 			throw new ConfigurationException( "Plugin Directory is not valid: " + pluginDirectory.getAbsolutePath() );
 		}
-		
-		PluginCollection plugins = PluginClassLoader.loadPlugins( pluginDirectory, aConfig );
-
+	
+		PluginCollection plugins = PluginClassLoader.loadPlugins( pluginDirectory, anRtData );
+	
 		return plugins;
-	}
-
-	private static Configuration readConfigFile( File aConfigFile ) throws ConfigurationException
-	{
-		Trace.println(Trace.UTIL, "readConfigFile( " + aConfigFile.getName() + " )", true );
-        // create a parser
-        SAXParserFactory spf = SAXParserFactory.newInstance();
-        spf.setNamespaceAware(false);
-        SAXParser saxParser;
-        ConfigurationXmlHandler handler = null;
-		try
-		{
-			saxParser = spf.newSAXParser();
-			XMLReader xmlReader = saxParser.getXMLReader();
-
-	        // create a handler
-			handler = new ConfigurationXmlHandler(xmlReader, aConfigFile.getParentFile());
-
-	        // assign the handler to the parser
-	        xmlReader.setContentHandler(handler);
-
-	        // parse the document
-	        xmlReader.parse( aConfigFile.getAbsolutePath() );
-		}
-		catch (ParserConfigurationException e)
-		{
-			Trace.print(Trace.UTIL, e);
-			throw new ConfigurationException( e );
-		}
-		catch (SAXException e)
-		{
-			Trace.print(Trace.UTIL, e);
-			throw new ConfigurationException( e );
-		}
-		catch (IOException e)
-		{
-			Trace.print(Trace.UTIL, e);
-			throw new ConfigurationException( e );
-		}
-		
-		return handler.getConfiguration();
-	}
-
-	private static Configuration readConfigFile( File aConfigFile, Configuration aGlobalConfig ) throws ConfigurationException
-	{
-		Trace.println(Trace.UTIL, "readConfigFile( " + aConfigFile.getName() + " )", true );
-        // create a parser
-        SAXParserFactory spf = SAXParserFactory.newInstance();
-        spf.setNamespaceAware(false);
-        SAXParser saxParser;
-        ConfigurationXmlHandler handler = null;
-		try
-		{
-			saxParser = spf.newSAXParser();
-			XMLReader xmlReader = saxParser.getXMLReader();
-
-	        // create a handler
-			handler = new ConfigurationXmlHandler(xmlReader, aGlobalConfig);
-
-	        // assign the handler to the parser
-	        xmlReader.setContentHandler(handler);
-
-	        // parse the document
-	        xmlReader.parse( aConfigFile.getAbsolutePath() );
-		}
-		catch (ParserConfigurationException e)
-		{
-			Trace.print(Trace.UTIL, e);
-			throw new ConfigurationException( e );
-		}
-		catch (SAXException e)
-		{
-			Trace.print(Trace.UTIL, e);
-			throw new ConfigurationException( e );
-		}
-		catch (IOException e)
-		{
-			Trace.print(Trace.UTIL, e);
-			throw new ConfigurationException( e );
-		}
-		
-		return handler.getConfiguration();
-	}
-
-	private static void printUsage()
-	{
-		System.out.println( );
-		System.out.println( "Usage:" );
-		System.out.println( APPLICATIONNAME + " "
-							+ SWITCH_TESTSUITE_FILENAME + " <testgroup filename> "
-							+ "[" + SWITCH_PERSONAL_CONFIG_FILENAME + " <settings filename>] "
-							+ "[" + SWITCH_GLOBAL_CONFIG_FILENAME +    " <configuration filename>] "
-							+ "[" + SWITCH_PLUGINS_DIRECTORY +  " <plugin directory>] " );
 	}
 }

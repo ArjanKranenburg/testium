@@ -8,11 +8,12 @@ import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
 import org.testium.TestRunResultStdOutWriter;
-import org.testium.configuration.Configuration;
 import org.testium.configuration.ConfigurationException;
+import org.testium.configuration.KEYS;
 import org.testium.configuration.TestResultInterfaceConfiguration;
 import org.testium.configuration.TestResultInterfaceConfigurationXmlHandler;
 import org.testtoolinterfaces.testresultinterface.TestRunResultXmlWriter;
+import org.testtoolinterfaces.utils.RunTimeData;
 import org.testtoolinterfaces.utils.Trace;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
@@ -29,11 +30,11 @@ public final class TestResultInterfacePlugin implements Plugin
 		// nop
 	}
 	
-	public void loadPlugIn(PluginCollection aPluginCollection, Configuration aConfig) throws ConfigurationException
+	public void loadPlugIn(PluginCollection aPluginCollection, RunTimeData aRtData) throws ConfigurationException
 	{
-		File configDir = aConfig.getConfigDir();
+		File configDir = (File) aRtData.getValue(KEYS.CONFIG_DIRECTORY.toString());
 		File trConfigFile = new File( configDir, "testResultConfiguration.xml" );
-		TestResultInterfaceConfiguration trConfig = readConfigFile( trConfigFile );
+		TestResultInterfaceConfiguration trConfig = readConfigFile( trConfigFile, aRtData );
 		
 		// Factories
 
@@ -50,9 +51,9 @@ public final class TestResultInterfacePlugin implements Plugin
     	{
     		File xslDir = trConfig.getXslDir();
     		String fileName = trConfig.getFileName();
-    		String testEnvironment = aConfig.getTestEnvironment();
-    		String testPhase = aConfig.getTestPhase();
-    		File logDir = aConfig.getTestResultBaseDir();
+    		String testEnvironment = (String) aRtData.getValue(KEYS.TEST_ENVIRONMENT.toString());
+    		String testPhase = (String) aRtData.getValue(KEYS.TEST_PHASE.toString());
+    		File logDir = (File) aRtData.getValue(KEYS.RESULT_BASE_DIR.toString());
         	File resultFile = new File( logDir.getAbsolutePath(), fileName );
 
         	TestRunResultXmlWriter xmlWriter = new TestRunResultXmlWriter( resultFile, xslDir, testEnvironment, testPhase );
@@ -60,7 +61,7 @@ public final class TestResultInterfacePlugin implements Plugin
     	}
 	}
 	
-	public TestResultInterfaceConfiguration readConfigFile( File aConfigFile ) throws ConfigurationException
+	public TestResultInterfaceConfiguration readConfigFile( File aConfigFile, RunTimeData aRtData ) throws ConfigurationException
 	{
 		Trace.println(Trace.UTIL, "readConfigFile( " + aConfigFile.getName() + " )", true );
         // create a parser
@@ -74,7 +75,7 @@ public final class TestResultInterfacePlugin implements Plugin
 			XMLReader xmlReader = saxParser.getXMLReader();
 
 	        // create a handler
-			handler = new TestResultInterfaceConfigurationXmlHandler(xmlReader);
+			handler = new TestResultInterfaceConfigurationXmlHandler(xmlReader, aRtData);
 
 	        // assign the handler to the parser
 	        xmlReader.setContentHandler(handler);
