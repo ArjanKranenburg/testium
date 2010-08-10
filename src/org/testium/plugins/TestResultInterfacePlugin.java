@@ -8,8 +8,8 @@ import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
 import org.testium.TestRunResultStdOutWriter;
+import org.testium.Testium;
 import org.testium.configuration.ConfigurationException;
-import org.testium.configuration.KEYS;
 import org.testium.configuration.TestResultInterfaceConfiguration;
 import org.testium.configuration.TestResultInterfaceConfigurationXmlHandler;
 import org.testtoolinterfaces.testresultinterface.TestRunResultXmlWriter;
@@ -17,7 +17,6 @@ import org.testtoolinterfaces.utils.RunTimeData;
 import org.testtoolinterfaces.utils.Trace;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
-
 
 /**
  * @author Arjan Kranenburg
@@ -32,7 +31,11 @@ public final class TestResultInterfacePlugin implements Plugin
 	
 	public void loadPlugIn(PluginCollection aPluginCollection, RunTimeData aRtData) throws ConfigurationException
 	{
-		File configDir = (File) aRtData.getValue(KEYS.CONFIG_DIRECTORY.toString());
+		File configDir = (File) aRtData.getValue(Testium.CONFIGDIR);
+		if ( configDir == null )
+		{
+			throw new ConfigurationException( Testium.CONFIGDIR + " is not set" );
+		}
 		File trConfigFile = new File( configDir, "testResultConfiguration.xml" );
 		TestResultInterfaceConfiguration trConfig = readConfigFile( trConfigFile, aRtData );
 		
@@ -51,9 +54,9 @@ public final class TestResultInterfacePlugin implements Plugin
     	{
     		File xslDir = trConfig.getXslDir();
     		String fileName = trConfig.getFileName();
-    		String testEnvironment = (String) aRtData.getValue(KEYS.TEST_ENVIRONMENT.toString());
-    		String testPhase = (String) aRtData.getValue(KEYS.TEST_PHASE.toString());
-    		File logDir = (File) aRtData.getValue(KEYS.RESULT_BASE_DIR.toString());
+    		String testEnvironment = aRtData.getValueAs(String.class, Testium.TESTENVIRONMENT);
+    		String testPhase = aRtData.getValueAs(String.class, Testium.TESTPHASE);
+    		File logDir = aRtData.getValueAs(File.class, Testium.RESULTBASEDIR);
         	File resultFile = new File( logDir.getAbsolutePath(), fileName );
 
         	TestRunResultXmlWriter xmlWriter = new TestRunResultXmlWriter( resultFile, xslDir, testEnvironment, testPhase );
@@ -67,11 +70,11 @@ public final class TestResultInterfacePlugin implements Plugin
         // create a parser
         SAXParserFactory spf = SAXParserFactory.newInstance();
         spf.setNamespaceAware(false);
-        SAXParser saxParser;
         TestResultInterfaceConfigurationXmlHandler handler = null;
+        
 		try
 		{
-			saxParser = spf.newSAXParser();
+			SAXParser saxParser = spf.newSAXParser();
 			XMLReader xmlReader = saxParser.getXMLReader();
 
 	        // create a handler

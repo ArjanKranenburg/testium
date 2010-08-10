@@ -2,10 +2,11 @@
  
 <project name="Testium" default="CreateExecutableJarFileWithExternalLibrary">
 	<target name="CreateExecutableJarFileWithExternalLibrary">
-		<jar destfile="Testium.jar">
+		<jar destfile="../Testium.jar">
 			<zipfileset dir="bin" prefix="" />
-			<zipfileset src="lib/TestResultInterface.jar" />
 			<zipfileset src="lib/TestSuiteInterface.jar" />
+			<zipfileset src="lib/TestResultInterface.jar" />
+			<zipfileset src="lib/CmdLineInterface.jar" />
 			<manifest>
 				<attribute name="Main-Class" value="org.testium.Main" />
 			</manifest>

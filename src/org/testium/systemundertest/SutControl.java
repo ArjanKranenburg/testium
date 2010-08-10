@@ -6,6 +6,7 @@ package org.testium.systemundertest;
 import java.io.File;
 
 import org.testtoolinterfaces.testresult.SutInfo;
+import org.testtoolinterfaces.utils.RunTimeData;
 
 
 /**
@@ -21,7 +22,7 @@ public abstract class SutControl implements SutInterface
 		return "SUT";
 	}
 	
-	public SutInfo getSutInfo(File aLogDir)
+	public SutInfo getSutInfo(File aLogDir, RunTimeData aParentRtData)
 	{
 		return new SutInfo( this.getName() );
 	}

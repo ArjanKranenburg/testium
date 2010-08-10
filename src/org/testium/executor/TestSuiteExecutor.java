@@ -1,18 +1,18 @@
 package org.testium.executor;
 
 import java.io.File;
-import java.util.Calendar;
 
 import org.testium.systemundertest.SutControl;
 import org.testtoolinterfaces.testsuite.TestGroup;
+import org.testtoolinterfaces.utils.RunTimeData;
 
 
 public interface TestSuiteExecutor
 {
 	public void execute( TestGroup aTestGroup,
+	                     String testGroupId,
 						 File aScriptDir,
-						 File aLogDir,
-						 Calendar aDate ) throws TestExecutionException;
+						 RunTimeData aRtData ) throws TestExecutionException;
 	
 	public void setSutControl( SutControl aSutControl );
 	

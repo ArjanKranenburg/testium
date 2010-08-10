@@ -60,7 +60,7 @@ public class TestGroupExecutorImpl implements TestGroupExecutor
 			throw new IOError( exc );
 		}
 		Trace.println(Trace.EXEC, "execute( " 
-				+ aTestGroup + ", "
+				+ aTestGroup.getId() + ", "
 	            + aScriptDir.getAbsolutePath() + ", "
 	            + aLogDir.getAbsolutePath() + " )", true );
 
@@ -77,6 +77,42 @@ public class TestGroupExecutorImpl implements TestGroupExecutor
     	executeRestoreSteps(restoreSteps, aResult, aScriptDir, groupLogDir);
 	}
 	
+	@Override
+	public void execute( TestGroup aTestGroup,
+	                     String aTestGroupId,
+	                     File aScriptDir,
+	                     File aLogDir,
+	                     TestGroupResult aResult )
+	{
+		if ( aTestGroup.getId().equals(aTestGroupId) )
+		{
+			execute( aTestGroup, aScriptDir, aLogDir, aResult );
+			return;
+		}
+
+		if ( !aLogDir.isDirectory() )
+		{
+			FileNotFoundException exc = new FileNotFoundException("Directory does not exist: " + aLogDir.getAbsolutePath());
+			throw new IOError( exc );
+		}
+		Trace.println(Trace.EXEC, "execute( " 
+				+ aTestGroup.getId() + ", "
+	            + aScriptDir.getAbsolutePath() + ", "
+	            + aLogDir.getAbsolutePath() + " )", true );
+
+		File groupLogDir = new File(aLogDir.getAbsolutePath() + File.separator + aTestGroup.getId());
+		groupLogDir.mkdir();
+
+    	TestStepArrayList initSteps = aTestGroup.getInitializationSteps();
+    	executeInitSteps(initSteps, aResult, aScriptDir, groupLogDir);
+
+    	TestEntryArrayList execSteps = aTestGroup.getExecutionEntries();
+		executeExecSteps(execSteps, aTestGroupId, aResult, aScriptDir, groupLogDir);
+
+    	TestStepArrayList restoreSteps = aTestGroup.getRestoreSteps();
+    	executeRestoreSteps(restoreSteps, aResult, aScriptDir, groupLogDir);
+	}
+
 	public void executeInitSteps(TestStepArrayList anInitSteps, TestGroupResult aResult, File aScriptDir, File aLogDir)
 	{
 		Trace.println(Trace.EXEC_PLUS, "executeInitSteps( " 
@@ -138,6 +174,75 @@ public class TestGroupExecutorImpl implements TestGroupExecutor
 					aResult.addTestCase(tcResult);
 
 					myTestCaseScriptExecutor.execute((TestCaseLink) entry, aScriptDir, aLogDir, tcResult);
+				}
+				else
+				{
+					throw new InvalidTestTypeException( entry.getType().toString(), "Cannot execute execution entries of type " + entry.getType() );
+				}
+			}
+			catch (InvalidTestTypeException e)
+			{
+				String message = "Execution of " + entry.getType() + " " + entry.getId() + " failed:\n"
+					+ e.getMessage()
+					+ "\nTrying to continue, but this may affect further execution...";
+				aResult.addComment(message);
+				Warning.println(message);
+				Trace.print(Trace.ALL, e);
+			}
+
+			myTestRunResultWriter.intermediateWrite();
+    	}
+	}
+
+	/**
+	 * @param anExecSteps
+	 * @param aTestGroupId
+	 * @param aResult
+	 * @param aLogDir
+	 * @param execEntries
+	 */
+	private void executeExecSteps( TestEntryArrayList anExecSteps,
+	                               String aTestGroupId,
+	                               TestGroupResult aResult,
+	                               File aScriptDir,
+	                               File aLogDir )
+	{
+		Trace.println(Trace.EXEC_PLUS, "executeExecSteps( " 
+						+ anExecSteps + ", "
+			            + aTestGroupId + ", "
+						+ aResult + ", "
+			            + aScriptDir.getAbsolutePath() + ", "
+						+ aLogDir.getAbsolutePath() + ", "
+			            + " )", true );
+
+//		executeExecSteps(execSteps, aTestGroupId, aResult, aScriptDir, groupLogDir);
+
+		for (int key = 0; key < anExecSteps.size(); key++)
+    	{
+			TestEntry entry = anExecSteps.get(key);
+			try
+			{
+				if ( entry.getType() == TestEntry.TYPE.Group )
+				{
+					TestGroup subGroup = (TestGroup) entry;
+					if ( subGroup.hasGroupId( aTestGroupId ) )
+					{
+				    	TestGroupResult subTgResult = new TestGroupResult(subGroup);
+				    	aResult.addTestGroup(subTgResult);
+	
+						myTestGroupExecutor.execute(subGroup, aTestGroupId, aScriptDir, aLogDir, subTgResult);
+					}
+				}
+				else if ( entry.getType() == TestEntry.TYPE.GroupLink )
+				{
+					if ( myTestGroupLinkExecutor == null )
+					{
+						throw new Error("No Executor is defined for TestGroupLinks");
+					}
+			    	TestGroupResult subTgLinkResult = new TestGroupResult((TestGroupLink) entry);
+					aResult.addTestGroup(subTgLinkResult);
+	
+					myTestGroupLinkExecutor.execute((TestGroupLink) entry, aTestGroupId, aScriptDir, aLogDir, subTgLinkResult);
 				}
 				else
 				{

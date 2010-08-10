@@ -3,6 +3,7 @@ package org.testium.configuration;
 import java.io.File;
 import java.util.ArrayList;
 
+import org.testium.Testium;
 import org.testtoolinterfaces.utils.GenericTagAndStringXmlHandler;
 import org.testtoolinterfaces.utils.Trace;
 import org.testtoolinterfaces.utils.XmlHandler;
@@ -23,6 +24,8 @@ import org.xml.sax.XMLReader;
  *    <PluginsDirectory>...</PluginsDirectory>
  *    <TestEnvironment>...</TestEnvironment>
  *    <TestPhase>...</TestPhase>
+ *    <ProjectDirectory>...</ProjectDirectory>
+ *    <TestFile>...</TestFile>
  *  ...
  *  </GlobalConfiguration>
  * 
@@ -31,13 +34,17 @@ public class GlobalConfigurationXmlHandler extends XmlHandler
 {
 	public static final String START_ELEMENT = "GlobalConfiguration";
 
-	public static final String CFG_TEST_RESULT_OUTPUT_BASE_DIRECTORY = "TestResultOutputBaseDirectory";
 	public static final String CFG_PLUGIN_LOADERS = "PluginLoaders";
 	public static final String CFG_PLUGINS_DIRECTORY = "PluginsDirectory";
 	public static final String CFG_TESTENVIRONMENT = "TestEnvironment";
 	public static final String CFG_TESTPHASE = "TestPhase";
-	public static final String CFG_SETTINGS_FILE = "DefaultUserConfigurationFile";
+	public static final String CFG_DEFAULT_CONFIGFILE = "DefaultUserConfigurationFile";
+	public static final String CFG_USER_CONFIGDIR = "UserConfigurationDirectory";
+	public static final String CFG_CONFIGDIR = "ConfigurationDirectory";
+	public static final String CFG_PROJECTDIR = "ProjectDirectory";
+	public static final String CFG_TESTFILE = "TestFile";
 
+	// Trace
 	private static final String CFG_TRACE_BASECLASS = "TraceBaseClass";
 	private static final String CFG_TRACE_CLASS = "TraceClass";
 	private static final String CFG_TRACE_LEVEL = "TraceLevel";
@@ -53,12 +60,15 @@ public class GlobalConfigurationXmlHandler extends XmlHandler
 		myRunTimeData = aRtData;
 
 	    ArrayList<XmlHandler> xmlHandlers = new ArrayList<XmlHandler>();
-	    xmlHandlers.add(new GenericTagAndStringXmlHandler(anXmlReader, CFG_TEST_RESULT_OUTPUT_BASE_DIRECTORY));
 	    xmlHandlers.add(new GenericTagAndStringXmlHandler(anXmlReader, CFG_PLUGIN_LOADERS));
 	    xmlHandlers.add(new GenericTagAndStringXmlHandler(anXmlReader, CFG_PLUGINS_DIRECTORY));
 	    xmlHandlers.add(new GenericTagAndStringXmlHandler(anXmlReader, CFG_TESTENVIRONMENT));
 	    xmlHandlers.add(new GenericTagAndStringXmlHandler(anXmlReader, CFG_TESTPHASE));
-	    xmlHandlers.add(new GenericTagAndStringXmlHandler(anXmlReader, CFG_SETTINGS_FILE));
+	    xmlHandlers.add(new GenericTagAndStringXmlHandler(anXmlReader, CFG_DEFAULT_CONFIGFILE));
+	    xmlHandlers.add(new GenericTagAndStringXmlHandler(anXmlReader, CFG_USER_CONFIGDIR));
+	    xmlHandlers.add(new GenericTagAndStringXmlHandler(anXmlReader, CFG_CONFIGDIR));
+	    xmlHandlers.add(new GenericTagAndStringXmlHandler(anXmlReader, CFG_PROJECTDIR));
+	    xmlHandlers.add(new GenericTagAndStringXmlHandler(anXmlReader, CFG_TESTFILE));
 
 	    xmlHandlers.add(new GenericTagAndStringXmlHandler(anXmlReader, CFG_TRACE_BASECLASS));
 	    xmlHandlers.add(new GenericTagAndStringXmlHandler(anXmlReader, CFG_TRACE_CLASS));
@@ -107,76 +117,89 @@ public class GlobalConfigurationXmlHandler extends XmlHandler
 		Trace.println(Trace.UTIL, "handleReturnFromChildElement( " 
 	            + aQualifiedName + " )", true );
 		RunTimeVariable rtVar = null;
-		if (aQualifiedName.equalsIgnoreCase(CFG_TEST_RESULT_OUTPUT_BASE_DIRECTORY))
-    	{
-			String resultBaseDirName = aChildXmlHandler.getValue();
-			File resultBaseDir = new File( resultBaseDirName );
-			rtVar = new RunTimeVariable(KEYS.RESULT_BASE_DIR.toString(), resultBaseDir);
-    	}
-		else if (aQualifiedName.equalsIgnoreCase(CFG_PLUGIN_LOADERS))
+		if (aQualifiedName.equalsIgnoreCase(CFG_PLUGIN_LOADERS))
     	{
 			String pluginLoaderStr = aChildXmlHandler.getValue();
 			ArrayList<String> pluginLoaders = convertStringToPluginLoaders(pluginLoaderStr);
-			rtVar = new RunTimeVariable(KEYS.PLUGIN_LOADERS.toString(), pluginLoaders);
+			rtVar = new RunTimeVariable(Testium.PLUGINLOADERS, pluginLoaders);
     	}
 		else if (aQualifiedName.equalsIgnoreCase(CFG_PLUGINS_DIRECTORY))
     	{
-			if ( myRunTimeData.containsKey(KEYS.PLUGINSDIRECTORY.toString()) )
-			{
-				String pluginsDirName = aChildXmlHandler.getValue();
-				File pluginsDirectory = new File( pluginsDirName );
-				if ( ! pluginsDirectory.isAbsolute() )
-				{
-					File baseDir = (File) myRunTimeData.getValue( KEYS.BASE_DIR.toString() );
-					pluginsDirectory = new File( baseDir, pluginsDirectory.getPath() );
-				}
-
-				rtVar = new RunTimeVariable(KEYS.PLUGINSDIRECTORY.toString(), pluginsDirectory);
-			}
+			String pluginsDirName = myRunTimeData.substituteVars( aChildXmlHandler.getValue() );
+			File pluginsDirectory = new File( pluginsDirName );
+			rtVar = new RunTimeVariable(Testium.PLUGINSDIR, pluginsDirectory);
     	}
 		else if (aQualifiedName.equalsIgnoreCase(CFG_TESTENVIRONMENT))
     	{
-			String testEnvironment = aChildXmlHandler.getValue();
-			rtVar = new RunTimeVariable(KEYS.TEST_ENVIRONMENT.toString(), testEnvironment);
+			String testEnvironment = myRunTimeData.substituteVars( aChildXmlHandler.getValue() );
+			rtVar = new RunTimeVariable(Testium.TESTENVIRONMENT, testEnvironment);
     	}
 		else if (aQualifiedName.equalsIgnoreCase(CFG_TESTPHASE))
     	{
-			String testPhase = aChildXmlHandler.getValue();
-			rtVar = new RunTimeVariable(KEYS.TEST_PHASE.toString(), testPhase);
+			String testPhase = myRunTimeData.substituteVars( aChildXmlHandler.getValue() );
+			rtVar = new RunTimeVariable(Testium.TESTPHASE, testPhase);
     	}
-		else if (aQualifiedName.equalsIgnoreCase(CFG_SETTINGS_FILE))
+		else if (aQualifiedName.equalsIgnoreCase(CFG_DEFAULT_CONFIGFILE))
     	{
-			String configFileName = aChildXmlHandler.getValue();
-			File userHomeDir = (File) myRunTimeData.getValue(KEYS.USER_HOME.toString());
-			File configFile = new File( userHomeDir, configFileName );
-			rtVar = new RunTimeVariable(KEYS.CONFIGFILENAME.toString(), configFile);
+			String defaultConfigFileName = myRunTimeData.substituteVars( aChildXmlHandler.getValue() );
+			File defaultConfigFile = new File( defaultConfigFileName );
+			rtVar = new RunTimeVariable(Testium.DEFAULTCONFIGFILE, defaultConfigFile);
+    	}
+		else if (aQualifiedName.equalsIgnoreCase(CFG_USER_CONFIGDIR))
+    	{
+			String userConfigDirName = myRunTimeData.substituteVars( aChildXmlHandler.getValue() );
+			File userConfigDir = new File( userConfigDirName );
+			rtVar = new RunTimeVariable(Testium.USERCONFIGDIR, userConfigDir);
+    	}
+		else if (aQualifiedName.equalsIgnoreCase(CFG_CONFIGDIR))
+    	{
+			String configDirName = myRunTimeData.substituteVars( aChildXmlHandler.getValue() );
+			File configDir = new File( configDirName );
+			rtVar = new RunTimeVariable(Testium.CONFIGDIR, configDir);
+    	}
+		else if (aQualifiedName.equalsIgnoreCase(CFG_PROJECTDIR))
+    	{
+			String projectDirName = myRunTimeData.substituteVars( aChildXmlHandler.getValue() );
+			File projectDir = new File( projectDirName );
+			rtVar = new RunTimeVariable(Testium.PROJECTDIR, projectDir);
+    	}
+		else if (aQualifiedName.equalsIgnoreCase(CFG_TESTFILE))
+    	{
+			String testFileName = myRunTimeData.substituteVars( aChildXmlHandler.getValue() );
+			File testFile = new File( testFileName );
+			rtVar = new RunTimeVariable(Testium.PROJECTDIR, testFile);
     	}
 		else if (aQualifiedName.equalsIgnoreCase(CFG_TRACE_BASECLASS))
     	{
 			String traceBaseClass = aChildXmlHandler.getValue();
 			Trace.getInstance().addBaseClass(traceBaseClass);
-			String pkgBases = (String) myRunTimeData.getValue(KEYS.TRACE_PKG_BASES.toString());
+			String pkgBases = (String) myRunTimeData.getValue(Testium.TRACEPKGBASES);
 			pkgBases += ";" + traceBaseClass;
-			rtVar = new RunTimeVariable(KEYS.TRACE_PKG_BASES.toString(), pkgBases);
+			rtVar = new RunTimeVariable(Testium.TRACEPKGBASES, pkgBases);
     	}
 		else if (aQualifiedName.equalsIgnoreCase(CFG_TRACE_CLASS))
     	{
 			String traceClass = aChildXmlHandler.getValue();
 			Trace.getInstance().setTraceClass(traceClass);
-			rtVar = new RunTimeVariable(KEYS.TRACE_CLASS.toString(), traceClass);
+			rtVar = new RunTimeVariable(Testium.TRACECLASS, traceClass);
     	}
 		else if (aQualifiedName.equalsIgnoreCase(CFG_TRACE_LEVEL))
     	{
 			Trace.LEVEL traceLevel = Trace.LEVEL.valueOf( aChildXmlHandler.getValue() );
 			Trace.getInstance().setTraceLevel(traceLevel);
-			rtVar = new RunTimeVariable(KEYS.TRACE_LEVEL.toString(), traceLevel);
+			rtVar = new RunTimeVariable(Testium.TRACELEVEL, traceLevel);
     	}
 		else if (aQualifiedName.equalsIgnoreCase(CFG_TRACE_DEPTH))
     	{
 			int traceDepth = (new Integer(aChildXmlHandler.getValue())).intValue();
 			Trace.getInstance().setDepth( traceDepth );
-			rtVar = new RunTimeVariable(KEYS.TRACE_DEPTH.toString(), traceDepth);
+			rtVar = new RunTimeVariable(Testium.TRACEDEPTH, traceDepth);
     	}
+		else
+		{
+			String value = aChildXmlHandler.getValue();
+			rtVar = new RunTimeVariable(aQualifiedName, value);
+		}
 
 		if (rtVar != null)
 		{

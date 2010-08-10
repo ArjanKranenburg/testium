@@ -12,4 +12,10 @@ public interface TestGroupLinkExecutor
 						 File aScriptDir,
 						 File aLogDir,
 						 TestGroupResult aResult );
+
+	public void execute( TestGroupLink aTestGroupLink,
+	                     String aTestGroupId,
+						 File aScriptDir,
+						 File aLogDir,
+						 TestGroupResult aResult );
 }

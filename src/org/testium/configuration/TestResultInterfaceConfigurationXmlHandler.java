@@ -3,9 +3,11 @@ package org.testium.configuration;
 import java.io.File;
 import java.util.ArrayList;
 
+import org.testium.Testium;
 import org.testtoolinterfaces.utils.GenericTagAndBooleanXmlHandler;
 import org.testtoolinterfaces.utils.GenericTagAndStringXmlHandler;
 import org.testtoolinterfaces.utils.RunTimeData;
+import org.testtoolinterfaces.utils.RunTimeVariable;
 import org.testtoolinterfaces.utils.Trace;
 import org.testtoolinterfaces.utils.XmlHandler;
 import org.xml.sax.Attributes;
@@ -18,6 +20,7 @@ public class TestResultInterfaceConfigurationXmlHandler extends XmlHandler
 
 	private static final String	CFG_STDOUT_ENABLED	= "toStdOut";
 	private static final String	CFG_FILE_ENABLED	= "toFile";
+	private static final String CFG_OUTPUT_BASE_DIRECTORY = "OutputBaseDirectory";
 	private static final String	CFG_OUTPUT_FILENAME	= "fileName";
 	private static final String	CFG_XSLDIR_FILE	= "xslDir";
 
@@ -41,6 +44,7 @@ public class TestResultInterfaceConfigurationXmlHandler extends XmlHandler
 	    xmlHandlers.add(new GenericTagAndBooleanXmlHandler(anXmlReader, CFG_FILE_ENABLED));
 	    xmlHandlers.add(new GenericTagAndStringXmlHandler(anXmlReader, CFG_XSLDIR_FILE));
 	    xmlHandlers.add(new GenericTagAndStringXmlHandler(anXmlReader, CFG_OUTPUT_FILENAME));
+	    xmlHandlers.add(new GenericTagAndStringXmlHandler(anXmlReader, CFG_OUTPUT_BASE_DIRECTORY));
 
 	    for (XmlHandler handler : xmlHandlers)
 	    {
@@ -85,6 +89,13 @@ public class TestResultInterfaceConfigurationXmlHandler extends XmlHandler
 	    Trace.println(Trace.UTIL, "handleReturnFromChildElement( " + 
 	    	      aQualifiedName + " )", true);
 	    
+		if (aQualifiedName.equalsIgnoreCase(CFG_OUTPUT_BASE_DIRECTORY))
+    	{
+			String resultBaseDirName = myRunTimeData.substituteVars( aChildXmlHandler.getValue() );
+			File resultBaseDir = new File( resultBaseDirName );
+			RunTimeVariable rtVar = new RunTimeVariable(Testium.RESULTBASEDIR, resultBaseDir);
+			myRunTimeData.add( rtVar );
+    	}
 		if (aQualifiedName.equalsIgnoreCase(CFG_STDOUT_ENABLED))
     	{
 			myStdOutEnabled = aChildXmlHandler.getValue().equalsIgnoreCase("true");

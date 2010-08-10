@@ -13,8 +13,8 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
 
+import org.testium.Testium;
 import org.testium.configuration.ConfigurationException;
-import org.testium.configuration.KEYS;
 import org.testtoolinterfaces.utils.RunTimeData;
 import org.testtoolinterfaces.utils.Trace;
 import org.testtoolinterfaces.utils.Warning;
@@ -74,7 +74,7 @@ public class PluginClassLoader extends URLClassLoader
     	testResultInterfacePlugin.loadPlugIn(pluginCollection, aRtData);
     	
     	// Load configured plugins
-		ArrayList<String> pluginLoaders = (ArrayList<String>) aRtData.getValue(KEYS.PLUGIN_LOADERS.toString());
+		ArrayList<String> pluginLoaders = (ArrayList<String>) aRtData.getValue(Testium.PLUGINLOADERS);
     	for ( String className : pluginLoaders )
     	{
 			try

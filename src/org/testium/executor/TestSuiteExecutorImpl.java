@@ -4,12 +4,14 @@ import java.io.File;
 import java.net.UnknownHostException;
 import java.util.Calendar;
 
+import org.testium.Testium;
 import org.testium.systemundertest.SutControl;
 import org.testtoolinterfaces.testresult.SutInfo;
 import org.testtoolinterfaces.testresult.TestGroupResult;
 import org.testtoolinterfaces.testresult.TestRunResult;
 import org.testtoolinterfaces.testresultinterface.TestRunResultWriter;
 import org.testtoolinterfaces.testsuite.TestGroup;
+import org.testtoolinterfaces.utils.RunTimeData;
 import org.testtoolinterfaces.utils.Trace;
 
 
@@ -30,18 +32,23 @@ public class TestSuiteExecutorImpl implements TestSuiteExecutor
 		myTestRunResultWriter = aTestRunResultWriter;
 	}
 
-	public void execute(TestGroup aTestGroup, File aScriptDir, File aLogDir, Calendar aDate) throws TestExecutionException
+	@Override
+	public void execute(TestGroup aTestGroup, String aTestGroupId, File aScriptDir, RunTimeData anRtData)
+			throws TestExecutionException
 	{
-		if ( !aLogDir.isDirectory() )
-		{
-			throw new TestExecutionException("Directory does not exist: " + aLogDir.getAbsolutePath());
-		}
 		Trace.println(Trace.LEVEL.EXEC, "execute( " 
 	            + aTestGroup.getId() + ", "
-	            + aScriptDir.getAbsolutePath() + ", "
-	            + aLogDir.getAbsolutePath() + " )", true );
+	            + aTestGroupId + ", "
+	            + aScriptDir.getAbsolutePath() + ", runTimeData )", true );
 
-		SutInfo sut = mySutControl.getSutInfo( aLogDir );
+		Calendar date = Calendar.getInstance();
+		File logDir = anRtData.getValueAsFile(Testium.RESULTBASEDIR);
+		if ( !logDir.isDirectory() )
+		{
+			throw new TestExecutionException("Directory does not exist: " + logDir.getAbsolutePath());
+		}
+
+		SutInfo sut = mySutControl.getSutInfo( logDir, anRtData );
 
 		String username = System.getProperty("user.name");
 		String hostname = "Unknown";
@@ -55,20 +62,22 @@ public class TestSuiteExecutorImpl implements TestSuiteExecutor
 		}
 
 		TestRunResult result = new TestRunResult( aTestGroup.getId(), // Test Suite
-		                                          aTestGroup.getId(), // DisplayName
+		                                          aTestGroupId, // DisplayName
 		                                          username,
 		                                          hostname,
 		                                          sut,
-		                                          aDate,
+		                                          date,
 		                                          TestRunResult.STARTED );
 
 		myTestRunResultWriter.setResult( result );
     	TestGroupResult tgResult = new TestGroupResult(aTestGroup);
 		result.setTestGroup(tgResult);
 
-		myTestGroupExecutor.execute(aTestGroup, aScriptDir, aLogDir, tgResult);
+		myTestGroupExecutor.execute(aTestGroup, aTestGroupId, aScriptDir, logDir, tgResult);
 		
-		result.setEndDate( Calendar.getInstance() );
+		Calendar endDate = Calendar.getInstance();
+		endDate.setTimeInMillis(System.currentTimeMillis());
+		result.setEndDate( endDate );
 		result.setStatus(TestRunResult.FINISHED);
 		
 		myTestRunResultWriter.write();
@@ -86,5 +95,4 @@ public class TestSuiteExecutorImpl implements TestSuiteExecutor
 	{
 		myTestGroupExecutor = aTestGroupExecutor;
 	}
-
 }

@@ -8,6 +8,7 @@ import java.util.Hashtable;
 
 import org.testtoolinterfaces.testresult.TestCaseResult;
 import org.testtoolinterfaces.testresult.TestGroupResult;
+import org.testtoolinterfaces.testresult.TestStepResult;
 
 import org.testtoolinterfaces.utils.Trace;
 
@@ -20,9 +21,12 @@ public class TestGroupResultStdOutWriter
 	private int myIndentLevel = 0;
 	private TestGroupResultStdOutWriter myTgResultWriter = null;
 	private TestCaseResultStdOutWriter myTcResultWriter;
+	private TestStepResultStdOutWriter myTsResultWriter;
 	
 	private ArrayList<String> myPrintedTGs = new ArrayList<String>();
 	private Hashtable<String, ArrayList<String>> myPrintedTCs = new Hashtable<String, ArrayList<String>>();
+	private Hashtable<String, ArrayList<String>> myPrintedInitializes = new Hashtable<String, ArrayList<String>>();
+	private Hashtable<String, ArrayList<String>> myPrintedRestores = new Hashtable<String, ArrayList<String>>();
 	
 	public TestGroupResultStdOutWriter(int anIndentLevel)
 	{
@@ -30,6 +34,7 @@ public class TestGroupResultStdOutWriter
 
 		myIndentLevel = anIndentLevel;
 		myTcResultWriter = new TestCaseResultStdOutWriter( anIndentLevel+1 );
+		myTsResultWriter = new TestStepResultStdOutWriter( anIndentLevel+1 );
 	}
 
 	/**
@@ -47,8 +52,22 @@ public class TestGroupResultStdOutWriter
 	    	
 			myPrintedTGs.add(testGroupResultId);
 			myPrintedTCs.put(testGroupResultId, new ArrayList<String>());
+			myPrintedInitializes.put(testGroupResultId, new ArrayList<String>());
+			myPrintedRestores.put(testGroupResultId, new ArrayList<String>());
 	    }
 	    
+		// Initialization Steps
+		Hashtable<Integer, TestStepResult> initResults = aTestGroupResult.getInitializationResults();
+    	for (int key = 0; key < initResults.size(); key++)
+    	{
+    		String tsId = initResults.get(key).getDisplayName();
+    		if ( ! myPrintedInitializes.get(testGroupResultId).contains(tsId) )
+    		{
+    			myTsResultWriter.print(initResults.get(key));
+    			myPrintedInitializes.get(testGroupResultId).add( tsId );
+    		}
+    	}
+
 		// Test Groups
 		Hashtable<Integer, TestGroupResult> tgResults = aTestGroupResult.getTestGroupResults();
     	for (int key = 0; key < tgResults.size(); key++)
@@ -72,7 +91,19 @@ public class TestGroupResultStdOutWriter
         		myPrintedTCs.get(testGroupResultId).add( tcId );
     		}
     	}
-	}
+
+		// Restoration Steps
+		Hashtable<Integer, TestStepResult> restoreResults = aTestGroupResult.getRestoreResults();
+    	for (int key = 0; key < restoreResults.size(); key++)
+    	{
+    		String tsId = restoreResults.get(key).getDisplayName();
+    		if ( ! myPrintedRestores.get(testGroupResultId).contains(tsId) )
+    		{
+    			myTsResultWriter.print(restoreResults.get(key));
+    			myPrintedRestores.get(testGroupResultId).add( tsId );
+    		}
+    	}
+}
 
 	private static String repeat(char c,int i)
 	{

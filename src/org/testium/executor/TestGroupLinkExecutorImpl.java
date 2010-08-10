@@ -54,4 +54,23 @@ public class TestGroupLinkExecutorImpl implements TestGroupLinkExecutor
 	{
 		myTestGroupReader = aTestGroupReader;
 	}
+
+	@Override
+	public void execute( TestGroupLink aTestGroupLink,
+	                     String aTestGroupId,
+	                     File aScriptDir,
+	                     File aLogDir,
+	                     TestGroupResult aResult)
+	{
+		File script = new File( aScriptDir + File.separator + aTestGroupLink.getTestGroupScript().getExecutionScript() );
+		TestGroup testGroup = myTestGroupReader.readTgFile(script);
+		
+		File newScriptDir = new File( script.getParent() );
+
+		if( testGroup.hasGroupId(aTestGroupId) )
+		{
+			myTestGroupExecutor.execute(testGroup, aTestGroupId, newScriptDir, aLogDir, aResult);
+			myTestRunResultWriter.intermediateWrite();
+		}
+	}
 }

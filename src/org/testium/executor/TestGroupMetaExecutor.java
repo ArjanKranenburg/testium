@@ -38,7 +38,7 @@ public class TestGroupMetaExecutor implements TestGroupExecutor
 						 TestGroupResult aResult )
 	{
 		Trace.println(Trace.EXEC, "execute( " 
-				+ aTestGroup + ", "
+				+ aTestGroup.getId() + ", "
 	            + aScriptDir.getAbsolutePath() + ", "
 	            + aLogDir.getAbsolutePath() + " )", true );
 
@@ -66,5 +66,28 @@ public class TestGroupMetaExecutor implements TestGroupExecutor
 	{
 		myTestGroupLinkExecutor = aTestGroupLinkExecutor;
 		myTestGroupExecutor.setTestGroupLinkExecutor( aTestGroupLinkExecutor );
+	}
+
+	@Override
+	public void execute( TestGroup aTestGroup,
+	                     String aTestGroupId,
+	                     File aScriptDir,
+	                     File aLogDir,
+	                     TestGroupResult aResult )
+	{
+		Trace.println(Trace.EXEC, "execute( " 
+						+ aTestGroup.getId() + ", "
+						+ aTestGroupId + ", "
+			            + aScriptDir.getAbsolutePath() + ", "
+			            + aLogDir.getAbsolutePath() + " )", true );
+
+		if( aTestGroup.getType().equals(TestEntry.TYPE.GroupLink) )
+		{
+			myTestGroupLinkExecutor.execute((TestGroupLink) aTestGroup, aTestGroupId, aScriptDir, aLogDir, aResult);
+		}
+		else
+		{
+			myTestGroupExecutor.execute(aTestGroup, aTestGroupId, aScriptDir, aLogDir, aResult);
+		}
 	}
 }
