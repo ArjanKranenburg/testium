@@ -46,10 +46,7 @@ public class Main
 
 		parseCommandLine( rtData, args );
 		String command = rtData.getValueAs(String.class, Testium.COMMAND);
-		if( command.equalsIgnoreCase( CmdLineParser.HELP ) )
-		{
-			return;
-		}
+
 		readGlobalConfigFile( rtData );
 		readPersonalConfigFile( rtData );
 
@@ -134,6 +131,8 @@ public class Main
 	{
 		CmdLineParser cmdLine = new CmdLineExecutionParser( APPLICATIONNAME );
 		cmdLine.setDefaultCommand( "execute" );
+		
+		cmdLine.acceptFlag( Testium.VERSION, "Displays the versions of Testium and the plugins" );
 
 		try 
 		{
@@ -146,19 +145,31 @@ public class Main
 			throw new Error( "Error on command line.", pe );
 		}
 
-		boolean help = false;
-		Object value = anRtData.getValue(Testium.HELP);
-		if ( value != null && anRtData.getType( Testium.HELP ).equals( Boolean.class ) )
-		{
-			help = (Boolean) value;
-		}
-//		boolean help = anRtData.getValueAs(Boolean.class, Testium.HELP);
-		if( help )
+		if( anRtData.getValueAsBoolean( Testium.HELP ) )
 		{
 			cmdLine.printHelpOn(System.out);
 			System.exit(0);
 		}
-	}
+
+		if( anRtData.getValueAsBoolean( Testium.VERSION ) )
+		{
+			System.out.println( "The version of Testium" );
+			Package[] packages = Package.getPackages();
+			for ( Package pkg : packages )
+			{
+				String pkgName = pkg.getName();
+				if ( ! pkgName.startsWith("java") &&
+					 ! pkgName.startsWith( "sun" ) &&
+					 ! pkgName.startsWith( "joptsimple" ) &&
+					 ! pkgName.startsWith( "org.xml" ) )
+				{
+					System.out.println( pkgName + ":\t" + pkg.getImplementationVersion() );
+				}
+			}
+
+			System.exit(0);
+		}
+}
 
 	private static void readGlobalConfigFile(RunTimeData rtData)
 	{

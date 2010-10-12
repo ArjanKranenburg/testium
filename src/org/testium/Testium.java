@@ -53,6 +53,8 @@ public class Testium
 		/** User's Configuration directory */ 									USERCONFIGDIR,
 		/** User's Home directory */ 											USERHOME,
 		
+		/** Version */															VERSION,
+		
 																				ZZZ_END;
 	
 		public String toString()
@@ -101,6 +103,8 @@ public class Testium
 	
 	public final static String USERCONFIGDIR	 = KEYS.USERCONFIGDIR.toString();		// As java.io.File
 	public final static String USERHOME 		 = KEYS.USERHOME.toString();		// As java.io.File
+
+	public final static String VERSION			 = KEYS.VERSION.toString();			// As boolean
 	
 	private TestGroupReader myTestGroupReader;
 
