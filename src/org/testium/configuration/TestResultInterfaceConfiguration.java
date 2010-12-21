@@ -3,8 +3,7 @@ package org.testium.configuration;
  * 
  */
 
-import java.io.File;
-
+import org.testtoolinterfaces.testresultinterface.Configuration;
 import org.testtoolinterfaces.utils.Trace;
 
 /**
@@ -15,7 +14,7 @@ public class TestResultInterfaceConfiguration
 {
 	private boolean myStdOutEnabled;
 	private boolean myFileEnabled;
-	private File myXslDir;
+	private Configuration myTtiConfiguration;
 	private String myFileName;
 
 	/**
@@ -26,23 +25,23 @@ public class TestResultInterfaceConfiguration
 	 */
 	public TestResultInterfaceConfiguration( boolean aStdOutEnabled,
 											 boolean aFileEnabled,
-											 File aXslDir,
+											 Configuration aTtiConfiguration,
 											 String aFileName )
 	{
 	    Trace.println(Trace.LEVEL.CONSTRUCTOR);
 
 	    myStdOutEnabled = aStdOutEnabled;
 	    myFileEnabled = aFileEnabled;
-	    myXslDir = aXslDir;
+	    myTtiConfiguration = aTtiConfiguration;
 	    myFileName = aFileName;
 	}
 
 	/**
 	 * @return the myXslDir
 	 */
-	public File getXslDir()
+	public Configuration getTtiConfig()
 	{
-		return myXslDir;
+		return myTtiConfiguration;
 	}
 
 	/**

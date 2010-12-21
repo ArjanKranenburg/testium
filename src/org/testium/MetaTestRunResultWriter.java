@@ -1,5 +1,6 @@
 package org.testium;
 
+import java.io.File;
 import java.util.ArrayList;
 
 import org.testtoolinterfaces.testresult.TestRunResult;
@@ -18,29 +19,21 @@ public class MetaTestRunResultWriter implements TestRunResultWriter
 		myWriters = new ArrayList<TestRunResultWriter>();
 	}
 
-	public void setResult(TestRunResult aRunResult)
+	@Override
+	public void update(TestRunResult aRunResult)
 	{
 	    for (TestRunResultWriter resultWriter : myWriters)
 	    {
-		    resultWriter.setResult( aRunResult );
+		    resultWriter.update( aRunResult );
 	    }
 	}
 
 	@Override
-	public void intermediateWrite()
+	public void write(TestRunResult aRunResult, File aResultFile)
 	{
 	    for (TestRunResultWriter resultWriter : myWriters)
 	    {
-		    resultWriter.intermediateWrite();
-	    }
-	}
-
-	@Override
-	public void write()
-	{
-	    for (TestRunResultWriter resultWriter : myWriters)
-	    {
-		    resultWriter.write();
+		    resultWriter.write( aRunResult, aResultFile );
 	    }
 	}
 

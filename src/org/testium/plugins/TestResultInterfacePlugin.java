@@ -7,11 +7,15 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
+import org.testium.TestGroupResultStdOutWriter;
 import org.testium.TestRunResultStdOutWriter;
 import org.testium.Testium;
 import org.testium.configuration.ConfigurationException;
 import org.testium.configuration.TestResultInterfaceConfiguration;
 import org.testium.configuration.TestResultInterfaceConfigurationXmlHandler;
+import org.testtoolinterfaces.testresultinterface.Configuration;
+import org.testtoolinterfaces.testresultinterface.TestCaseResultXmlWriter;
+import org.testtoolinterfaces.testresultinterface.TestGroupResultXmlWriter;
 import org.testtoolinterfaces.testresultinterface.TestRunResultXmlWriter;
 import org.testtoolinterfaces.utils.RunTimeData;
 import org.testtoolinterfaces.utils.Trace;
@@ -39,28 +43,32 @@ public final class TestResultInterfacePlugin implements Plugin
 		File trConfigFile = new File( configDir, "testResultConfiguration.xml" );
 		TestResultInterfaceConfiguration trConfig = readConfigFile( trConfigFile, aRtData );
 		
-		// Factories
-
 		// Executors
 		
 		// Input and ouput interfaces
     	if ( trConfig.getStdOutEnabled() )
     	{
-    		TestRunResultStdOutWriter stdOutWriter = new TestRunResultStdOutWriter();
-    		aPluginCollection.addTestRunResultWriter( stdOutWriter );
+    		TestGroupResultStdOutWriter stdOutGroupWriter = new TestGroupResultStdOutWriter( 2 );
+    		aPluginCollection.addTestGroupResultWriter( stdOutGroupWriter );
+ 
+    		TestRunResultStdOutWriter stdOutRunWriter = new TestRunResultStdOutWriter();
+    		aPluginCollection.addTestRunResultWriter( stdOutRunWriter );
     	}
 
     	if ( trConfig.getFileEnabled() )
     	{
-    		File xslDir = trConfig.getXslDir();
-    		String fileName = trConfig.getFileName();
+        	Configuration ttiConfig = trConfig.getTtiConfig();
+    		TestCaseResultXmlWriter tcXmlWriter = new TestCaseResultXmlWriter(ttiConfig);
+    		aPluginCollection.addTestCaseResultWriter( tcXmlWriter );
+
+        	TestGroupResultXmlWriter tgXmlWriter = new TestGroupResultXmlWriter(ttiConfig);
+    		aPluginCollection.addTestGroupResultWriter( tgXmlWriter );
+    		
     		String testEnvironment = aRtData.getValueAs(String.class, Testium.TESTENVIRONMENT);
     		String testPhase = aRtData.getValueAs(String.class, Testium.TESTPHASE);
-    		File logDir = aRtData.getValueAs(File.class, Testium.RESULTBASEDIR);
-        	File resultFile = new File( logDir.getAbsolutePath(), fileName );
 
-        	TestRunResultXmlWriter xmlWriter = new TestRunResultXmlWriter( resultFile, xslDir, testEnvironment, testPhase );
-    		aPluginCollection.addTestRunResultWriter( xmlWriter );
+        	TestRunResultXmlWriter xmlWriter = new TestRunResultXmlWriter( ttiConfig, testEnvironment, testPhase );
+        	aPluginCollection.addTestRunResultWriter(xmlWriter);
     	}
 	}
 	

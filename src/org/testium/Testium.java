@@ -1,12 +1,16 @@
 package org.testium;
 
 import java.io.File;
+import java.net.UnknownHostException;
 import java.util.Locale;
 
 import org.testium.configuration.ConfigurationException;
 import org.testium.executor.TestExecutionException;
-import org.testium.executor.TestSuiteExecutor;
+import org.testium.executor.TestRunExecutorImpl;
 import org.testium.plugins.PluginCollection;
+import org.testium.systemundertest.SutControl;
+import org.testtoolinterfaces.testresult.SutInfo;
+import org.testtoolinterfaces.testresultinterface.TestRunResultWriter;
 import org.testtoolinterfaces.testsuite.TestGroup;
 import org.testtoolinterfaces.testsuiteinterface.TestGroupReader;
 import org.testtoolinterfaces.utils.RunTimeData;
@@ -105,16 +109,25 @@ public class Testium
 	public final static String USERHOME 		 = KEYS.USERHOME.toString();		// As java.io.File
 
 	public final static String VERSION			 = KEYS.VERSION.toString();			// As boolean
-	
-	private TestGroupReader myTestGroupReader;
 
-	private TestSuiteExecutor	myTestSuiteExecutor;
+
+	private TestGroupReader myTestGroupReader;
+	private SutControl mySutControl;
+	
+	private TestRunExecutorImpl myTestRunExecutor;
+	
+	private TestRunResultWriter myTestRunResultWriter;
 	
 	public Testium(PluginCollection aPlugins, RunTimeData aRtData ) throws ConfigurationException
 	{
 		myTestGroupReader = aPlugins.getTestGroupReader();
-		myTestSuiteExecutor = aPlugins.getTestSuiteExecutor();
-		
+		mySutControl = aPlugins.getSutControl();
+
+		myTestRunResultWriter = aPlugins.getTestRunResultWriter();
+		myTestRunExecutor = new TestRunExecutorImpl( aPlugins.getTestStepExecutor(),
+		                                             aPlugins.getTestCaseExecutor(),
+		                                             aPlugins.getTestGroupExecutor(),
+		                                             myTestRunResultWriter );
 	}
 
 	public TestGroup readTestGroup( File aTestGroup )
@@ -124,23 +137,35 @@ public class Testium
 		return myTestGroupReader.readTgFile(aTestGroup);
 	}
 
-	public void execute( TestGroup aTestGroup, File aBaseExecutionDir, RunTimeData aRtData ) throws TestExecutionException
+	public void execute( TestGroup aTestGroup, File aBaseExecutionDir, RunTimeData anRtData ) throws TestExecutionException
 	{
 		Trace.println(Trace.EXEC, "execute( " + aTestGroup.getId() + " )", true);
 
-		String testGroupId = aRtData.getValueAsString(TESTGROUP);
-		if ( testGroupId == null )
+		File logDir = anRtData.getValueAsFile(Testium.RESULTBASEDIR);
+		if ( !logDir.isDirectory() )
 		{
-			testGroupId = aTestGroup.getId();
+			logDir.mkdir();
 		}
-    	// TODO Move date as start-date to run-time data
-		myTestSuiteExecutor.execute( aTestGroup,
-		                             testGroupId,
-    	                             aBaseExecutionDir,
-    	                             aRtData );
+
+		SutInfo sut = mySutControl.getSutInfo( logDir, anRtData );
+
+		String username = System.getProperty("user.name");
+		String hostname = "Unknown";
+		try
+		{
+			hostname = java.net.InetAddress.getLocalHost().getHostName();
+		}
+		catch (UnknownHostException exc)
+		{
+			// nop, i.e. leave it Unknown
+		}
+
+		myTestRunExecutor.execute(aTestGroup, username, hostname, sut, aBaseExecutionDir, anRtData);
 	}
 
-	public void prepare( TestGroup aTestGroup, File parentFile, RunTimeData rtData) throws TestExecutionException
+	public void prepare( TestGroup aTestGroup,
+	                     File aParentFile,
+	                     RunTimeData anRtData ) throws TestExecutionException
 	{
 		// TODO Auto-generated method stub
 		

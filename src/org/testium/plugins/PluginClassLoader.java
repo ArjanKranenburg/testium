@@ -34,9 +34,9 @@ public class PluginClassLoader extends URLClassLoader
 		Trace.print(Trace.LEVEL.CONSTRUCTOR, "PluginClassLoader( ", true);
     	for ( URL url : anUrlArray )
     	{
-    		Trace.append(Trace.LEVEL.CONSTRUCTOR, url.toString() + " ");
+    		Trace.append(Trace.CONSTRUCTOR, url.toString() + " ");
     	}
-		Trace.append(Trace.LEVEL.CONSTRUCTOR, " )\n");
+		Trace.append(Trace.CONSTRUCTOR, " )\n");
     }
     
 	@SuppressWarnings("unchecked")

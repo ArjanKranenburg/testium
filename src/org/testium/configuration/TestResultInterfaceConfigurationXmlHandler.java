@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.ArrayList;
 
 import org.testium.Testium;
+import org.testtoolinterfaces.testresultinterface.Configuration;
 import org.testtoolinterfaces.utils.GenericTagAndBooleanXmlHandler;
 import org.testtoolinterfaces.utils.GenericTagAndStringXmlHandler;
 import org.testtoolinterfaces.utils.RunTimeData;
@@ -22,12 +23,16 @@ public class TestResultInterfaceConfigurationXmlHandler extends XmlHandler
 	private static final String	CFG_FILE_ENABLED	= "toFile";
 	private static final String CFG_OUTPUT_BASE_DIRECTORY = "OutputBaseDirectory";
 	private static final String	CFG_OUTPUT_FILENAME	= "fileName";
-	private static final String	CFG_XSLDIR_FILE	= "xslDir";
+	private static final String	CFG_RUN_XSLDIR	= "xslRunDir";
+	private static final String	CFG_GROUP_XSLDIR	= "xslGroupDir";
+	private static final String	CFG_CASE_XSLDIR	= "xslCaseDir";
 
-	private boolean myStdOutEnabled = true;
-	private boolean myFileEnabled = true;
-	private String myTempFileName = "result.xml";
-	private File myTempXslDir;
+	private boolean myStdOutEnabled;
+	private boolean myFileEnabled;
+	private String myFileName;
+	private File myRunXslDir;
+	private File myGroupXslDir;
+	private File myCaseXslDir;
 
 	private RunTimeData myRunTimeData;
 
@@ -42,7 +47,9 @@ public class TestResultInterfaceConfigurationXmlHandler extends XmlHandler
 	    ArrayList<XmlHandler> xmlHandlers = new ArrayList<XmlHandler>();
 	    xmlHandlers.add(new GenericTagAndBooleanXmlHandler(anXmlReader, CFG_STDOUT_ENABLED));
 	    xmlHandlers.add(new GenericTagAndBooleanXmlHandler(anXmlReader, CFG_FILE_ENABLED));
-	    xmlHandlers.add(new GenericTagAndStringXmlHandler(anXmlReader, CFG_XSLDIR_FILE));
+	    xmlHandlers.add(new GenericTagAndStringXmlHandler(anXmlReader, CFG_RUN_XSLDIR));
+	    xmlHandlers.add(new GenericTagAndStringXmlHandler(anXmlReader, CFG_GROUP_XSLDIR));
+	    xmlHandlers.add(new GenericTagAndStringXmlHandler(anXmlReader, CFG_CASE_XSLDIR));
 	    xmlHandlers.add(new GenericTagAndStringXmlHandler(anXmlReader, CFG_OUTPUT_FILENAME));
 	    xmlHandlers.add(new GenericTagAndStringXmlHandler(anXmlReader, CFG_OUTPUT_BASE_DIRECTORY));
 
@@ -96,25 +103,37 @@ public class TestResultInterfaceConfigurationXmlHandler extends XmlHandler
 			RunTimeVariable rtVar = new RunTimeVariable(Testium.RESULTBASEDIR, resultBaseDir);
 			myRunTimeData.add( rtVar );
     	}
-		if (aQualifiedName.equalsIgnoreCase(CFG_STDOUT_ENABLED))
+		else if (aQualifiedName.equalsIgnoreCase(CFG_STDOUT_ENABLED))
     	{
 			myStdOutEnabled = aChildXmlHandler.getValue().equalsIgnoreCase("true");
 			aChildXmlHandler.reset();
     	}
-		if (aQualifiedName.equalsIgnoreCase(CFG_FILE_ENABLED))
+		else if (aQualifiedName.equalsIgnoreCase(CFG_FILE_ENABLED))
     	{
 			myFileEnabled = aChildXmlHandler.getValue().equalsIgnoreCase("true");
 			aChildXmlHandler.reset();
     	}
-		if (aQualifiedName.equalsIgnoreCase(CFG_XSLDIR_FILE))
+		else if (aQualifiedName.equalsIgnoreCase(CFG_RUN_XSLDIR))
     	{
 			String xslDirName = myRunTimeData.substituteVars( aChildXmlHandler.getValue() );
-			myTempXslDir = new File( xslDirName );
+			myRunXslDir = new File( xslDirName );
 			aChildXmlHandler.reset();
     	}
-		if (aQualifiedName.equalsIgnoreCase(CFG_OUTPUT_FILENAME))
+		else if (aQualifiedName.equalsIgnoreCase(CFG_GROUP_XSLDIR))
     	{
-			myTempFileName = myRunTimeData.substituteVars( aChildXmlHandler.getValue() );
+			String xslDirName = myRunTimeData.substituteVars( aChildXmlHandler.getValue() );
+			myGroupXslDir = new File( xslDirName );
+			aChildXmlHandler.reset();
+    	}
+		else if (aQualifiedName.equalsIgnoreCase(CFG_CASE_XSLDIR))
+    	{
+			String xslDirName = myRunTimeData.substituteVars( aChildXmlHandler.getValue() );
+			myCaseXslDir = new File( xslDirName );
+			aChildXmlHandler.reset();
+    	}
+		else if (aQualifiedName.equalsIgnoreCase(CFG_OUTPUT_FILENAME))
+    	{
+			myFileName = myRunTimeData.substituteVars( aChildXmlHandler.getValue() );
 			aChildXmlHandler.reset();
     	}
 
@@ -123,12 +142,19 @@ public class TestResultInterfaceConfigurationXmlHandler extends XmlHandler
 	
 	public TestResultInterfaceConfiguration getConfiguration() throws ConfigurationException
 	{
-		return new TestResultInterfaceConfiguration( myStdOutEnabled, myFileEnabled, myTempXslDir, myTempFileName );
+		Configuration ttiConfiguration = new Configuration( myRunXslDir, myGroupXslDir, myCaseXslDir );
+		return new TestResultInterfaceConfiguration( myStdOutEnabled, myFileEnabled, ttiConfiguration, myFileName );
 	}
 	
 	public void reset()
 	{
-		myTempXslDir = null;
+		myStdOutEnabled = true;
+		myFileEnabled = true;
+		myFileName = "result.xml";
+
+		myRunXslDir = null;
+		myGroupXslDir = null;
+		myCaseXslDir = null;
 	}
 
 }

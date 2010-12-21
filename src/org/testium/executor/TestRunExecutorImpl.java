@@ -1,14 +1,16 @@
 package org.testium.executor;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOError;
+import java.util.Calendar;
 
+import org.testium.Testium;
+import org.testtoolinterfaces.testresult.SutInfo;
 import org.testtoolinterfaces.testresult.TestCaseResultLink;
 import org.testtoolinterfaces.testresult.TestGroupResult;
 import org.testtoolinterfaces.testresult.TestGroupResultLink;
+import org.testtoolinterfaces.testresult.TestRunResult;
 import org.testtoolinterfaces.testresult.TestStepResult;
-import org.testtoolinterfaces.testresultinterface.TestGroupResultWriter;
+import org.testtoolinterfaces.testresultinterface.TestRunResultWriter;
 import org.testtoolinterfaces.testsuite.TestCaseLink;
 import org.testtoolinterfaces.testsuite.TestEntry;
 import org.testtoolinterfaces.testsuite.TestEntryArrayList;
@@ -16,18 +18,15 @@ import org.testtoolinterfaces.testsuite.TestGroup;
 import org.testtoolinterfaces.testsuite.TestGroupLink;
 import org.testtoolinterfaces.testsuite.TestStep;
 import org.testtoolinterfaces.testsuite.TestStepArrayList;
-import org.testtoolinterfaces.testsuiteinterface.TestGroupReader;
+import org.testtoolinterfaces.utils.RunTimeData;
 import org.testtoolinterfaces.utils.Trace;
 import org.testtoolinterfaces.utils.Warning;
 
-public class TestGroupExecutorImpl implements TestGroupExecutor
+public class TestRunExecutorImpl
 {
-	private static final String		TYPE = "tti";
-
 	private TestStepMetaExecutor	myTestStepExecutor;
-	private TestGroupResultWriter 	myTestGroupResultWriter;
+	private TestRunResultWriter 	myTestRunResultWriter;
 
-	private TestGroupReader			myTestGroupReader;
 	private TestGroupMetaExecutor	myTestGroupExecutor;
 	private TestCaseMetaExecutor	myTestCaseExecutor;
 
@@ -36,71 +35,75 @@ public class TestGroupExecutorImpl implements TestGroupExecutor
 	 * @param myTestStepExecutor
 	 * @param myTestCaseScriptExecutor
 	 */
-	public TestGroupExecutorImpl( TestStepMetaExecutor aTestStepMetaExecutor,
+	public TestRunExecutorImpl( TestStepMetaExecutor aTestStepMetaExecutor,
 	                              TestCaseMetaExecutor aTestCaseMetaExecutor,
 	                              TestGroupMetaExecutor aTestGroupMetaExecutor,
-	                              TestGroupResultWriter aTestGroupResultWriter )
+	                              TestRunResultWriter aTestRunResultWriter )
 	{
 		myTestStepExecutor = aTestStepMetaExecutor;
 		myTestCaseExecutor = aTestCaseMetaExecutor;
 		myTestGroupExecutor = aTestGroupMetaExecutor;
-		myTestGroupResultWriter = aTestGroupResultWriter;
-
-		myTestGroupReader = new TestGroupReader();
+		myTestRunResultWriter = aTestRunResultWriter;
 	}
 
-	@Override
-	public TestGroupResultLink execute(TestGroupLink aTestGroupLink, File aLogDir)
+	public void execute( TestGroup aTestGroup,
+	                     String aUsername,
+	                     String aHostname,
+	                     SutInfo aSut,
+	                     File aBaseExecutionDir,
+	                     RunTimeData anRtData )
 	{
-		if ( !aLogDir.isDirectory() )
+		String testGroupId = anRtData.getValueAsString(Testium.TESTGROUP);
+		if ( testGroupId == null )
 		{
-			FileNotFoundException exc = new FileNotFoundException("Directory does not exist: " + aLogDir.getPath());
-			throw new IOError( exc );
+			testGroupId = aTestGroup.getId();
 		}
-		Trace.println(Trace.EXEC, "execute( " 
-				+ aTestGroupLink.getId() + ", "
-	            + aLogDir.getPath() + " )", true );
 
-		File testGroupFile = aTestGroupLink.getLink();
-		File scriptDir = testGroupFile.getParentFile();
-		TestGroup testGroup = myTestGroupReader.readTgFile(testGroupFile);
+		Calendar date = Calendar.getInstance();
+		File logDir = anRtData.getValueAsFile(Testium.RESULTBASEDIR);
+		
+		TestRunResult result = new TestRunResult( aTestGroup.getId(), // Test Suite
+		                                          testGroupId, // DisplayName
+		                                          aUsername,
+		                                          aHostname,
+		                                          aSut,
+		                                          date,
+		                                          TestRunResult.STARTED );
 
-		File groupLogDir = new File(aLogDir, aTestGroupLink.getId());
-		groupLogDir.mkdir();
+		File runLogFile = new File(logDir, aTestGroup.getId() + "_run.xml");
+		myTestRunResultWriter.write( result, runLogFile );
 
-		File logFile = new File(groupLogDir, aTestGroupLink.getId() + "_log.xml");
-    	myTestGroupResultWriter.write( new TestGroupResult( testGroup ), logFile );
-		TestGroupResult result = execute( testGroup, scriptDir, groupLogDir );
-
-    	TestGroupResultLink tgLinkResult = new TestGroupResultLink( aTestGroupLink,
-    	                                                            result.getSummary(),
-    	                                                            logFile );
-
-    	return tgLinkResult;
+		execute(aTestGroup, result, aBaseExecutionDir, logDir);
+		
+		Calendar endDate = Calendar.getInstance();
+		endDate.setTimeInMillis(System.currentTimeMillis());
+		result.setEndDate( endDate );
+		result.setStatus(TestRunResult.FINISHED);
+		
+		myTestRunResultWriter.update( result );
 	}
 
-	@Override
-	public TestGroupResult execute(TestGroup aTestGroup, File aScriptDir, File aLogDir)
+	public void execute(TestGroup aTestGroup, TestRunResult aTestRunResult, File aScriptDir, File aLogDir)
 	{
 		Trace.println(Trace.EXEC, "execute( " 
 				+ aTestGroup.getId() + ", "
+				+ aScriptDir.getPath() + ", "
 	            + aLogDir.getPath() + " )", true );
 
-		TestGroupResult result = new TestGroupResult( aTestGroup );
+		TestGroupResult tgResult = new TestGroupResult( aTestGroup );
+		aTestRunResult.setTestGroup(tgResult);
 
     	TestStepArrayList prepareSteps = aTestGroup.getPrepareSteps();
-    	executePrepareSteps(prepareSteps, result, aScriptDir, aLogDir);
+    	executePrepareSteps(prepareSteps, aTestRunResult, aScriptDir, aLogDir);
 
     	TestEntryArrayList execSteps = aTestGroup.getExecutionEntries();
-		executeExecSteps(execSteps, result, aScriptDir, aLogDir);
+		executeExecSteps(execSteps, aTestRunResult, aScriptDir, aLogDir);
 
     	TestStepArrayList restoreSteps = aTestGroup.getRestoreSteps();
-    	executeRestoreSteps(restoreSteps, result, aScriptDir, aLogDir);
-    	
-    	return result;
+    	executeRestoreSteps(restoreSteps, aTestRunResult, aScriptDir, aLogDir);
 	}
 
-	public void executePrepareSteps(TestStepArrayList aPrepareSteps, TestGroupResult aResult, File aScriptDir, File aLogDir)
+	public void executePrepareSteps(TestStepArrayList aPrepareSteps, TestRunResult aResult, File aScriptDir, File aLogDir)
 	{
 		Trace.println(Trace.EXEC_PLUS, "executeInitSteps( " 
 						+ aPrepareSteps + ", "
@@ -112,14 +115,14 @@ public class TestGroupExecutorImpl implements TestGroupExecutor
     	{
     		TestStep step = aPrepareSteps.get(key);
 			TestStepResult tsResult = myTestStepExecutor.execute(step, aScriptDir, aLogDir);
-			aResult.addInitialization(tsResult);
+			aResult.getTestGroup().addInitialization(tsResult);
 
-			myTestGroupResultWriter.update( aResult );
+			myTestRunResultWriter.update( aResult );
     	}
 	}
 
 	public void executeExecSteps( TestEntryArrayList anExecEntries,
-	                              TestGroupResult aResult,
+	                              TestRunResult aResult,
 	                              File aScriptDir,
 	                              File aLogDir )
 	{
@@ -146,7 +149,7 @@ public class TestGroupExecutorImpl implements TestGroupExecutor
 					tgLink.setLinkDir( aScriptDir );
 
 					TestGroupResultLink tgResult = myTestGroupExecutor.execute(tgLink, aLogDir);
-					aResult.addTestGroup(tgResult);
+					aResult.getTestGroup().addTestGroup(tgResult);
 				}
 				else if ( entry.getType() == TestEntry.TYPE.CaseLink )
 				{
@@ -159,7 +162,7 @@ public class TestGroupExecutorImpl implements TestGroupExecutor
 					tcLink.setLinkDir( aScriptDir );
 
 					TestCaseResultLink tcResult = myTestCaseExecutor.execute(tcLink, aLogDir);
-					aResult.addTestCase(tcResult);
+					aResult.getTestGroup().addTestCase(tcResult);
 				}
 				else
 				{
@@ -171,16 +174,16 @@ public class TestGroupExecutorImpl implements TestGroupExecutor
 				String message = "Execution of " + entry.getType() + " " + entry.getId() + " failed:\n"
 					+ e.getMessage()
 					+ "\nTrying to continue, but this may affect further execution...";
-				aResult.addComment(message);
+				aResult.getTestGroup().addComment(message);
 				Warning.println(message);
 				Trace.print(Trace.ALL, e);
 			}
 
-			myTestGroupResultWriter.update( aResult );
+			myTestRunResultWriter.update( aResult );
     	}
 	}
 
-	public void executeRestoreSteps(TestStepArrayList aRestoreSteps, TestGroupResult aResult, File aScriptDir, File aLogDir)
+	public void executeRestoreSteps(TestStepArrayList aRestoreSteps, TestRunResult aResult, File aScriptDir, File aLogDir)
 	{
 		Trace.println(Trace.EXEC_PLUS, "executeRestoreSteps( " 
 						+ aRestoreSteps + ", "
@@ -192,15 +195,9 @@ public class TestGroupExecutorImpl implements TestGroupExecutor
     	{
     		TestStep step = aRestoreSteps.get(key);
 			TestStepResult tsResult = myTestStepExecutor.execute(step, aScriptDir, aLogDir);
-			aResult.addRestore(tsResult);
+			aResult.getTestGroup().addRestore(tsResult);
 
-			myTestGroupResultWriter.update( aResult );
+			myTestRunResultWriter.update( aResult );
     	}
-	}
-	
-	@Override
-	public String getType()
-	{
-		return TYPE;
 	}
 }

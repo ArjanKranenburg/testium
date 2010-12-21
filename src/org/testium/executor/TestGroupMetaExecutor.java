@@ -1,93 +1,58 @@
 package org.testium.executor;
 
 import java.io.File;
+import java.util.Hashtable;
 
-import org.testtoolinterfaces.testresult.TestGroupResult;
-import org.testtoolinterfaces.testresultinterface.TestRunResultWriter;
-import org.testtoolinterfaces.testsuite.TestEntry;
-import org.testtoolinterfaces.testsuite.TestGroup;
+import org.testtoolinterfaces.testresult.ResultSummary;
+import org.testtoolinterfaces.testresult.TestGroupResultLink;
 import org.testtoolinterfaces.testsuite.TestGroupLink;
 import org.testtoolinterfaces.utils.Trace;
+import org.testtoolinterfaces.utils.Warning;
 
-
-public class TestGroupMetaExecutor implements TestGroupExecutor
+public class TestGroupMetaExecutor
 {
-	private TestGroupExecutor		myTestGroupExecutor;
-	private TestGroupLinkExecutor	myTestGroupLinkExecutor;
+	private Hashtable<String, TestGroupExecutor> myExecutors;
 
 	/**
-	 * @param aTestGroupExecutor
-	 * @param aTestGroupLinkExecutor
-	 * @param aTestRunResultWriter 
 	 */
-	public TestGroupMetaExecutor( TestGroupExecutor aTestGroupExecutor,
-	                              TestGroupLinkExecutor aTestGroupLinkExecutor,
-	                              TestRunResultWriter aTestRunResultWriter )
+	public TestGroupMetaExecutor()
 	{
-		Trace.println(Trace.CONSTRUCTOR, "TestGroupMetaExecutor( " 
-						+ aTestGroupExecutor + ", "
-			            + aTestGroupLinkExecutor + " )", true );
-		myTestGroupExecutor = aTestGroupExecutor;
-		myTestGroupLinkExecutor = aTestGroupLinkExecutor;
+		Trace.println( Trace.CONSTRUCTOR );
+		
+		myExecutors = new Hashtable<String, TestGroupExecutor>();
 	}
 
-	@Override
-	public void execute( TestGroup aTestGroup,
-						 File aScriptDir,
-						 File aLogDir,
-						 TestGroupResult aResult )
+	public TestGroupResultLink execute( TestGroupLink aTestGroupLink,
+	                                    File aLogDir )
 	{
 		Trace.println(Trace.EXEC, "execute( " 
-				+ aTestGroup.getId() + ", "
-	            + aScriptDir.getAbsolutePath() + ", "
+				+ aTestGroupLink.getId() + ", "
 	            + aLogDir.getAbsolutePath() + " )", true );
 
-		if( aTestGroup.getType().equals(TestEntry.TYPE.GroupLink) )
+		TestGroupResultLink result;
+		if ( myExecutors.containsKey( aTestGroupLink.getGroupType() ) )
 		{
-			myTestGroupLinkExecutor.execute((TestGroupLink) aTestGroup, aScriptDir, aLogDir, aResult);
+			TestGroupExecutor executor = myExecutors.get( aTestGroupLink.getGroupType() );
+			
+			result = executor.execute(aTestGroupLink, aLogDir);
 		}
 		else
 		{
-			myTestGroupExecutor.execute(aTestGroup, aScriptDir, aLogDir, aResult);
+			result = new TestGroupResultLink( aTestGroupLink,
+			                                  new ResultSummary(0, 0, 0, 0),
+			                                  null );
+
+			String message = "Cannot execute test case scripts of type " + aTestGroupLink.getGroupType() + "\n";
+			result.addComment(message);
+			Warning.println(message);
+			Trace.print(Trace.ALL, "Cannot execute " + aTestGroupLink.getId());
 		}
+		
+		return result;
 	}
 
-	public void setTestCaseExecutor(TestCaseExecutor aTestCaseExecutor)
+	public void put(String aType, TestGroupExecutor aTestGroupExecutor)
 	{
-		myTestGroupExecutor.setTestCaseExecutor( aTestCaseExecutor );
-	}
-
-	public void setTestGroupExecutor(TestGroupExecutor aTestGroupExecutor)
-	{
-		myTestGroupExecutor = aTestGroupExecutor;
-	}
-
-	public void setTestGroupLinkExecutor(TestGroupLinkExecutor aTestGroupLinkExecutor)
-	{
-		myTestGroupLinkExecutor = aTestGroupLinkExecutor;
-		myTestGroupExecutor.setTestGroupLinkExecutor( aTestGroupLinkExecutor );
-	}
-
-	@Override
-	public void execute( TestGroup aTestGroup,
-	                     String aTestGroupId,
-	                     File aScriptDir,
-	                     File aLogDir,
-	                     TestGroupResult aResult )
-	{
-		Trace.println(Trace.EXEC, "execute( " 
-						+ aTestGroup.getId() + ", "
-						+ aTestGroupId + ", "
-			            + aScriptDir.getAbsolutePath() + ", "
-			            + aLogDir.getAbsolutePath() + " )", true );
-
-		if( aTestGroup.getType().equals(TestEntry.TYPE.GroupLink) )
-		{
-			myTestGroupLinkExecutor.execute((TestGroupLink) aTestGroup, aTestGroupId, aScriptDir, aLogDir, aResult);
-		}
-		else
-		{
-			myTestGroupExecutor.execute(aTestGroup, aTestGroupId, aScriptDir, aLogDir, aResult);
-		}
+		myExecutors.put(aType, aTestGroupExecutor);
 	}
 }

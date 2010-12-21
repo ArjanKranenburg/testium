@@ -76,6 +76,8 @@ public class Main
 	 */
 	private static void defineBaseDir(RunTimeData anRtData)
 	{
+		Trace.println(Trace.UTIL, "defineBaseDir(  runTimeData )", true );
+
 		File applicationBaseDir = new File( "" );
 		try
 		{
@@ -99,6 +101,8 @@ public class Main
 	 */
 	private static void defineUserHome(RunTimeData anRtData)
 	{
+		Trace.println(Trace.UTIL, "defineUserHome(  runTimeData )", true );
+
 		File userHome = new File( System.getProperty("user.home") );
 		RunTimeVariable userHomeVar = new RunTimeVariable(Testium.USERHOME, userHome);
 		anRtData.add(userHomeVar);
@@ -109,6 +113,8 @@ public class Main
 	 */
 	private static void defineStartTime(RunTimeData anRtData)
 	{
+		Trace.println(Trace.UTIL, "defineStartTime(  runTimeData )", true );
+
 		Date now = new Date();
 		
 		RunTimeVariable startTimeVar = new RunTimeVariable(Testium.START, now);
@@ -129,6 +135,8 @@ public class Main
 	 */
 	private static void parseCommandLine(RunTimeData anRtData, String[] args)
 	{
+		Trace.println(Trace.UTIL, "parseCommandLine(  runTimeData, args )", true );
+
 		CmdLineParser cmdLine = new CmdLineExecutionParser( APPLICATIONNAME );
 		cmdLine.setDefaultCommand( "execute" );
 		
@@ -169,7 +177,7 @@ public class Main
 
 			System.exit(0);
 		}
-}
+	}
 
 	private static void readGlobalConfigFile(RunTimeData rtData)
 	{
@@ -216,7 +224,7 @@ public class Main
 
 	private static void readPersonalConfigFile(RunTimeData anRtData)
 	{
-		Trace.println(Trace.UTIL, "readConfigFile(  runTimeData )", true );
+		Trace.println(Trace.UTIL, "readPersonalConfigFile(  runTimeData )", true );
 		
 		File configFile = anRtData.getValueAs( File.class, Testium.CONFIGFILE );
 		if ( configFile == null )
@@ -292,6 +300,8 @@ public class Main
 
 	private static PluginCollection loadPlugins( RunTimeData anRtData )
 	{
+		Trace.println(Trace.UTIL, "loadPlugins(  runTimeData )", true );
+
 		File tmpPluginDirectory = anRtData.getValueAs( File.class, Testium.PLUGINSDIR );
 		File pluginDir;
 		
@@ -339,6 +349,7 @@ public class Main
 	 */
 	private static Testium createTestium(RunTimeData rtData, PluginCollection plugins)
 	{
+		Trace.println(Trace.UTIL, "createTestium(  runTimeData, plugins )", true );
 		Testium testium;
 		try
 		{
@@ -360,7 +371,9 @@ public class Main
 	 */
 	private static TestGroup readTestGroup(Testium testium, RunTimeData anRtData)
 			throws Error
-		{
+	{
+		Trace.println(Trace.UTIL, "readTestGroup( Testium, runTimeData )", true );
+
 		File tgFile = anRtData.getValueAsFile(Testium.TESTFILE);
 		TestGroup testGroup;
 		try
@@ -377,6 +390,7 @@ public class Main
 
 	private static void doValidation(Testium aTestium, RunTimeData anRtData)
 	{
+		Trace.println(Trace.EXEC, "doValidation( Testium, runTimeData )", true );
 		readTestGroup(aTestium, anRtData);
 	}
 
@@ -388,6 +402,8 @@ public class Main
 	private static void doExecution( Testium aTestium, RunTimeData anRtData )
 			throws Error
 	{
+		Trace.println(Trace.EXEC, "doExecution( Testium, runTimeData )", true );
+
 		TestGroup testGroup = readTestGroup(aTestium, anRtData);
 		File testSuiteDir = anRtData.getValueAs(File.class, Testium.TESTSUITEDIR);
 		if ( testSuiteDir == null )
@@ -405,7 +421,7 @@ public class Main
 		}
 		catch (TestExecutionException e)
 		{
-			Trace.print(Trace.UTIL, e);
+			Trace.print(Trace.EXEC, e);
 			throw new Error( "Execution failed.", e );
 		}
 	}
@@ -419,6 +435,8 @@ public class Main
 	 */
 	private static void doPreparations( Testium aTestium, RunTimeData anRtData ) throws Error
 	{
+		Trace.println(Trace.EXEC, "doPreparations( Testium, runTimeData )", true );
+
 		TestGroup testGroup = readTestGroup(aTestium, anRtData);
 		File testSuiteDir = anRtData.getValueAs(File.class, Testium.TESTSUITEDIR);
 
@@ -436,7 +454,7 @@ public class Main
 		}
 		catch (TestExecutionException e)
 		{
-			Trace.print(Trace.UTIL, e);
+			Trace.print(Trace.EXEC, e);
 			throw new Error( "Preparation failed.", e );
 		}
 	}

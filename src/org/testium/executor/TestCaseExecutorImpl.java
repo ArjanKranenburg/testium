@@ -6,70 +6,84 @@ import java.io.IOError;
 import java.util.ArrayList;
 
 import org.testtoolinterfaces.testresult.TestCaseResult;
+import org.testtoolinterfaces.testresult.TestCaseResultLink;
 import org.testtoolinterfaces.testresult.TestStepResult;
-import org.testtoolinterfaces.testresultinterface.TestRunResultWriter;
+import org.testtoolinterfaces.testresultinterface.TestCaseResultWriter;
 import org.testtoolinterfaces.testsuite.TestCase;
+import org.testtoolinterfaces.testsuite.TestCaseLink;
 import org.testtoolinterfaces.testsuite.TestStep;
+import org.testtoolinterfaces.testsuiteinterface.TestCaseReader;
 import org.testtoolinterfaces.utils.Trace;
 
 
 public class TestCaseExecutorImpl implements TestCaseExecutor
 {
-	private TestStepExecutor		myTestStepExecutor;
-	private TestRunResultWriter 	myTestRunResultWriter;
+	private static final String		TYPE = "TTI";
+	
+	private TestStepMetaExecutor	myTestStepExecutor;
+	private TestCaseReader			myTestCaseReader;
 
-	/**
-	 * @param aTestStepExecutor
-	 * @param aTestRunResultWriter 
-	 */
-	public TestCaseExecutorImpl( TestStepExecutor aTestStepExecutor,
-								 TestRunResultWriter aTestRunResultWriter )
+	private TestCaseResultWriter myTestCaseResultWriter;
+
+	public TestCaseExecutorImpl( TestStepMetaExecutor aTestStepExecutor, TestCaseResultWriter aTcResultWriter )
 	{
+		Trace.println(Trace.CONSTRUCTOR);
+
 		myTestStepExecutor = aTestStepExecutor;
-		myTestRunResultWriter = aTestRunResultWriter;
+		myTestCaseResultWriter = aTcResultWriter;
+
+		myTestCaseReader = new TestCaseReader();
 	}
 
-	public void execute( TestCase aTestCase,
-						 File aScriptDir,
-						 File aLogDir,
-						 TestCaseResult aResult )
+	@Override
+	public TestCaseResultLink execute(TestCaseLink aTestCaseLink, File aLogDir)
 	{
 		if ( !aLogDir.isDirectory() )
 		{
 			FileNotFoundException exc = new FileNotFoundException("Directory does not exist: " + aLogDir.getAbsolutePath());
 			throw new IOError( exc );
 		}
-		Trace.println(Trace.LEVEL.EXEC, "execute( " 
-				+ aTestCase
-	            + aLogDir.getAbsolutePath()
-	            + " )", true );
+		
+		Trace.println(Trace.EXEC, "execute( " 
+				+ aTestCaseLink.getId() + ", "
+	            + aLogDir.getPath() + " )", true );
 
-		File groupLogDir = new File(aLogDir.getAbsolutePath() + File.separator + aTestCase.getId());
-		groupLogDir.mkdir();
 
-    	ArrayList<TestStep> initSteps = aTestCase.getInitializationSteps();
-    	executeInitSteps(initSteps, aResult, aScriptDir, aLogDir);
+		File testCaseFile = aTestCaseLink.getLink();
+		File scriptDir = testCaseFile.getParentFile();
+		TestCase testCase = myTestCaseReader.readTcFile(testCaseFile);
+		TestCaseResult result = new TestCaseResult( testCase );
 
-    	ArrayList<TestStep> execSteps = aTestCase.getExecutionSteps();
-    	executeExecSteps(execSteps, aResult, aScriptDir, aLogDir);
+		File logFile = new File(aLogDir, testCase.getId() + "_log.xml");
+		myTestCaseResultWriter.write(result, logFile);
 
-    	ArrayList<TestStep> restoreSteps = aTestCase.getRestoreSteps();
-    	executeRestoreSteps(restoreSteps, aResult, aScriptDir, aLogDir);
+    	ArrayList<TestStep> prepareSteps = testCase.getPrepareSteps();
+    	executePrepareSteps(prepareSteps, result, scriptDir, aLogDir);
 
-    	// We write intermediate results after each Test Case, not each Test Step
-		myTestRunResultWriter.intermediateWrite();
+    	ArrayList<TestStep> execSteps = testCase.getExecutionSteps();
+    	executeExecSteps(execSteps, result, scriptDir, aLogDir);
+
+    	ArrayList<TestStep> restoreSteps = testCase.getRestoreSteps();
+    	executeRestoreSteps(restoreSteps, result, scriptDir, aLogDir);
+
+    	myTestCaseResultWriter.update( result );
+		
+    	TestCaseResultLink tcResultLink = new TestCaseResultLink( aTestCaseLink,
+    	                                                          result.getResult(),
+    	                                                          logFile );
+
+    	return tcResultLink;
 	}
-	
-	public void executeInitSteps(ArrayList<TestStep> anInitSteps, TestCaseResult aResult, File aScriptDir, File aLogDir)
+
+	public void executePrepareSteps(ArrayList<TestStep> anPrepareSteps, TestCaseResult aResult, File aScriptDir, File aLogDir)
 	{
-		for (int key = 0; key < anInitSteps.size(); key++)
+		for (int key = 0; key < anPrepareSteps.size(); key++)
     	{
-    		TestStep step = anInitSteps.get(key);
+    		TestStep step = anPrepareSteps.get(key);
 			TestStepResult tsResult = myTestStepExecutor.execute(step, aScriptDir, aLogDir);
 			aResult.addInitialization(tsResult);
 
-			// Enable this if we want intermediate results written after each Test Step
-			// myTestRunResultWriter.intermediateWrite();
+	    	myTestCaseResultWriter.update( aResult );
     	}
 	}
 
@@ -81,8 +95,7 @@ public class TestCaseExecutorImpl implements TestCaseExecutor
 			TestStepResult tsResult = myTestStepExecutor.execute(step, aScriptDir, aLogDir);
 			aResult.addExecution(tsResult);
 
-			// Enable this if we want intermediate results written after each Test Step
-			// myTestRunResultWriter.intermediateWrite();
+	    	myTestCaseResultWriter.update( aResult );
     	}
 	}
 
@@ -94,8 +107,13 @@ public class TestCaseExecutorImpl implements TestCaseExecutor
 			TestStepResult tsResult = myTestStepExecutor.execute(step, aScriptDir, aLogDir);
 			aResult.addRestore(tsResult);
 
-			// Enable this if we want intermediate results written after each Test Step
-			// myTestRunResultWriter.intermediateWrite();
+	    	myTestCaseResultWriter.update( aResult );
     	}
+	}
+
+	@Override
+	public String getType()
+	{
+		return TYPE;
 	}
 }

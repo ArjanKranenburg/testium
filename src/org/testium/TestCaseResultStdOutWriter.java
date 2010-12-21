@@ -3,7 +3,7 @@
  */
 package org.testium;
 
-import org.testtoolinterfaces.testresult.TestCaseResult;
+import org.testtoolinterfaces.testresult.TestCaseResultLink;
 import org.testtoolinterfaces.utils.Trace;
 
 /**
@@ -25,15 +25,15 @@ public class TestCaseResultStdOutWriter
 	}
 
 	/**
-	 * @param aResult	the Test Case Result
+	 * @param aTestCaseResultLink	the Test Case Result
 	 * 
 	 */
-	public void print(TestCaseResult aResult)
+	public void print(TestCaseResultLink aTestCaseResultLink)
 	{
 		Trace.println(Trace.UTIL);
 
 		String indent = repeat( ' ', myIndentLevel );
-		String tcId = indent + aResult.getId();
+		String tcId = indent + aTestCaseResultLink.getId();
 		int spaceleft = 1;
 		if ( tcId.length() < 80 )
 		{
@@ -41,7 +41,7 @@ public class TestCaseResultStdOutWriter
 		}
 		
 		String outline = repeat( ' ', spaceleft );
-		System.out.println( tcId + outline + aResult.getResult().toString() );
+		System.out.println( tcId + outline + aTestCaseResultLink.getResult().toString() );
 	}
 	
 	private static String repeat(char c,int i)

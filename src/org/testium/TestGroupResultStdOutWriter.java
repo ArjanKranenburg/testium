@@ -3,12 +3,16 @@
  */
 package org.testium;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Hashtable;
 
-import org.testtoolinterfaces.testresult.TestCaseResult;
+import org.testtoolinterfaces.testresult.TestCaseResultLink;
 import org.testtoolinterfaces.testresult.TestGroupResult;
+import org.testtoolinterfaces.testresult.TestGroupResultLink;
 import org.testtoolinterfaces.testresult.TestStepResult;
+import org.testtoolinterfaces.testresultinterface.TestGroupResultReader;
+import org.testtoolinterfaces.testresultinterface.TestGroupResultWriter;
 
 import org.testtoolinterfaces.utils.Trace;
 
@@ -16,16 +20,18 @@ import org.testtoolinterfaces.utils.Trace;
  * @author Arjan Kranenburg
  *
  */
-public class TestGroupResultStdOutWriter
+public class TestGroupResultStdOutWriter implements TestGroupResultWriter
 {
 	private int myIndentLevel = 0;
 	private TestGroupResultStdOutWriter myTgResultWriter = null;
 	private TestCaseResultStdOutWriter myTcResultWriter;
 	private TestStepResultStdOutWriter myTsResultWriter;
 	
+	private TestGroupResultReader myTestGroupResultReader;
+	
 	private ArrayList<String> myPrintedTGs = new ArrayList<String>();
 	private Hashtable<String, ArrayList<String>> myPrintedTCs = new Hashtable<String, ArrayList<String>>();
-	private Hashtable<String, ArrayList<String>> myPrintedInitializes = new Hashtable<String, ArrayList<String>>();
+	private Hashtable<String, ArrayList<String>> myPrintedPrepares = new Hashtable<String, ArrayList<String>>();
 	private Hashtable<String, ArrayList<String>> myPrintedRestores = new Hashtable<String, ArrayList<String>>();
 	
 	public TestGroupResultStdOutWriter(int anIndentLevel)
@@ -35,16 +41,22 @@ public class TestGroupResultStdOutWriter
 		myIndentLevel = anIndentLevel;
 		myTcResultWriter = new TestCaseResultStdOutWriter( anIndentLevel+1 );
 		myTsResultWriter = new TestStepResultStdOutWriter( anIndentLevel+1 );
+		
+		myTestGroupResultReader = new TestGroupResultReader();
 	}
 
-	/**
-	 * 
-	 */
-	public void printLatest(TestGroupResult aTestGroupResult)
+	@Override
+	public void write(TestGroupResult aTestGroupResult, File aResultFile)
 	{
-	    Trace.println(Trace.UTIL, "printLatest( " + aTestGroupResult.getId() + " )", true);
-	    
+		// NOP		
+	}
+
+	@Override
+	public void update(TestGroupResult aTestGroupResult)
+	{
 	    String testGroupResultId = aTestGroupResult.getId();
+	    Trace.println(Trace.UTIL, "printLatest( " + testGroupResultId + " )", true);
+
 	    if ( ! myPrintedTGs.contains( testGroupResultId ) )
 	    {
 			String indent = repeat( ' ', myIndentLevel );
@@ -52,24 +64,24 @@ public class TestGroupResultStdOutWriter
 	    	
 			myPrintedTGs.add(testGroupResultId);
 			myPrintedTCs.put(testGroupResultId, new ArrayList<String>());
-			myPrintedInitializes.put(testGroupResultId, new ArrayList<String>());
+			myPrintedPrepares.put(testGroupResultId, new ArrayList<String>());
 			myPrintedRestores.put(testGroupResultId, new ArrayList<String>());
 	    }
 	    
-		// Initialization Steps
-		Hashtable<Integer, TestStepResult> initResults = aTestGroupResult.getInitializationResults();
-    	for (int key = 0; key < initResults.size(); key++)
+		// Prepare Steps
+		Hashtable<Integer, TestStepResult> prepareResults = aTestGroupResult.getPrepareResults();
+    	for (int key = 0; key < prepareResults.size(); key++)
     	{
-    		String tsId = initResults.get(key).getDisplayName();
-    		if ( ! myPrintedInitializes.get(testGroupResultId).contains(tsId) )
+    		String tsId = prepareResults.get(key).getDisplayName();
+    		if ( ! myPrintedPrepares.get(testGroupResultId).contains(tsId) )
     		{
-    			myTsResultWriter.print(initResults.get(key));
-    			myPrintedInitializes.get(testGroupResultId).add( tsId );
+    			myTsResultWriter.print(prepareResults.get(key));
+    			myPrintedPrepares.get(testGroupResultId).add( tsId );
     		}
     	}
 
 		// Test Groups
-		Hashtable<Integer, TestGroupResult> tgResults = aTestGroupResult.getTestGroupResults();
+		Hashtable<Integer, TestGroupResultLink> tgResults = aTestGroupResult.getTestGroupResultLinks();
     	for (int key = 0; key < tgResults.size(); key++)
     	{
     		if ( myTgResultWriter == null )
@@ -77,11 +89,12 @@ public class TestGroupResultStdOutWriter
         		myTgResultWriter = new TestGroupResultStdOutWriter( myIndentLevel+1 );
     		}
 
-    		myTgResultWriter.printLatest(tgResults.get(key));
+    	    TestGroupResult testGroupResult = myTestGroupResultReader.readTgResultFile( tgResults.get(key) );
+    	    myTgResultWriter.update( testGroupResult );
     	}
 
 		// Test Cases
-		Hashtable<Integer, TestCaseResult> tcResults = aTestGroupResult.getTestCaseResults();
+		Hashtable<Integer, TestCaseResultLink> tcResults = aTestGroupResult.getTestCaseResultLinks();
     	for (int key = 0; key < tcResults.size(); key++)
     	{
     		String tcId = tcResults.get(key).getId();
@@ -103,7 +116,7 @@ public class TestGroupResultStdOutWriter
     			myPrintedRestores.get(testGroupResultId).add( tsId );
     		}
     	}
-}
+	}
 
 	private static String repeat(char c,int i)
 	{

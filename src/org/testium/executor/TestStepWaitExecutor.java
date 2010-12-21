@@ -4,16 +4,16 @@ import java.io.File;
 
 import org.testtoolinterfaces.testresult.TestResult;
 import org.testtoolinterfaces.testresult.TestStepResult;
-import org.testtoolinterfaces.testsuite.TestStep;
+import org.testtoolinterfaces.testsuite.TestStepSimple;
 
 
-public class TestStepWaitExecutor implements TestStepExecutor
+public class TestStepWaitExecutor implements TestStepCommandExecutor
 {
 	private static String COMMAND = "wait";
 	
-	public TestStepResult execute(TestStep aStep, File aScriptDir, File aLogDir)
+	public TestStepResult execute(TestStepSimple aStep, File aScriptDir, File aLogDir)
 	{
-		TestStepResult result = new TestStepResult( aStep );
+		TestStepResult result = new TestStepResult( (TestStepSimple) aStep );
 		
 //		int time = aStep.getParameters().get("TIME");
 		int time = 3; // TODO add parameters to steps and use the time as time-to-wait

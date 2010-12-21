@@ -1,15 +1,16 @@
 package org.testium;
 
+import java.io.File;
+
 import org.testtoolinterfaces.testresult.TestGroupResult;
 import org.testtoolinterfaces.testresult.TestRunResult;
+import org.testtoolinterfaces.testresult.TestRunResult.TEST_RUN_STATUS;
 import org.testtoolinterfaces.testresultinterface.TestRunResultWriter;
 import org.testtoolinterfaces.utils.Trace;
 
 
 public class TestRunResultStdOutWriter implements TestRunResultWriter
 {
-	private TestRunResult myRunResult;
-
 	private TestGroupResultStdOutWriter myTgResultWriter;
 
 	public TestRunResultStdOutWriter()
@@ -18,42 +19,34 @@ public class TestRunResultStdOutWriter implements TestRunResultWriter
 		myTgResultWriter = new TestGroupResultStdOutWriter( 0 );
 	}
 
-	public void setResult(TestRunResult aRunResult)
-	{
-		myRunResult = aRunResult;
-	}
-
 	@Override
-	public void intermediateWrite()
+	public void write( TestRunResult aRunResult, File aFile )
 	{
 	    Trace.println(Trace.UTIL);
-
-		if ( myRunResult == null )
+		if ( aRunResult == null )
 		{
 			return;
 		}
-
-		// Test Groups
-		TestGroupResult tgResult = myRunResult.getTestGroup();
-   		myTgResultWriter.printLatest(tgResult);
 	}
 
 	@Override
-	public void write()
+	public void update( TestRunResult aRunResult )
 	{
 	    Trace.println(Trace.UTIL);
-		if ( myRunResult == null )
-		{
-			return;
-		}
 
-		// Print grant totals
-		System.out.println( "======================================================================" );
-		System.out.println();
-		System.out.println( "Total Test Cases:        " + myRunResult.getNrOfTCs() );
-		System.out.println( "Total Test Cases Passed: " + myRunResult.getNrOfTCsPassed() );
-		System.out.println( "Total Test Cases Failed: " + myRunResult.getNrOfTCsFailed() );
-		System.out.println();
-		System.out.println( "Tests finished at:       " + myRunResult.getEndDateString() + " " + myRunResult.getEndTimeString() );
+		TestGroupResult tgResult = aRunResult.getTestGroup();
+   		myTgResultWriter.update(tgResult);
+
+   		if (aRunResult.getStatus().equals(TEST_RUN_STATUS.FINISHED))
+   		{
+   	   		// Print grant totals
+   			System.out.println( "======================================================================" );
+   			System.out.println();
+   			System.out.println( "Total Test Cases:        " + aRunResult.getNrOfTCs() );
+   			System.out.println( "Total Test Cases Passed: " + aRunResult.getNrOfTCsPassed() );
+   			System.out.println( "Total Test Cases Failed: " + aRunResult.getNrOfTCsFailed() );
+   			System.out.println();
+   			System.out.println( "Tests finished at:       " + aRunResult.getEndDateString() + " " + aRunResult.getEndTimeString() );
+   		}
 	}
 }

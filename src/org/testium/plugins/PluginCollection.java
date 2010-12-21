@@ -1,132 +1,70 @@
 package org.testium.plugins;
 
-import java.util.Hashtable;
-
+import org.testium.MetaTestCaseResultWriter;
+import org.testium.MetaTestGroupResultWriter;
 import org.testium.MetaTestRunResultWriter;
-import org.testium.TestCaseMetaFactory;
-import org.testium.TestGroupMetaFactory;
-import org.testium.TestStepMetaFactory;
 import org.testium.executor.TestCaseExecutor;
 import org.testium.executor.TestCaseExecutorImpl;
-import org.testium.executor.TestCaseScriptExecutor;
-import org.testium.executor.TestCaseScriptMetaExecutor;
+import org.testium.executor.TestCaseMetaExecutor;
 import org.testium.executor.TestGroupExecutor;
 import org.testium.executor.TestGroupExecutorImpl;
-import org.testium.executor.TestGroupLinkExecutor;
-import org.testium.executor.TestGroupLinkExecutorImpl;
 import org.testium.executor.TestGroupMetaExecutor;
-import org.testium.executor.TestStepExecutor;
+import org.testium.executor.TestStepCommandExecutor;
 import org.testium.executor.TestStepMetaExecutor;
+import org.testium.executor.TestStepScriptExecutor;
 import org.testium.executor.TestStepWaitExecutor;
-import org.testium.executor.TestSuiteExecutor;
-import org.testium.executor.TestSuiteExecutorImpl;
 import org.testium.systemundertest.DummySutControl;
 import org.testium.systemundertest.SutControl;
+import org.testtoolinterfaces.testresultinterface.TestCaseResultWriter;
+import org.testtoolinterfaces.testresultinterface.TestGroupResultWriter;
 import org.testtoolinterfaces.testresultinterface.TestRunResultWriter;
-import org.testtoolinterfaces.testsuite.TestCaseFactory;
-import org.testtoolinterfaces.testsuite.TestCaseFactoryImpl;
-import org.testtoolinterfaces.testsuite.TestGroupFactory;
-import org.testtoolinterfaces.testsuite.TestGroupFactoryImpl;
-import org.testtoolinterfaces.testsuite.TestStepFactory;
-import org.testtoolinterfaces.testsuite.TestStepFactoryImpl;
 import org.testtoolinterfaces.testsuiteinterface.TestGroupReader;
 
 
 public class PluginCollection
 {
 	private TestGroupReader	myTestGroupReader;
+
 	private MetaTestRunResultWriter myTestRunResultWriter;
-	
-	private Hashtable<String, TestStepFactory>	myTestStepFactories;
-	private Hashtable<String, TestCaseFactory>	myTestCaseFactories;
-	private Hashtable<String, TestGroupFactory>	myTestGroupFactories;
+	private MetaTestGroupResultWriter myTestGroupResultWriter;
+	private MetaTestCaseResultWriter myTestCaseResultWriter;
 
-	private TestStepFactory	myTestStepFactory;
-	private TestCaseFactory	myTestCaseFactory;
-	private TestGroupFactory	myTestGroupFactory;
-
-	private Hashtable<String, TestStepExecutor>	myTestStepExecutors;
-	private Hashtable<String, TestCaseScriptExecutor>	myTestCaseScriptExecutors;
-
-	private TestStepExecutor	myTestStepExecutor;
-	private TestCaseExecutor	myTestCaseExecutor;
-	private TestCaseScriptExecutor	myTestCaseScriptExecutor;
-	private TestGroupExecutor	myTestGroupExecutor;
-	private TestGroupLinkExecutor myTestGroupLinkExecutor;
-	private TestSuiteExecutor	myTestSuiteExecutor;
+	private TestStepMetaExecutor	myTestStepExecutor;
+	private TestCaseMetaExecutor	myTestCaseExecutor;
+	private TestGroupMetaExecutor	myTestGroupExecutor;
 
 	private SutControl	mySutControl;
-	
+
 	/**
 	 * 
 	 */
 	public PluginCollection()
 	{
-		myTestStepFactories = new Hashtable<String, TestStepFactory>();
-		myTestCaseFactories = new Hashtable<String, TestCaseFactory>();
-		myTestGroupFactories = new Hashtable<String, TestGroupFactory>();
-
-		myTestStepExecutors = new Hashtable<String, TestStepExecutor>();
-		myTestCaseScriptExecutors = new Hashtable<String, TestCaseScriptExecutor>();
-
-		myTestRunResultWriter = new MetaTestRunResultWriter();
-		
 		// Default SUT Control
 		mySutControl = new DummySutControl( );
 
-		// Default Factories
-		addTestStepFactory("standard", new TestStepFactoryImpl( ));
-		myTestStepFactory = new TestStepMetaFactory( myTestStepFactories );
-		
-		addTestCaseFactory("standard", new TestCaseFactoryImpl( myTestStepFactory ));
-		myTestCaseFactory = new TestCaseMetaFactory( myTestCaseFactories, myTestStepFactory );
-
-		addTestGroupFactory("standard", new TestGroupFactoryImpl( myTestCaseFactory ));
-		myTestGroupFactory = new TestGroupMetaFactory( myTestGroupFactories, myTestCaseFactory );
-		
 		// Default Readers
-		myTestGroupReader = new TestGroupReader( myTestGroupFactory );
+		myTestGroupReader = new TestGroupReader();
+
+		// Default Writers
+		myTestRunResultWriter = new MetaTestRunResultWriter();
+		myTestGroupResultWriter = new MetaTestGroupResultWriter();
+		myTestCaseResultWriter = new MetaTestCaseResultWriter();
 
 		// Default Executors
-		addTestStepExecutor(new TestStepWaitExecutor());
-		myTestStepExecutor = new TestStepMetaExecutor( myTestStepExecutors, myTestRunResultWriter );
+		myTestStepExecutor = new TestStepMetaExecutor();
+		addStepCommandExecutor(new TestStepWaitExecutor());
 		
-		myTestCaseExecutor = new TestCaseExecutorImpl( myTestStepExecutor, myTestRunResultWriter );
-		myTestCaseScriptExecutor = new TestCaseScriptMetaExecutor( myTestCaseScriptExecutors, myTestRunResultWriter );
+		myTestCaseExecutor = new TestCaseMetaExecutor();
+		addTestCaseExecutor(new TestCaseExecutorImpl( myTestStepExecutor, myTestCaseResultWriter ));
 		
-		TestGroupExecutor testGroupExecutor = new TestGroupExecutorImpl( myTestStepExecutor,
-																		 myTestCaseScriptExecutor,
-																		 myTestRunResultWriter );
-		testGroupExecutor.setTestCaseExecutor( myTestCaseExecutor );
+		myTestGroupExecutor = new TestGroupMetaExecutor();
 
-		myTestGroupLinkExecutor = new TestGroupLinkExecutorImpl( myTestGroupReader,
-																 testGroupExecutor,
-																 myTestRunResultWriter );
-		testGroupExecutor.setTestGroupLinkExecutor(myTestGroupLinkExecutor);
-
-		myTestGroupExecutor = new TestGroupMetaExecutor( testGroupExecutor,
-		                                                 myTestGroupLinkExecutor,
-		                                                 myTestRunResultWriter );
-		
-		myTestSuiteExecutor = new TestSuiteExecutorImpl( myTestGroupExecutor,
-														 mySutControl,
-														 myTestRunResultWriter );
-	}
-
-	/**
-	 * @return the myTestRunResultWriter
-	 */
-	public TestRunResultWriter getTestRunResultWriter()
-	{
-		return myTestRunResultWriter;
-	}
-
-	/**
-	 * @param aTestRunResultXmlWriter the TestRunResultXmlWriter to set
-	 */
-	public void addTestRunResultWriter( TestRunResultWriter aTestRunResultWriter )
-	{
-		myTestRunResultWriter.add( aTestRunResultWriter );
+		TestGroupExecutorImpl testGroupExecutor = new TestGroupExecutorImpl( myTestStepExecutor,
+		                                                                     myTestCaseExecutor,
+		                                                                     myTestGroupExecutor,
+		                                                                     myTestGroupResultWriter );
+		addTestGroupExecutor(testGroupExecutor);
 	}
 
 	/**
@@ -143,161 +81,65 @@ public class PluginCollection
 	public void setTestGroupReader(TestGroupReader aTestGroupReader)
 	{
 		myTestGroupReader = aTestGroupReader;
-		if (myTestGroupLinkExecutor.getClass().isInstance(new TestGroupLinkExecutorImpl( myTestGroupReader, myTestGroupExecutor, myTestRunResultWriter )))
-		{
-			((TestGroupLinkExecutorImpl) myTestGroupLinkExecutor).setTestGroupReader(aTestGroupReader);
-		}
-	}
-
-	// Factories
-	/**
-	 * @return the myTestStepFactory
-	 */
-	public TestStepFactory getTestStepFactory()
-	{
-		return myTestStepFactory;
-	}
-
-	/**
-	 * @param aTestStepFactory the TestStepFactory to add
-	 */
-	public void addTestStepFactory(String aType, TestStepFactory aTestStepFactory)
-	{
-		myTestStepFactories.put(aType, aTestStepFactory);
-	}
-
-	/**
-	 * @return the myTestCaseFactory
-	 */
-	public TestCaseFactory getTestCaseFactory()
-	{
-		return myTestCaseFactory;
-	}
-
-	/**
-	 * @param aTestCaseFactory the TestCaseFactory to add
-	 */
-	public void addTestCaseFactory(String aType, TestCaseFactory aTestCaseFactory)
-	{
-		myTestCaseFactories.put(aType, aTestCaseFactory);
-	}
-
-	/**
-	 * @return the myTestGroupFactory
-	 */
-	public TestGroupFactory getTestGroupFactory()
-	{
-		return myTestGroupFactory;
-	}
-
-	/**
-	 * @param aTestGroupFactory the TestGroupFactory to add
-	 */
-	public void addTestGroupFactory(String aType, TestGroupFactory aTestGroupFactory)
-	{
-		myTestGroupFactories.put(aType, aTestGroupFactory);
 	}
 
 	// Executors
 	/**
 	 * @return the myTestStepExecutor
 	 */
-	public TestStepExecutor getTestStepExecutor()
+	public TestStepMetaExecutor getTestStepExecutor()
 	{
 		return myTestStepExecutor;
 	}
 
 	/**
-	 * @param aTestStepExecutor the TestStepExecutor to add
+	 * @param aTestStepCommandExecutor the TestStepCommandExecutor to add
 	 */
-	public void addTestStepExecutor(TestStepExecutor aTestStepExecutor)
+	public void addStepCommandExecutor(TestStepCommandExecutor aTestStepCommandExecutor)
 	{
-		myTestStepExecutors.put(aTestStepExecutor.getCommand(), aTestStepExecutor);
+		myTestStepExecutor.addCommandExecutor(aTestStepCommandExecutor);
+	}
+
+	/**
+	 * @param aTestStepScriptExecutor the TestStepScriptExecutor to add
+	 */
+	public void addStepScriptExecutor(TestStepScriptExecutor aTestStepScriptExecutor)
+	{
+		myTestStepExecutor.addScriptExecutor(aTestStepScriptExecutor);
 	}
 
 	/**
 	 * @return the myTestCaseExecutor
 	 */
-	public TestCaseExecutor getTestCaseExecutor()
+	public TestCaseMetaExecutor getTestCaseExecutor()
 	{
 		return myTestCaseExecutor;
 	}
 
 	/**
-	 * @param aTestCaseExecutor the TestCaseExecutor to set
+	 * @param aTestCaseExecutor the TestCaseExecutor to add
 	 */
-	public void setTestCaseExecutor(TestCaseExecutor aTestCaseExecutor)
+	public void addTestCaseExecutor(TestCaseExecutor aTestCaseExecutor)
 	{
-		myTestCaseExecutor = aTestCaseExecutor;
-		myTestGroupExecutor.setTestCaseExecutor( aTestCaseExecutor );
-	}
-
-	/**
-	 * @return the myTestCaseScriptExecutor
-	 */
-	public TestCaseScriptExecutor getTestCaseScriptExecutor()
-	{
-		return myTestCaseScriptExecutor;
-	}
-
-	/**
-	 * @param aTestStepExecutor the TestCaseScriptExecutor to add
-	 */
-	public void addTestCaseScriptExecutor(TestCaseScriptExecutor aTestCaseScriptExecutor)
-	{
-		myTestCaseScriptExecutors.put(aTestCaseScriptExecutor.getScriptType(), aTestCaseScriptExecutor);
+		myTestCaseExecutor.put(aTestCaseExecutor.getType(), aTestCaseExecutor);
 	}
 
 	/**
 	 * @return the myTestGroupExecutor
 	 */
-	public TestGroupExecutor getTestGroupExecutor()
+	public TestGroupMetaExecutor getTestGroupExecutor()
 	{
 		return myTestGroupExecutor;
 	}
 
 	/**
-	 * @param aTestCaseExecutor the TestCaseExecutor to set
+	 * @param aTestGroupExecutor the TestGroupExecutor to add
 	 */
-	public void setTestGroupExecutor(TestGroupExecutor aTestGroupExecutor)
+	public void addTestGroupExecutor(TestGroupExecutor aTestGroupExecutor)
 	{
-		myTestGroupExecutor = aTestGroupExecutor;
-		myTestSuiteExecutor.setTestGroupExecutor( aTestGroupExecutor );
+		myTestGroupExecutor.put(aTestGroupExecutor.getType(), aTestGroupExecutor);
 	}
 
-	/**
-	 * @return the myTestCaseScriptExecutor
-	 */
-	public TestGroupLinkExecutor getTestGroupLinkExecutor()
-	{
-		return myTestGroupLinkExecutor;
-	}
-
-	/**
-	 * @param aTestGroupLinkExecutor the TestGroupLinkExecutor to set
-	 */
-	public void setTestGroupLinkExecutor(TestGroupLinkExecutor aTestGroupLinkExecutor)
-	{
-		myTestGroupLinkExecutor = aTestGroupLinkExecutor;
-		myTestGroupExecutor.setTestGroupLinkExecutor( aTestGroupLinkExecutor );
-	}
-
-	/**
-	 * @return the myTestSuiteExecutor
-	 */
-	public TestSuiteExecutor getTestSuiteExecutor()
-	{
-		return myTestSuiteExecutor;
-	}
-
-	/**
-	 * @param aTestSuiteExecutor the TestSuiteExecutor to set
-	 */
-	public void setTestSuiteExecutor(TestSuiteExecutor aTestSuiteExecutor)
-	{
-		myTestSuiteExecutor = aTestSuiteExecutor;
-	}
-	
 	/**
 	 * @return the mySutControl
 	 */
@@ -312,6 +154,41 @@ public class PluginCollection
 	public void setSutControl(SutControl aSutControl)
 	{
 		mySutControl = aSutControl;
-		myTestSuiteExecutor.setSutControl(aSutControl);
+	}
+
+	public TestCaseResultWriter getTestCaseResultWriter()
+	{
+		return myTestCaseResultWriter;
+	}
+
+	public void addTestCaseResultWriter(TestCaseResultWriter aCaseResultWriter)
+	{
+		myTestCaseResultWriter.add(aCaseResultWriter);		
+	}
+
+	/**
+	 * @return the myTestGroupResultWriter
+	 */
+	public TestGroupResultWriter getTestGroupResultWriter()
+	{
+		return myTestGroupResultWriter;
+	}
+
+	public void addTestGroupResultWriter(TestGroupResultWriter aGroupResultWriter)
+	{
+		myTestGroupResultWriter.add( aGroupResultWriter );
+	}
+
+	/**
+	 * @return the myTestRunResultWriter
+	 */
+	public TestRunResultWriter getTestRunResultWriter()
+	{
+		return myTestRunResultWriter;
+	}
+
+	public void addTestRunResultWriter(TestRunResultWriter aRunResultWriter)
+	{
+		myTestRunResultWriter.add( aRunResultWriter );
 	}
 }

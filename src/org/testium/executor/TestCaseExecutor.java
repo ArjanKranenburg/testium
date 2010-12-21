@@ -2,13 +2,13 @@ package org.testium.executor;
 
 import java.io.File;
 
-import org.testtoolinterfaces.testresult.TestCaseResult;
-import org.testtoolinterfaces.testsuite.TestCase;
+import org.testtoolinterfaces.testresult.TestCaseResultLink;
+import org.testtoolinterfaces.testsuite.TestCaseLink;
 
 public interface TestCaseExecutor
 {
-	public void execute( TestCase aTestCase,
-						 File aScriptDir,
-						 File aLogDir,
-						 TestCaseResult aResult );
+	public TestCaseResultLink execute( TestCaseLink aTestCaseLink,
+	                                   File aLogDir );
+
+	public String getType();
 }
