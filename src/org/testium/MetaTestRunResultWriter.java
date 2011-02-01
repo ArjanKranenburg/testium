@@ -20,12 +20,16 @@ public class MetaTestRunResultWriter implements TestRunResultWriter
 	}
 
 	@Override
-	public void update(TestRunResult aRunResult)
+	public void notify(TestRunResult aRunResult)
 	{
-	    for (TestRunResultWriter resultWriter : myWriters)
-	    {
-		    resultWriter.update( aRunResult );
-	    }
+		// NOP
+		// Won't register the Meta-ResultWriters.
+		// The result Writers have to do that themselves and will then be notified of updates.
+
+//	    for (TestRunResultWriter resultWriter : myWriters)
+//	    {
+//		    resultWriter.notify( aRunResult );
+//	    }
 	}
 
 	@Override

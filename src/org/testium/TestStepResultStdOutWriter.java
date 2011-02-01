@@ -30,9 +30,9 @@ public class TestStepResultStdOutWriter
     	String tsId = indent + aResult.getDisplayName();
 
     	int spaceleft = 1;
-		if ( tsId.length() < 80 )
+		if ( tsId.length() < 70 )
 		{
-			spaceleft = 80 - tsId.length();
+			spaceleft = 70 - tsId.length();
 		}
 		
 		String outline = repeat( ' ', spaceleft );

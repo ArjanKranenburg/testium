@@ -167,7 +167,7 @@ public class GlobalConfigurationXmlHandler extends XmlHandler
     	{
 			String testFileName = myRunTimeData.substituteVars( aChildXmlHandler.getValue() );
 			File testFile = new File( testFileName );
-			rtVar = new RunTimeVariable(Testium.PROJECTDIR, testFile);
+			rtVar = new RunTimeVariable(Testium.TESTFILE, testFile);
     	}
 		else if (aQualifiedName.equalsIgnoreCase(CFG_TRACE_BASECLASS))
     	{

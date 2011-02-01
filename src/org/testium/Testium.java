@@ -34,7 +34,7 @@ public class Testium
 
 		/** Plugin-loaders */ 													PLUGINLOADERS,
 		/** Plugins directory */ 												PLUGINSDIR,
-		/** Project base directory */ 											PROJECTDIR,
+		/** Project (Test Suite's) base directory */ 							PROJECTDIR,
 	
 		/** Base dir of the Test Results */ 									RESULTBASEDIR,
 		
@@ -47,7 +47,6 @@ public class Testium
 		/** Test File */														TESTFILE,
 		/** Test Group */														TESTGROUP,
 		/** Test Phase */ 														TESTPHASE,
-		/** Test Suite's base directory */										TESTSUITEDIR,
 		/** Part of Package names that are removed from the beginning in the trace printout */ 	TRACEPKGBASES,
 		/** Class that triggers tracing */ 										TRACECLASS,
 		/** Depth of trace methods shown in the trace printout */ 				TRACEDEPTH,
@@ -98,7 +97,6 @@ public class Testium
 	public final static String TESTFILE 	     = KEYS.TESTFILE.toString();		// As java.io.File
 	public final static String TESTGROUP		 = KEYS.TESTGROUP.toString();		// As String
 	public final static String TESTPHASE		 = KEYS.TESTPHASE.toString();		// As String
-	public final static String TESTSUITEDIR		 = KEYS.TESTSUITEDIR.toString();	// As java.io.File
 	public final static String TRACEPKGBASES	 = KEYS.TRACEPKGBASES.toString();	// As String (Class???)
 	public final static String TRACECLASS		 = KEYS.TRACECLASS.toString();		// As String (class???)
 	public final static String TRACEDEPTH		 = KEYS.TRACEDEPTH.toString();		// As int
@@ -127,6 +125,7 @@ public class Testium
 		myTestRunExecutor = new TestRunExecutorImpl( aPlugins.getTestStepExecutor(),
 		                                             aPlugins.getTestCaseExecutor(),
 		                                             aPlugins.getTestGroupExecutor(),
+		                                             aPlugins.getTestGroupResultWriter(),
 		                                             myTestRunResultWriter );
 	}
 

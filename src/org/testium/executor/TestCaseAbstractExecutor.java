@@ -24,10 +24,6 @@ public abstract class TestCaseAbstractExecutor implements TestCaseExecutor
 {
 	private TestCaseResultWriter myTestCaseResultWriter;
 
-//	public enum LOGTYPE { logonly,  // only log the output
-//		  output,   // log the output and print it to stdout
-//		  xml };    // Read the results, since it is an xml file
-
 	abstract public void executeScript( File anExecutable, File aLogFile, TestCaseResult aResult );
 
 	/**
@@ -48,8 +44,9 @@ public abstract class TestCaseAbstractExecutor implements TestCaseExecutor
     public TestCaseResultLink execute( TestCaseLink aTestCaseLink,
                                        File aLogDir )
     {
+    	String tcId = aTestCaseLink.getId();
 		Trace.println(Trace.EXEC, "execute( "
-						+ aTestCaseLink.getId() + ", "
+						+ tcId + ", "
 			            + aLogDir.getPath()
 			            + " )", true );
 
@@ -62,10 +59,10 @@ public abstract class TestCaseAbstractExecutor implements TestCaseExecutor
 		String description = ""; // TODO try to get a description from the shell script
 		ArrayList<String> requirements = new ArrayList<String>(); // TODO try to get a requirements from the shell script
 
-		File caseLogDir = new File(aLogDir, aTestCaseLink.getId());
+		File caseLogDir = new File(aLogDir, tcId);
 		caseLogDir.mkdir();
-		File logFile = new File( caseLogDir, aTestCaseLink.getId() + ".xml" );
-		TestCase testCase = new TestCaseImpl( aTestCaseLink.getId(),
+		File logFile = new File( caseLogDir, tcId + ".xml" );
+		TestCase testCase = new TestCaseImpl( tcId,
 		                                      new Hashtable<String, String>(),
 		                                      description,
 		                                      requirements,
@@ -77,18 +74,16 @@ public abstract class TestCaseAbstractExecutor implements TestCaseExecutor
     	myTestCaseResultWriter.write( result, logFile );
 
 		File executable = aTestCaseLink.getLink();
-    	if ( ! executable.isAbsolute() )
+    	if ( ! executable.canExecute() )
     	{
     		result.setResult( VERDICT.ERROR );
-    		result.addComment( "Script can not be found: " + executable.getPath() );
+    		result.addComment( "Script can not be found or is not executable: " + executable.getPath() );
     	}
     	else
     	{
     		executeScript(executable, logFile, result);
     	}
     	
-    	myTestCaseResultWriter.update( result );
-
 		return new TestCaseResultLink( aTestCaseLink,
 		                               result.getResult(),
 		                               logFile );

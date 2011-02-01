@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.Hashtable;
 
 import org.testtoolinterfaces.testresult.ResultSummary;
+import org.testtoolinterfaces.testresult.TestGroupResult;
 import org.testtoolinterfaces.testresult.TestGroupResultLink;
 import org.testtoolinterfaces.testsuite.TestGroupLink;
 import org.testtoolinterfaces.utils.Trace;
@@ -22,23 +23,29 @@ public class TestGroupMetaExecutor
 		myExecutors = new Hashtable<String, TestGroupExecutor>();
 	}
 
-	public TestGroupResultLink execute( TestGroupLink aTestGroupLink,
-	                                    File aLogDir )
+	public void put(String aType, TestGroupExecutor aTestGroupExecutor)
+	{
+		myExecutors.put(aType, aTestGroupExecutor);
+	}
+
+	public void execute( TestGroupLink aTestGroupLink,
+	                     File aLogDir,
+	                     TestGroupResult aResult )
 	{
 		Trace.println(Trace.EXEC, "execute( " 
-				+ aTestGroupLink.getId() + ", "
-	            + aLogDir.getAbsolutePath() + " )", true );
+						+ aTestGroupLink.getId() + ", "
+			            + aLogDir.getPath() + ", "
+			            + aResult.getId() + " )", true );
 
-		TestGroupResultLink result;
 		if ( myExecutors.containsKey( aTestGroupLink.getGroupType() ) )
 		{
 			TestGroupExecutor executor = myExecutors.get( aTestGroupLink.getGroupType() );
 			
-			result = executor.execute(aTestGroupLink, aLogDir);
+			executor.execute(aTestGroupLink, aLogDir, aResult);
 		}
 		else
 		{
-			result = new TestGroupResultLink( aTestGroupLink,
+			TestGroupResultLink result = new TestGroupResultLink( aTestGroupLink,
 			                                  new ResultSummary(0, 0, 0, 0),
 			                                  null );
 
@@ -46,13 +53,8 @@ public class TestGroupMetaExecutor
 			result.addComment(message);
 			Warning.println(message);
 			Trace.print(Trace.ALL, "Cannot execute " + aTestGroupLink.getId());
+			
+			aResult.addTestGroup(result);
 		}
-		
-		return result;
-	}
-
-	public void put(String aType, TestGroupExecutor aTestGroupExecutor)
-	{
-		myExecutors.put(aType, aTestGroupExecutor);
 	}
 }

@@ -3,18 +3,23 @@ package org.testium.executor;
 import java.io.File;
 
 import org.testtoolinterfaces.testresult.TestGroupResult;
-import org.testtoolinterfaces.testresult.TestGroupResultLink;
 import org.testtoolinterfaces.testsuite.TestGroup;
 import org.testtoolinterfaces.testsuite.TestGroupLink;
 
+/**
+ * @author Arjan
+ *
+ */
 public interface TestGroupExecutor
 {
-	public TestGroupResultLink execute( TestGroupLink aTestGroupLink,
-	                                    File aLogDir );
+	public void execute( TestGroupLink aTestGroupLink,
+	                     File aLogDir,
+	                     TestGroupResult aResult );
 
-	public TestGroupResult execute( TestGroup aTestGroup,
-	                                File aScriptDir,
-	                                File aLogFile );
+	public void execute( TestGroup aTestGroup,
+	                     File aScriptDir,
+	                     File aLogDir,
+	                     TestGroupResult aTestGroupResult );
 
 	public String getType();
 }

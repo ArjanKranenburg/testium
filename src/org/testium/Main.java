@@ -179,14 +179,14 @@ public class Main
 		}
 	}
 
-	private static void readGlobalConfigFile(RunTimeData rtData)
+	private static void readGlobalConfigFile(RunTimeData anRtData)
 	{
 		Trace.println(Trace.UTIL, "readConfigFile( runTimeData )", true );
 
-		File globalConfigFile = rtData.getValueAs( File.class, Testium.GLOBALCONFIGFILE );
+		File globalConfigFile = anRtData.getValueAs( File.class, Testium.GLOBALCONFIGFILE );
 		if ( globalConfigFile == null )
 		{
-			File configDir = rtData.getValueAs( File.class, Testium.CONFIGDIR );
+			File configDir = anRtData.getValueAs( File.class, Testium.CONFIGDIR );
 			if ( configDir == null )
 			{
 				throw new Error( Testium.CONFIGDIR + " is not defined in RunTimeData" );
@@ -194,8 +194,14 @@ public class Main
 			
 			globalConfigFile = new File( configDir, "global.xml" );
 			RunTimeVariable globalConfigDirVar = new RunTimeVariable(Testium.GLOBALCONFIGFILE, globalConfigFile);
-			rtData.add(globalConfigDirVar);
+			anRtData.add(globalConfigDirVar);
 		}
+
+		// Default projectdir is {basedir}/suite
+		File baseDir = anRtData.getValueAsFile( Testium.BASEDIR );
+		File projectDir = new File( baseDir, "suite" );
+		RunTimeVariable rtVarProjectDir = new RunTimeVariable( Testium.PROJECTDIR, projectDir );
+		anRtData.add( rtVarProjectDir );
 
 		// create a parser
         SAXParserFactory spf = SAXParserFactory.newInstance();
@@ -207,7 +213,7 @@ public class Main
 			XMLReader xmlReader = saxParser.getXMLReader();
 
 	        // create a handler
-			GlobalConfigurationXmlHandler handler = new GlobalConfigurationXmlHandler(xmlReader, rtData);
+			GlobalConfigurationXmlHandler handler = new GlobalConfigurationXmlHandler(xmlReader, anRtData);
 
 	        // assign the handler to the parser
 	        xmlReader.setContentHandler(handler);
@@ -343,17 +349,17 @@ public class Main
 	}
 
 	/**
-	 * @param rtData
+	 * @param anRtData
 	 * @param plugins
 	 * @return
 	 */
-	private static Testium createTestium(RunTimeData rtData, PluginCollection plugins)
+	private static Testium createTestium(RunTimeData anRtData, PluginCollection plugins)
 	{
-		Trace.println(Trace.UTIL, "createTestium(  runTimeData, plugins )", true );
+		Trace.println(Trace.UTIL, "createTestium( runTimeData, plugins )", true );
 		Testium testium;
 		try
 		{
-			testium = new Testium( plugins, rtData );
+			testium = new Testium( plugins, anRtData );
 		}
 		catch (ConfigurationException e)
 		{
@@ -405,7 +411,7 @@ public class Main
 		Trace.println(Trace.EXEC, "doExecution( Testium, runTimeData )", true );
 
 		TestGroup testGroup = readTestGroup(aTestium, anRtData);
-		File testSuiteDir = anRtData.getValueAs(File.class, Testium.TESTSUITEDIR);
+		File testSuiteDir = anRtData.getValueAs(File.class, Testium.PROJECTDIR);
 		if ( testSuiteDir == null )
 		{
 			throw new Error( "Test Suite Directory is not defined" );
@@ -438,7 +444,7 @@ public class Main
 		Trace.println(Trace.EXEC, "doPreparations( Testium, runTimeData )", true );
 
 		TestGroup testGroup = readTestGroup(aTestium, anRtData);
-		File testSuiteDir = anRtData.getValueAs(File.class, Testium.TESTSUITEDIR);
+		File testSuiteDir = anRtData.getValueAs(File.class, Testium.PROJECTDIR);
 
 		String groupId = anRtData.getValueAs(String.class, Testium.TESTGROUP);
 		String caseId = anRtData.getValueAs(String.class, Testium.TESTCASE);

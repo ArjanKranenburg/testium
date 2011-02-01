@@ -20,12 +20,16 @@ public class MetaTestCaseResultWriter implements TestCaseResultWriter
 	}
 
 	@Override
-	public void update( TestCaseResult aCaseResult )
+	public void notify( TestCaseResult aCaseResult )
 	{
-	    for (TestCaseResultWriter resultWriter : myWriters)
-	    {
-		    resultWriter.update( aCaseResult );
-	    }
+		// NOP
+		// Won't register the Meta-ResultWriters.
+		// The result Writers have to do that themselves and will then be notified of updates.
+
+//	    for (TestCaseResultWriter resultWriter : myWriters)
+//	    {
+//		    resultWriter.update( aCaseResult );
+//	    }
 	}
 
 	@Override

@@ -11,7 +11,7 @@ import org.testtoolinterfaces.utils.Trace;
 public class MetaTestGroupResultWriter implements TestGroupResultWriter
 {
 	private ArrayList<TestGroupResultWriter> myWriters;
-
+	
 	public MetaTestGroupResultWriter()
 	{
 		Trace.println( Trace.CONSTRUCTOR );
@@ -20,12 +20,16 @@ public class MetaTestGroupResultWriter implements TestGroupResultWriter
 	}
 
 	@Override
-	public void update( TestGroupResult aGroupResult )
+	public void notify( TestGroupResult aGroupResult )
 	{
-	    for (TestGroupResultWriter resultWriter : myWriters)
-	    {
-		    resultWriter.update( aGroupResult );
-	    }
+		// NOP
+		// Won't register the Meta-ResultWriters.
+		// The result Writers have to do that themselves and will then be notified of updates.
+
+//	    for (TestGroupResultWriter resultWriter : myWriters)
+//	    {
+//		    resultWriter.notify( aGroupResult );
+//	    }
 	}
 
 	@Override

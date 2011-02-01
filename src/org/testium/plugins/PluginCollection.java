@@ -20,7 +20,6 @@ import org.testtoolinterfaces.testresultinterface.TestGroupResultWriter;
 import org.testtoolinterfaces.testresultinterface.TestRunResultWriter;
 import org.testtoolinterfaces.testsuiteinterface.TestGroupReader;
 
-
 public class PluginCollection
 {
 	private TestGroupReader	myTestGroupReader;

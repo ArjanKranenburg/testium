@@ -48,7 +48,7 @@ public final class TestResultInterfacePlugin implements Plugin
 		// Input and ouput interfaces
     	if ( trConfig.getStdOutEnabled() )
     	{
-    		TestGroupResultStdOutWriter stdOutGroupWriter = new TestGroupResultStdOutWriter( 2 );
+    		TestGroupResultStdOutWriter stdOutGroupWriter = new TestGroupResultStdOutWriter( 1 );
     		aPluginCollection.addTestGroupResultWriter( stdOutGroupWriter );
  
     		TestRunResultStdOutWriter stdOutRunWriter = new TestRunResultStdOutWriter();

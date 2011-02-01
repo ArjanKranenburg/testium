@@ -9,9 +9,8 @@ import java.util.Hashtable;
 
 import org.testtoolinterfaces.testresult.TestCaseResultLink;
 import org.testtoolinterfaces.testresult.TestGroupResult;
-import org.testtoolinterfaces.testresult.TestGroupResultLink;
+//import org.testtoolinterfaces.testresult.TestGroupResultLink;
 import org.testtoolinterfaces.testresult.TestStepResult;
-import org.testtoolinterfaces.testresultinterface.TestGroupResultReader;
 import org.testtoolinterfaces.testresultinterface.TestGroupResultWriter;
 
 import org.testtoolinterfaces.utils.Trace;
@@ -23,11 +22,9 @@ import org.testtoolinterfaces.utils.Trace;
 public class TestGroupResultStdOutWriter implements TestGroupResultWriter
 {
 	private int myIndentLevel = 0;
-	private TestGroupResultStdOutWriter myTgResultWriter = null;
-	private TestCaseResultStdOutWriter myTcResultWriter;
 	private TestStepResultStdOutWriter myTsResultWriter;
-	
-	private TestGroupResultReader myTestGroupResultReader;
+	private TestCaseResultStdOutWriter myTcResultWriter;
+//	private TestGroupResultStdOutWriter myTgResultWriter;
 	
 	private ArrayList<String> myPrintedTGs = new ArrayList<String>();
 	private Hashtable<String, ArrayList<String>> myPrintedTCs = new Hashtable<String, ArrayList<String>>();
@@ -41,21 +38,33 @@ public class TestGroupResultStdOutWriter implements TestGroupResultWriter
 		myIndentLevel = anIndentLevel;
 		myTcResultWriter = new TestCaseResultStdOutWriter( anIndentLevel+1 );
 		myTsResultWriter = new TestStepResultStdOutWriter( anIndentLevel+1 );
-		
-		myTestGroupResultReader = new TestGroupResultReader();
 	}
 
 	@Override
 	public void write(TestGroupResult aTestGroupResult, File aResultFile)
 	{
-		// NOP		
+	    String testGroupResultId = aTestGroupResult.getId();
+	    Trace.println(Trace.UTIL, "write( " + testGroupResultId + " )", true);
+
+	    if ( ! myPrintedTGs.contains( testGroupResultId ) )
+	    {
+		    String indent = repeat( ' ', myIndentLevel );
+			System.out.println( indent + testGroupResultId );
+	    	
+			myPrintedTGs.add(testGroupResultId);
+			myPrintedTCs.put(testGroupResultId, new ArrayList<String>());
+			myPrintedPrepares.put(testGroupResultId, new ArrayList<String>());
+			myPrintedRestores.put(testGroupResultId, new ArrayList<String>());
+	    }
+
+	    aTestGroupResult.register(this);
 	}
 
 	@Override
-	public void update(TestGroupResult aTestGroupResult)
+	public void notify(TestGroupResult aTestGroupResult)
 	{
 	    String testGroupResultId = aTestGroupResult.getId();
-	    Trace.println(Trace.UTIL, "printLatest( " + testGroupResultId + " )", true);
+	    Trace.println(Trace.UTIL, "update( " + testGroupResultId + " )", true);
 
 	    if ( ! myPrintedTGs.contains( testGroupResultId ) )
 	    {
@@ -81,17 +90,17 @@ public class TestGroupResultStdOutWriter implements TestGroupResultWriter
     	}
 
 		// Test Groups
-		Hashtable<Integer, TestGroupResultLink> tgResults = aTestGroupResult.getTestGroupResultLinks();
-    	for (int key = 0; key < tgResults.size(); key++)
-    	{
-    		if ( myTgResultWriter == null )
-    		{
-        		myTgResultWriter = new TestGroupResultStdOutWriter( myIndentLevel+1 );
-    		}
-
-    	    TestGroupResult testGroupResult = myTestGroupResultReader.readTgResultFile( tgResults.get(key) );
-    	    myTgResultWriter.update( testGroupResult );
-    	}
+//		if ( myTgResultWriter == null )
+//		{
+//    		myTgResultWriter = new TestGroupResultStdOutWriter( myIndentLevel+1 );
+//		}
+//
+//		Hashtable<Integer, TestGroupResultLink> tgResults = aTestGroupResult.getTestGroupResultLinks();
+//    	for (int key = 0; key < tgResults.size(); key++)
+//    	{
+//    	    TestGroupResult testGroupResult = myTestGroupResultReader.readTgResultFile( tgResults.get(key) );
+//    	    myTgResultWriter.update( testGroupResult );
+//    	}
 
 		// Test Cases
 		Hashtable<Integer, TestCaseResultLink> tcResults = aTestGroupResult.getTestCaseResultLinks();

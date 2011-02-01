@@ -2,13 +2,79 @@
  
 <project name="Testium" default="CreateExecutableJarFileWithExternalLibrary">
 	<target name="CreateExecutableJarFileWithExternalLibrary">
-		<jar destfile="../Testium.jar">
-			<zipfileset dir="bin" prefix="" />
+
+		<delete file="../Testium.jar"/>
+		<property name="version.num" value="0.2.0"/>
+	    <buildnumber file="build.num"/>
+
+	    <!--
+	    Loads entries from a manifest file.
+	    @jar     The jar from where to read
+	    @prefix  A prefix to prepend
+	    -->
+	    <macrodef name="loadmf">
+	        <attribute name="jar"/>
+	        <attribute name="prefix" default=""/>
+	        <sequential>
+	            <loadproperties>
+	                <!-- Load the manifest entries -->
+	                <zipentry zipfile="@{jar}" name="META-INF/MANIFEST.MF"/>
+	                <!-- Add the prefix -->
+	                <filterchain>
+	                    <prefixlines prefix="@{prefix}"/>
+	                </filterchain>
+	            </loadproperties>
+	        </sequential>
+	    </macrodef>
+
+	    <!-- Read mf entries -->
+	    <loadmf jar="lib/CmdLineInterface.jar" prefix="cmdlineinterface-mf."/>
+	    <loadmf jar="lib/TestResultInterface.jar" prefix="testresultinterface-mf."/>
+	    <loadmf jar="lib/TestSuiteInterface.jar" prefix="testsuiteinterface-mf."/>
+
+		<jar destfile="../Testium.jar" duplicate="preserve" index="true">
+			<fileset dir="src" />
+			<fileset dir="bin" />
+			<fileset dir=".">
+			    <include name="License_lgpl-3.0.txt"/>
+			</fileset>
 			<zipfileset src="lib/TestSuiteInterface.jar" />
 			<zipfileset src="lib/TestResultInterface.jar" />
 			<zipfileset src="lib/CmdLineInterface.jar" />
 			<manifest>
 				<attribute name="Main-Class" value="org.testium.Main" />
+		        <attribute name="Created-By" value="TestToolInterfaces.org"/>
+		        <attribute name="Built-By" value="${user.name}"/>
+		        <attribute name="Implementation-Title" value="Testium" />
+		        <attribute name="Implementation-Version" value="${version.num}.${build.number}"/> 
+		        <attribute name="Implementation-Vendor" value="Open Source - Arjan Kranenburg" />
+		        <attribute name="Specification-Title" value="Testium" />
+		        <attribute name="Specification-Version" value="0.2" />
+		        <attribute name="Specification-Vendor" value="Testium.org" />
+				<section name="CmdLineInterface">
+			        <attribute name="Implementation-Title" value="${cmdlineinterface-mf.Implementation-Title}" />
+			        <attribute name="Implementation-Version" value="${cmdlineinterface-mf.Implementation-Version}"/> 
+			        <attribute name="Implementation-Vendor" value="${cmdlineinterface-mf.Implementation-Vendor}" />
+			        <attribute name="Specification-Title" value="${cmdlineinterface-mf.Specification-Title}" />
+			        <attribute name="Specification-Version" value="${cmdlineinterface-mf.Specification-Version}" />
+			        <attribute name="Specification-Vendor" value="${cmdlineinterface-mf.Specification-Vendor}" />
+				</section>
+				<section name="TestResultInterface">
+			        <attribute name="Implementation-Title" value="${testresultinterface-mf.Implementation-Title}" />
+			        <attribute name="Implementation-Version" value="${testresultinterface-mf.Implementation-Version}"/> 
+			        <attribute name="Implementation-Vendor" value="${testresultinterface-mf.Implementation-Vendor}" />
+			        <attribute name="Specification-Title" value="${testresultinterface-mf.Specification-Title}" />
+			        <attribute name="Specification-Version" value="${testresultinterface-mf.Specification-Version}" />
+			        <attribute name="Specification-Vendor" value="${testresultinterface-mf.Specification-Vendor}" />
+				</section>
+				<section name="TestSuiteInterface">
+			        <attribute name="Implementation-Title" value="${testsuiteinterface-mf.Implementation-Title}" />
+			        <attribute name="Implementation-Version" value="${testsuiteinterface-mf.Implementation-Version}"/> 
+			        <attribute name="Implementation-Vendor" value="${testsuiteinterface-mf.Implementation-Vendor}" />
+			        <attribute name="Specification-Title" value="${testsuiteinterface-mf.Specification-Title}" />
+			        <attribute name="Specification-Version" value="${testsuiteinterface-mf.Specification-Version}" />
+			        <attribute name="Specification-Vendor" value="${testsuiteinterface-mf.Specification-Vendor}" />
+				</section>
 			</manifest>
 		</jar>
 	</target>

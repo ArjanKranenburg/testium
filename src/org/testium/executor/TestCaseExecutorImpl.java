@@ -66,7 +66,7 @@ public class TestCaseExecutorImpl implements TestCaseExecutor
     	ArrayList<TestStep> restoreSteps = testCase.getRestoreSteps();
     	executeRestoreSteps(restoreSteps, result, scriptDir, aLogDir);
 
-    	myTestCaseResultWriter.update( result );
+//    	myTestCaseResultWriter.update( result );
 		
     	TestCaseResultLink tcResultLink = new TestCaseResultLink( aTestCaseLink,
     	                                                          result.getResult(),
@@ -83,7 +83,7 @@ public class TestCaseExecutorImpl implements TestCaseExecutor
 			TestStepResult tsResult = myTestStepExecutor.execute(step, aScriptDir, aLogDir);
 			aResult.addInitialization(tsResult);
 
-	    	myTestCaseResultWriter.update( aResult );
+//	    	myTestCaseResultWriter.update( aResult );
     	}
 	}
 
@@ -95,7 +95,7 @@ public class TestCaseExecutorImpl implements TestCaseExecutor
 			TestStepResult tsResult = myTestStepExecutor.execute(step, aScriptDir, aLogDir);
 			aResult.addExecution(tsResult);
 
-	    	myTestCaseResultWriter.update( aResult );
+//	    	myTestCaseResultWriter.update( aResult );
     	}
 	}
 
@@ -107,7 +107,7 @@ public class TestCaseExecutorImpl implements TestCaseExecutor
 			TestStepResult tsResult = myTestStepExecutor.execute(step, aScriptDir, aLogDir);
 			aResult.addRestore(tsResult);
 
-	    	myTestCaseResultWriter.update( aResult );
+//	    	myTestCaseResultWriter.update( aResult );
     	}
 	}
 
