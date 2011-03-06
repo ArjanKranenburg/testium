@@ -411,7 +411,7 @@ public class Main
 		Trace.println(Trace.EXEC, "doExecution( Testium, runTimeData )", true );
 
 		TestGroup testGroup = readTestGroup(aTestium, anRtData);
-		File testSuiteDir = anRtData.getValueAs(File.class, Testium.PROJECTDIR);
+		File testSuiteDir = anRtData.getValueAsFile(Testium.PROJECTDIR);
 		if ( testSuiteDir == null )
 		{
 			throw new Error( "Test Suite Directory is not defined" );

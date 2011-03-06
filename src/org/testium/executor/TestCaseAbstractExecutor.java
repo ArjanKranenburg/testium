@@ -22,16 +22,31 @@ import org.testtoolinterfaces.utils.Trace;
  */
 public abstract class TestCaseAbstractExecutor implements TestCaseExecutor
 {
+	public enum LOGTYPE
+	{
+		/** The log is written as log, i.e. text only */						LOGONLY,
+		/** The log is written in XML using the TTI standard */					TTI,
+		/** No log */ 															NONE;
+		
+		public String toString()
+		{
+			return super.toString().toLowerCase();
+		}
+	};
+
 	private TestCaseResultWriter myTestCaseResultWriter;
+	private LOGTYPE myLogType;
 
 	abstract public void executeScript( File anExecutable, File aLogFile, TestCaseResult aResult );
 
 	/**
 	 * @param myTestCaseResultWriter
+	 * @param aLogType 
 	 */
-	public TestCaseAbstractExecutor( TestCaseResultWriter aTestCaseResultWriter )
+	public TestCaseAbstractExecutor( TestCaseResultWriter aTestCaseResultWriter, LOGTYPE aLogType )
 	{
 		myTestCaseResultWriter = aTestCaseResultWriter;
+		myLogType = aLogType;
 	}
 
 	abstract public String getType();
@@ -61,7 +76,8 @@ public abstract class TestCaseAbstractExecutor implements TestCaseExecutor
 
 		File caseLogDir = new File(aLogDir, tcId);
 		caseLogDir.mkdir();
-		File logFile = new File( caseLogDir, tcId + ".xml" );
+		File resultFile = new File( caseLogDir, tcId + ".xml" );
+
 		TestCase testCase = new TestCaseImpl( tcId,
 		                                      new Hashtable<String, String>(),
 		                                      description,
@@ -71,7 +87,7 @@ public abstract class TestCaseAbstractExecutor implements TestCaseExecutor
 		                                      new TestStepArrayList(),
 		                                      new Hashtable<String, String>());
 		TestCaseResult result = new TestCaseResult( testCase );
-    	myTestCaseResultWriter.write( result, logFile );
+    	myTestCaseResultWriter.write( result, resultFile );
 
 		File executable = aTestCaseLink.getLink();
     	if ( ! executable.canExecute() )
@@ -81,11 +97,20 @@ public abstract class TestCaseAbstractExecutor implements TestCaseExecutor
     	}
     	else
     	{
-    		executeScript(executable, logFile, result);
+    		if ( myLogType.equals(LOGTYPE.LOGONLY) )
+    		{
+    			File logFile = new File( caseLogDir, tcId + "_run.log" );
+        		executeScript(executable, logFile, result);
+        		result.addTestLog("log", logFile.getPath());
+    		}
+    		else // LOGTYPE.NONE or LOGTYPE.TTI
+    		{
+        		executeScript(executable, resultFile, result);
+    		}
     	}
     	
 		return new TestCaseResultLink( aTestCaseLink,
 		                               result.getResult(),
-		                               logFile );
+		                               resultFile );
     }
 }
