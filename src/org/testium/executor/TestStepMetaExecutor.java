@@ -1,6 +1,8 @@
 package org.testium.executor;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.Hashtable;
 
 import org.testtoolinterfaces.testresult.TestResult;
@@ -132,5 +134,18 @@ public class TestStepMetaExecutor
 	public void addScriptExecutor(TestStepScriptExecutor aTestStepExecutor)
 	{
 		myScriptExecutors.put(aTestStepExecutor.getType(), aTestStepExecutor);		
+	}
+	
+	public ArrayList<String> getKeywords()
+	{
+		
+		ArrayList<String> keywords = new ArrayList<String>();
+		
+	    for (Enumeration<String> commands = myCommandExecutors.keys(); commands.hasMoreElements();)
+	    {
+	    	keywords.add( commands.nextElement() );
+	    }
+
+		return keywords;
 	}
 }

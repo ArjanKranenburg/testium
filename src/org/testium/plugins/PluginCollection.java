@@ -1,5 +1,7 @@
 package org.testium.plugins;
 
+import java.util.ArrayList;
+
 import org.testium.MetaTestCaseResultWriter;
 import org.testium.MetaTestGroupResultWriter;
 import org.testium.MetaTestRunResultWriter;
@@ -89,6 +91,11 @@ public class PluginCollection
 	public TestStepMetaExecutor getTestStepExecutor()
 	{
 		return myTestStepExecutor;
+	}
+
+	public ArrayList<String> getKeywords()
+	{
+		return myTestStepExecutor.getKeywords();
 	}
 
 	/**

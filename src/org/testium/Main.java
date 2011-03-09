@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOError;
 import java.net.URISyntaxException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 
@@ -64,6 +65,10 @@ public class Main
 		else if( command.equalsIgnoreCase( CmdLineParser.PREPARE ) )
 		{
 			doPreparations( testium, rtData );
+		}
+		else if( command.equalsIgnoreCase( CmdLineParser.KEYWORDS ) )
+		{
+			showKeywords( plugins );
 		}
 		else
 		{
@@ -463,5 +468,23 @@ public class Main
 			Trace.print(Trace.EXEC, e);
 			throw new Error( "Preparation failed.", e );
 		}
+	}
+
+	/**
+	 * @param aTestium
+	 * @param anRtData
+	 * @throws Error
+	 */
+	private static void showKeywords( PluginCollection aPlugins )
+	{
+		Trace.println(Trace.EXEC, "showKeywords( Testium, runTimeData )", true );
+
+		System.out.println( "Supported keywords:" );
+		ArrayList<String> keywordList = aPlugins.getKeywords();
+	    for (String keyword : keywordList)
+	    {
+	    	System.out.println( "  " + keyword );
+	    }
+
 	}
 }
