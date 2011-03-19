@@ -28,7 +28,7 @@ public class TestResultInterfaceConfiguration
 											 Configuration aTtiConfiguration,
 											 String aFileName )
 	{
-	    Trace.println(Trace.LEVEL.CONSTRUCTOR);
+	    Trace.println(Trace.CONSTRUCTOR);
 
 	    myStdOutEnabled = aStdOutEnabled;
 	    myFileEnabled = aFileEnabled;

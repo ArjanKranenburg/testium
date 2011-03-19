@@ -64,8 +64,8 @@ public final class TestResultInterfacePlugin implements Plugin
         	TestGroupResultXmlWriter tgXmlWriter = new TestGroupResultXmlWriter(ttiConfig);
     		aPluginCollection.addTestGroupResultWriter( tgXmlWriter );
     		
-    		String testEnvironment = aRtData.getValueAs(String.class, Testium.TESTENVIRONMENT);
-    		String testPhase = aRtData.getValueAs(String.class, Testium.TESTPHASE);
+    		String testEnvironment = aRtData.getValueAsString( Testium.TESTENVIRONMENT);
+    		String testPhase = aRtData.getValueAsString( Testium.TESTPHASE);
 
         	TestRunResultXmlWriter xmlWriter = new TestRunResultXmlWriter( ttiConfig, testEnvironment, testPhase );
         	aPluginCollection.addTestRunResultWriter(xmlWriter);

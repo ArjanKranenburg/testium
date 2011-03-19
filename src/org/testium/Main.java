@@ -46,7 +46,6 @@ public class Main
 		defineStartTime(rtData);
 
 		parseCommandLine( rtData, args );
-		String command = rtData.getValueAs(String.class, Testium.COMMAND);
 
 		readGlobalConfigFile( rtData );
 		readPersonalConfigFile( rtData );
@@ -54,6 +53,7 @@ public class Main
 		PluginCollection plugins = loadPlugins( rtData );
 		Testium testium = createTestium(rtData, plugins);
 
+		String command = rtData.getValueAsString(Testium.COMMAND);
 		if( command.equalsIgnoreCase( CmdLineParser.VALIDATE ) )
 		{
 			doValidation( testium, rtData );
@@ -188,10 +188,10 @@ public class Main
 	{
 		Trace.println(Trace.UTIL, "readConfigFile( runTimeData )", true );
 
-		File globalConfigFile = anRtData.getValueAs( File.class, Testium.GLOBALCONFIGFILE );
+		File globalConfigFile = anRtData.getValueAsFile( Testium.GLOBALCONFIGFILE );
 		if ( globalConfigFile == null )
 		{
-			File configDir = anRtData.getValueAs( File.class, Testium.CONFIGDIR );
+			File configDir = anRtData.getValueAsFile( Testium.CONFIGDIR );
 			if ( configDir == null )
 			{
 				throw new Error( Testium.CONFIGDIR + " is not defined in RunTimeData" );
@@ -237,16 +237,16 @@ public class Main
 	{
 		Trace.println(Trace.UTIL, "readPersonalConfigFile(  runTimeData )", true );
 		
-		File configFile = anRtData.getValueAs( File.class, Testium.CONFIGFILE );
+		File configFile = anRtData.getValueAsFile( Testium.CONFIGFILE );
 		if ( configFile == null )
 		{
-			File userHome = anRtData.getValueAs( File.class, Testium.USERHOME );
+			File userHome = anRtData.getValueAsFile( Testium.USERHOME );
 			if ( userHome == null )
 			{
 				throw new Error( Testium.USERHOME + " is not defined in RunTimeData" );
 			}
 
-			File userConfigDir = anRtData.getValueAs( File.class, Testium.USERCONFIGDIR );
+			File userConfigDir = anRtData.getValueAsFile( Testium.USERCONFIGDIR );
 			if ( userConfigDir == null )
 			{
 				userConfigDir = new File( userHome, "." + APPLICATIONNAME.toLowerCase(Locale.ENGLISH) );
@@ -254,7 +254,7 @@ public class Main
 			RunTimeVariable userConfigDirVar = new RunTimeVariable(Testium.USERCONFIGDIR, userConfigDir);
 			anRtData.add(userConfigDirVar);
 
-			File defaultConfigFile = anRtData.getValueAs( File.class, Testium.DEFAULTCONFIGFILE );
+			File defaultConfigFile = anRtData.getValueAsFile( Testium.DEFAULTCONFIGFILE );
 			if ( defaultConfigFile == null )
 			{
 				configFile = new File( userConfigDir, "general.xml" );
@@ -313,12 +313,12 @@ public class Main
 	{
 		Trace.println(Trace.UTIL, "loadPlugins(  runTimeData )", true );
 
-		File tmpPluginDirectory = anRtData.getValueAs( File.class, Testium.PLUGINSDIR );
+		File tmpPluginDirectory = anRtData.getValueAsFile( Testium.PLUGINSDIR );
 		File pluginDir;
 		
 		if ( tmpPluginDirectory == null )
 		{
-			File baseDir = anRtData.getValueAs( File.class, Testium.BASEDIR );
+			File baseDir = anRtData.getValueAsFile( Testium.BASEDIR );
 			if (baseDir == null)
 			{
 				throw new Error( Testium.BASEDIR + " is not set in RunTimeData" );

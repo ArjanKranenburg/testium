@@ -39,7 +39,7 @@ public class TestResultInterfaceConfigurationXmlHandler extends XmlHandler
 	public TestResultInterfaceConfigurationXmlHandler(XMLReader anXmlReader, RunTimeData anRtData)
 	{
 	    super(anXmlReader, START_ELEMENT);
-	    Trace.println(Trace.LEVEL.CONSTRUCTOR);
+	    Trace.println(Trace.CONSTRUCTOR);
 	    reset();
 
 		myRunTimeData = anRtData;
@@ -98,10 +98,14 @@ public class TestResultInterfaceConfigurationXmlHandler extends XmlHandler
 	    
 		if (aQualifiedName.equalsIgnoreCase(CFG_OUTPUT_BASE_DIRECTORY))
     	{
-			String resultBaseDirName = myRunTimeData.substituteVars( aChildXmlHandler.getValue() );
-			File resultBaseDir = new File( resultBaseDirName );
-			RunTimeVariable rtVar = new RunTimeVariable(Testium.RESULTBASEDIR, resultBaseDir);
-			myRunTimeData.add( rtVar );
+			// If it is set, it was set by personal configuration. We will not overwrite it.
+			if ( ! myRunTimeData.containsKey(Testium.RESULTBASEDIR) )
+			{
+				String resultBaseDirName = myRunTimeData.substituteVars( aChildXmlHandler.getValue() );
+				File resultBaseDir = new File( resultBaseDirName );
+				RunTimeVariable rtVar = new RunTimeVariable(Testium.RESULTBASEDIR, resultBaseDir);
+				myRunTimeData.add( rtVar );
+			}
     	}
 		else if (aQualifiedName.equalsIgnoreCase(CFG_STDOUT_ENABLED))
     	{

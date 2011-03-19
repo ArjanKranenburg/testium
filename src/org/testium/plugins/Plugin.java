@@ -8,5 +8,10 @@ import org.testtoolinterfaces.utils.RunTimeData;
  */
 public interface Plugin
 {
+    /**
+     * @param aPluginCollection
+     * @param aRtData
+     * @throws ConfigurationException
+     */
     public void loadPlugIn( PluginCollection aPluginCollection, RunTimeData aRtData ) throws ConfigurationException;
 }
