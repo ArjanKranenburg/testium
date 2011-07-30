@@ -17,7 +17,7 @@ public class TestStepSetExecutor
 		                                              aStep.getSequenceNr(),
 		                                              "",
 		                                              "set",
-		                                              "",
+		                                              null, //TestInterface. TODO this will probably give an NPE
 		                                              new ParameterArrayList() );
 		TestStepResult result = new TestStepResult( testStep );
 		result.setResult(TestResult.UNKNOWN);

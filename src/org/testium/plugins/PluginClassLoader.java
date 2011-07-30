@@ -31,7 +31,7 @@ public class PluginClassLoader extends URLClassLoader
     public PluginClassLoader(URL[] anUrlArray)
     {
         super(anUrlArray);
-		Trace.print(Trace.LEVEL.CONSTRUCTOR, "PluginClassLoader( ", true);
+		Trace.print(Trace.CONSTRUCTOR, "PluginClassLoader( ", true);
     	for ( URL url : anUrlArray )
     	{
     		Trace.append(Trace.CONSTRUCTOR, url.toString() + " ");
@@ -42,7 +42,7 @@ public class PluginClassLoader extends URLClassLoader
 	@SuppressWarnings("unchecked")
 	public Class findClass(String aClassName) throws ClassNotFoundException
     {
-		Trace.println(Trace.LEVEL.UTIL, "findClass( " + aClassName + " )", true);
+		Trace.println(Trace.UTIL, "findClass( " + aClassName + " )", true);
 		return super.findClass(aClassName);
     }
     
@@ -94,7 +94,7 @@ public class PluginClassLoader extends URLClassLoader
 	@SuppressWarnings("unchecked")
 	public static void addJarToClassLoader(File aFile) throws MalformedURLException
 	{
-		Trace.println(Trace.LEVEL.UTIL, "addJarToClassLoader( " + aFile.getName() + " )", true);
+		Trace.println(Trace.UTIL, "addJarToClassLoader( " + aFile.getName() + " )", true);
 		URL url = null;
 		url = aFile.toURI().toURL();
 		Class[] parameters = new Class[]{URL.class};
@@ -117,7 +117,7 @@ public class PluginClassLoader extends URLClassLoader
 
 	public static void addDirToClassLoader(File aDir) throws MalformedURLException
 	{
-		Trace.println(Trace.LEVEL.UTIL, "addDirToClassLoader( " + aDir.getName() + " )", true);
+		Trace.println(Trace.UTIL, "addDirToClassLoader( " + aDir.getName() + " )", true);
     	if( !aDir.isDirectory() )
     	{
     		throw new MalformedURLException(aDir.getPath());

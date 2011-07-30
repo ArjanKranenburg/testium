@@ -25,10 +25,10 @@ public class TestRunExecutorImpl
 	 * @param myTestCaseScriptExecutor
 	 */
 	public TestRunExecutorImpl( TestStepMetaExecutor aTestStepMetaExecutor,
-	                              TestCaseMetaExecutor aTestCaseMetaExecutor,
-	                              TestGroupMetaExecutor aTestGroupExecutor,
-	                              TestGroupResultWriter aTestGroupResultWriter,
-	                              TestRunResultWriter aTestRunResultWriter )
+	                            TestCaseMetaExecutor aTestCaseMetaExecutor,
+	                            TestGroupMetaExecutor aTestGroupExecutor,
+	                            TestGroupResultWriter aTestGroupResultWriter,
+	                            TestRunResultWriter aTestRunResultWriter )
 	{
 		Trace.println( Trace.CONSTRUCTOR );
 		myTestGroupExecutor = new TestGroupExecutorImpl( aTestStepMetaExecutor,
@@ -52,7 +52,7 @@ public class TestRunExecutorImpl
 						+ aHostname + ", "
 						+ aSut.getName() + ", "
 			            + aBaseExecutionDir.getPath() + ", "
-			            + "rtData )", true );
+						+ anRtData.size() + " Variables )", true );
 
 		String testGroupId = anRtData.getValueAsString(Testium.TESTGROUP);
 		if ( testGroupId == null )
@@ -84,7 +84,8 @@ public class TestRunExecutorImpl
 		myTestGroupExecutor.execute( aTestGroup,
 		                             aBaseExecutionDir,
 		                             logDir,
-		                             tgResult );
+		                             tgResult,
+		                             anRtData );
 		
 		Calendar endDate = Calendar.getInstance();
 		endDate.setTimeInMillis(System.currentTimeMillis());

@@ -1,23 +1,25 @@
 package org.testium.executor;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.Hashtable;
 
+import org.testium.systemundertest.SutInterface;
 import org.testtoolinterfaces.testresult.TestResult;
 import org.testtoolinterfaces.testresult.TestStepResult;
 import org.testtoolinterfaces.testsuite.TestStep;
 import org.testtoolinterfaces.testsuite.TestStepScript;
 import org.testtoolinterfaces.testsuite.TestStepCommand;
+import org.testtoolinterfaces.testsuite.TestStepSimple;
+import org.testtoolinterfaces.testsuite.TestSuiteException;
 import org.testtoolinterfaces.testsuite.TestStep.StepType;
+import org.testtoolinterfaces.utils.RunTimeData;
 import org.testtoolinterfaces.utils.Trace;
 import org.testtoolinterfaces.utils.Warning;
 
 
 public class TestStepMetaExecutor
 {
-	private Hashtable<String, TestStepCommandExecutor> myCommandExecutors;
+	private SupportedInterfaceList mySutInterfaces;
 	private Hashtable<String, TestStepScriptExecutor> myScriptExecutors;
 	private TestStepSetExecutor mySetExecutor;
 
@@ -25,12 +27,12 @@ public class TestStepMetaExecutor
 	{
 		Trace.println( Trace.CONSTRUCTOR );
 
-		myCommandExecutors = new Hashtable<String, TestStepCommandExecutor>();
+		mySutInterfaces = new SupportedInterfaceList();
 		myScriptExecutors = new Hashtable<String, TestStepScriptExecutor>();
 		mySetExecutor = new TestStepSetExecutor();
 	}
 
-	public TestStepResult execute(TestStep aStep, File aScriptDir, File aLogDir)
+	public TestStepResult execute(TestStep aStep, File aScriptDir, File aLogDir, RunTimeData aRTData)
 	{
 		if ( aStep.getStepType().equals( StepType.set ) )
 		{
@@ -41,9 +43,10 @@ public class TestStepMetaExecutor
 		{
 			return executeScript(aStep, aScriptDir, aLogDir);
 		}//else
-		else if ( aStep.getClass().equals(TestStepCommand.class) )
+
+		if ( aStep.getClass().equals(TestStepCommand.class) )
 		{
-			return executeCommand(aStep, aScriptDir, aLogDir);
+			return executeCommand(aStep, aRTData, aLogDir);
 		}//else
 
 		throw new Error( "Don't know how to execute " + aStep.getClass().getSimpleName() );
@@ -69,66 +72,54 @@ public class TestStepMetaExecutor
 		}
 		else
 		{
-			result = new TestStepResult( step );
-			
-			if ( aStep.getStepType().equals(TestStep.StepType.check) )
-			{
-				result.setResult(TestResult.FAILED);
-			}
-			else
-			{
-				result.setResult(TestResult.ERROR);
-			}
 			String message = "Cannot execute step scripts of type '" + step.getScriptType() + "'\n"
-				+ "Trying to continue, but this may affect further execution...";
-			result.addComment(message);
-			Warning.println(message);
-			Trace.println(Trace.ALL, "Cannot execute " + aStep.toString());
+			+ "Trying to continue, but this may affect further execution...";
+
+			result = reportError(step, message);
 		}
 		return result;
 	}
 
 	/**
 	 * @param aStep
-	 * @param aScriptDir
 	 * @param aLogDir
 	 * @return
 	 */
-	private TestStepResult executeCommand(TestStep aStep, File aScriptDir,
-											File aLogDir)
+	private TestStepResult executeCommand( TestStep aStep,
+	                                       RunTimeData aRtData,
+	                                       File aLogDir )
 	{
 		TestStepResult result;
 		TestStepCommand step = (TestStepCommand) aStep;
+		String command = step.getCommand();
 
-		if ( myCommandExecutors.containsKey( step.getCommand() ) )
+		String errorMsg = "Cannot execute steps with command '" + step.getCommand() + "'\n";
+
+		SutInterface iface = (SutInterface) step.getInterface();
+		if ( iface == null || ! iface.hasCommand(command) )
 		{
-			TestStepCommandExecutor executor = myCommandExecutors.get( step.getCommand() );
-			result = executor.execute(step, aScriptDir, aLogDir);
+			result = reportError(step, errorMsg);
 		}
 		else
 		{
-			result = new TestStepResult( step );
-			
-			if ( aStep.getStepType().equals(TestStep.StepType.check) )
+			TestStepCommandExecutor executor = iface.getCommandExecutor(command);
+			try
 			{
-				result.setResult(TestResult.FAILED);
+				result = executor.execute(step, aRtData, aLogDir);
 			}
-			else
+			catch (TestSuiteException tse)
 			{
-				result.setResult(TestResult.ERROR);
+				String message = errorMsg + tse.getMessage();
+				result = reportError(step, message);
 			}
-			String message = "Cannot execute steps with command '" + step.getCommand() + "'\n"
-				+ "Trying to continue, but this may affect further execution...";
-			result.addComment(message);
-			Warning.println(message);
-			Trace.println(Trace.ALL, "Cannot execute " + aStep.toString());
 		}
+
 		return result;
 	}
 
-	public void addCommandExecutor(TestStepCommandExecutor aTestStepExecutor)
+	public void addSutInterface(SutInterface aSutInterface)
 	{
-		myCommandExecutors.put(aTestStepExecutor.getCommand(), aTestStepExecutor);		
+		mySutInterfaces.add(aSutInterface);
 	}
 
 	public void addScriptExecutor(TestStepScriptExecutor aTestStepExecutor)
@@ -136,16 +127,24 @@ public class TestStepMetaExecutor
 		myScriptExecutors.put(aTestStepExecutor.getType(), aTestStepExecutor);		
 	}
 	
-	public ArrayList<String> getKeywords()
+	public SupportedInterfaceList getInterfaces()
 	{
-		
-		ArrayList<String> keywords = new ArrayList<String>();
-		
-	    for (Enumeration<String> commands = myCommandExecutors.keys(); commands.hasMoreElements();)
-	    {
-	    	keywords.add( commands.nextElement() );
-	    }
+		return mySutInterfaces;
+	}
 
-		return keywords;
+	/**
+	 * @param step
+	 * @param message
+	 * @return
+	 */
+	private TestStepResult reportError(TestStepSimple aStep, String message)
+	{
+		TestStepResult result = new TestStepResult( aStep );
+		result.setResult(TestResult.ERROR);
+		result.addComment(message);
+
+		Warning.println(message);
+		Trace.println(Trace.ALL, "Cannot execute " + aStep.toString());
+		return result;
 	}
 }

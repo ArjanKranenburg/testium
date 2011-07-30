@@ -4,8 +4,12 @@
 package org.testium.systemundertest;
 
 import java.io.File;
-import java.util.ArrayList;
 
+import org.testium.executor.TestStepCommandExecutor;
+import org.testtoolinterfaces.testresult.TestStepResult;
+import org.testtoolinterfaces.testresult.TestResult.VERDICT;
+import org.testtoolinterfaces.testsuite.ParameterArrayList;
+import org.testtoolinterfaces.testsuite.TestStepSimple;
 import org.testtoolinterfaces.utils.RunTimeData;
 import org.testtoolinterfaces.utils.Trace;
 
@@ -15,7 +19,7 @@ import org.testtoolinterfaces.utils.Trace;
  *
  * Simple class for starting the System Under Test.
  */
-public final class DummySutCommand implements SutIfCommand
+public final class DummySutCommand implements TestStepCommandExecutor
 {
 	private String myAction;
 
@@ -27,25 +31,28 @@ public final class DummySutCommand implements SutIfCommand
 		myAction = anAction;
 	}
 
-	public String getName()
+	@Override
+	public TestStepResult execute( TestStepSimple aStep,
+	                               RunTimeData aVariables,
+	                               File aLogDir )
+	{
+		Trace.println( Trace.EXEC );
+		TestStepResult result = new TestStepResult( aStep );
+		result.setResult(VERDICT.PASSED);
+
+		return result;
+	}
+
+	@Override
+	public String getCommand()
 	{
 		return myAction;
 	}
 
-	public boolean doAction(RunTimeData aVariables, File aLogDir)
+	@Override
+	public boolean verifyParameters( ParameterArrayList aParameters )
 	{
-		Trace.println( Trace.EXEC );
-		// NOP
+		Trace.println( Trace.EXEC_PLUS );
 		return true;
-	}
-
-	public boolean verifyParameters(RunTimeData aVariables)
-	{
-		return true;
-	}
-
-	public ArrayList<Parameter> getParameters()
-	{
-		return new ArrayList<Parameter>();
 	}
 }

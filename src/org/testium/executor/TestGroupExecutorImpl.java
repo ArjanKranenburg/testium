@@ -17,6 +17,7 @@ import org.testtoolinterfaces.testsuite.TestGroupLink;
 import org.testtoolinterfaces.testsuite.TestStep;
 import org.testtoolinterfaces.testsuite.TestStepArrayList;
 import org.testtoolinterfaces.testsuiteinterface.TestGroupReader;
+import org.testtoolinterfaces.utils.RunTimeData;
 import org.testtoolinterfaces.utils.Trace;
 import org.testtoolinterfaces.utils.Warning;
 
@@ -46,13 +47,14 @@ public class TestGroupExecutorImpl implements TestGroupExecutor
 		myTestGroupExecutor = aTestGroupMetaExecutor;
 		myTestGroupResultWriter = aTestGroupResultWriter;
 
-		myTestGroupReader = new TestGroupReader();
+		myTestGroupReader = new TestGroupReader( myTestStepExecutor.getInterfaces(), true );
 	}
 
 	@Override
 	public void execute( TestGroupLink aTestGroupLink,
 	                     File aLogDir,
-	                     TestGroupResult aResult )
+	                     TestGroupResult aTestGroupResult,
+	                     RunTimeData aRTData )
 	{
 		if ( !aLogDir.isDirectory() )
 		{
@@ -62,7 +64,8 @@ public class TestGroupExecutorImpl implements TestGroupExecutor
 		Trace.println(Trace.EXEC, "execute( " 
 				+ aTestGroupLink.getId() + ", "
 	            + aLogDir.getPath() + ", "
-	            + aResult.getId() + " )", true );
+	            + aTestGroupResult.getId() + ", "
+				+ aRTData.size() + " Variables )", true );
 
 		File testGroupFile = aTestGroupLink.getLink();
 		File scriptDir = testGroupFile.getParentFile();
@@ -78,34 +81,40 @@ public class TestGroupExecutorImpl implements TestGroupExecutor
     	TestGroupResultLink tgResultLink = new TestGroupResultLink( aTestGroupLink,
     	                                                            logFile );
     	tgResult.register(tgResultLink);
-    	aResult.addTestGroup(tgResultLink);
+    	aTestGroupResult.addTestGroup(tgResultLink);
 
-		execute( testGroup, scriptDir, groupLogDir, tgResult );
+		execute( testGroup, scriptDir, groupLogDir, tgResult, aRTData );
 	}
 
 	@Override
 	public void execute( TestGroup aTestGroup,
 	                     File aScriptDir,
 	                     File aLogDir,
-	                     TestGroupResult aTestGroupResult )
+	                     TestGroupResult aTestGroupResult,
+	                     RunTimeData aRTData )
 	{
 		Trace.println( Trace.EXEC, "execute( " 
 						+ aTestGroup.getId() + ", "
 						+ aScriptDir.getPath() + ", "
 						+ aLogDir.getPath() + ", "
-						+ aTestGroupResult.getId() + " )", true );
+						+ aTestGroupResult.getId() + ", "
+						+ aRTData.size() + " Variables )", true );
 
     	TestStepArrayList prepareSteps = aTestGroup.getPrepareSteps();
-    	executePrepareSteps(prepareSteps, aTestGroupResult, aScriptDir, aLogDir);
+    	executePrepareSteps(prepareSteps, aTestGroupResult, aScriptDir, aLogDir, aRTData);
 
     	TestEntryArrayList execSteps = aTestGroup.getExecutionEntries();
-		executeExecSteps(execSteps, aTestGroupResult, aScriptDir, aLogDir);
+		executeExecSteps(execSteps, aTestGroupResult, aScriptDir, aLogDir, aRTData);
 
     	TestStepArrayList restoreSteps = aTestGroup.getRestoreSteps();
-    	executeRestoreSteps(restoreSteps, aTestGroupResult, aScriptDir, aLogDir);
+    	executeRestoreSteps(restoreSteps, aTestGroupResult, aScriptDir, aLogDir, aRTData);
 	}
 
-	public void executePrepareSteps(TestStepArrayList aPrepareSteps, TestGroupResult aResult, File aScriptDir, File aLogDir)
+	public void executePrepareSteps( TestStepArrayList aPrepareSteps,
+	                                 TestGroupResult aResult,
+	                                 File aScriptDir,
+	                                 File aLogDir,
+	                                 RunTimeData aRTData )
 	{
 		Trace.println(Trace.EXEC_PLUS, "executePrepareSteps( " 
 						+ aPrepareSteps + ", "
@@ -116,7 +125,7 @@ public class TestGroupExecutorImpl implements TestGroupExecutor
 		for (int key = 0; key < aPrepareSteps.size(); key++)
     	{
     		TestStep step = aPrepareSteps.get(key);
-			TestStepResult tsResult = myTestStepExecutor.execute(step, aScriptDir, aLogDir);
+			TestStepResult tsResult = myTestStepExecutor.execute(step, aScriptDir, aLogDir, aRTData);
 			aResult.addInitialization(tsResult);
     	}
 	}
@@ -124,18 +133,20 @@ public class TestGroupExecutorImpl implements TestGroupExecutor
 	public void executeExecSteps( TestEntryArrayList anExecEntries,
 	                              TestGroupResult aResult,
 	                              File aScriptDir,
-	                              File aLogDir )
+	                              File aLogDir,
+	                              RunTimeData aRTData )
 	{
 		Trace.println(Trace.EXEC_PLUS, "executeExecSteps( " 
 						+ anExecEntries + ", "
 						+ aResult + ", "
 			            + aScriptDir.getPath() + ", "
-			            + aLogDir.getPath()
-			            + " )", true );
+			            + aLogDir.getPath() + ", "
+						+ aRTData.size() + " Variables )", true );
 
 		for (int key = 0; key < anExecEntries.size(); key++)
     	{
 			TestEntry entry = anExecEntries.get(key);
+			RunTimeData rtData = new RunTimeData( aRTData );
 			try
 			{
 				if ( entry.getType() == TestEntry.TYPE.GroupLink )
@@ -143,7 +154,7 @@ public class TestGroupExecutorImpl implements TestGroupExecutor
 					TestGroupLink tgLink = (TestGroupLink) entry;
 					tgLink.setLinkDir( aScriptDir );
 
-					myTestGroupExecutor.execute(tgLink, aLogDir, aResult );
+					myTestGroupExecutor.execute(tgLink, aLogDir, aResult, rtData );
 				}
 				else if ( entry.getType() == TestEntry.TYPE.CaseLink )
 				{
@@ -155,7 +166,7 @@ public class TestGroupExecutorImpl implements TestGroupExecutor
 					TestCaseLink tcLink = (TestCaseLink) entry;
 					tcLink.setLinkDir( aScriptDir );
 
-					TestCaseResultLink tcResult = myTestCaseExecutor.execute(tcLink, aLogDir);
+					TestCaseResultLink tcResult = myTestCaseExecutor.execute(tcLink, aLogDir, rtData);
 					aResult.addTestCase(tcResult);
 				}
 				else
@@ -175,7 +186,11 @@ public class TestGroupExecutorImpl implements TestGroupExecutor
     	}
 	}
 
-	public void executeRestoreSteps(TestStepArrayList aRestoreSteps, TestGroupResult aResult, File aScriptDir, File aLogDir)
+	public void executeRestoreSteps( TestStepArrayList aRestoreSteps,
+	                                 TestGroupResult aResult,
+	                                 File aScriptDir,
+	                                 File aLogDir,
+	                                 RunTimeData aRTData )
 	{
 		Trace.println(Trace.EXEC_PLUS, "executeRestoreSteps( " 
 						+ aRestoreSteps + ", "
@@ -186,7 +201,7 @@ public class TestGroupExecutorImpl implements TestGroupExecutor
 		for (int key = 0; key < aRestoreSteps.size(); key++)
     	{
     		TestStep step = aRestoreSteps.get(key);
-			TestStepResult tsResult = myTestStepExecutor.execute(step, aScriptDir, aLogDir);
+			TestStepResult tsResult = myTestStepExecutor.execute(step, aScriptDir, aLogDir, aRTData);
 			aResult.addRestore(tsResult);
     	}
 	}

@@ -1,22 +1,23 @@
 package org.testium.plugins;
 
-import java.util.ArrayList;
-
 import org.testium.MetaTestCaseResultWriter;
 import org.testium.MetaTestGroupResultWriter;
 import org.testium.MetaTestRunResultWriter;
+import org.testium.executor.DefaultInterface;
+import org.testium.executor.SupportedInterfaceList;
 import org.testium.executor.TestCaseExecutor;
 import org.testium.executor.TestCaseExecutorImpl;
 import org.testium.executor.TestCaseMetaExecutor;
 import org.testium.executor.TestGroupExecutor;
 import org.testium.executor.TestGroupExecutorImpl;
 import org.testium.executor.TestGroupMetaExecutor;
-import org.testium.executor.TestStepCommandExecutor;
+//import org.testium.executor.TestStepCommandExecutor;
 import org.testium.executor.TestStepMetaExecutor;
 import org.testium.executor.TestStepScriptExecutor;
-import org.testium.executor.TestStepWaitExecutor;
+//import org.testium.executor.WaitCommand;
 import org.testium.systemundertest.DummySutControl;
 import org.testium.systemundertest.SutControl;
+import org.testium.systemundertest.SutInterface;
 import org.testtoolinterfaces.testresultinterface.TestCaseResultWriter;
 import org.testtoolinterfaces.testresultinterface.TestGroupResultWriter;
 import org.testtoolinterfaces.testresultinterface.TestRunResultWriter;
@@ -41,21 +42,21 @@ public class PluginCollection
 	 */
 	public PluginCollection()
 	{
-		// Default SUT Control
-		mySutControl = new DummySutControl( );
-
-		// Default Readers
-		myTestGroupReader = new TestGroupReader();
-
 		// Default Writers
 		myTestRunResultWriter = new MetaTestRunResultWriter();
 		myTestGroupResultWriter = new MetaTestGroupResultWriter();
 		myTestCaseResultWriter = new MetaTestCaseResultWriter();
 
+		// Default SUT Control
+		mySutControl = new DummySutControl( );
+
 		// Default Executors
 		myTestStepExecutor = new TestStepMetaExecutor();
-		addStepCommandExecutor(new TestStepWaitExecutor());
+		addSutInterface(new DefaultInterface());
+//		addStepCommandExecutor(new WaitCommand());
 		
+		addSutInterface(mySutControl);
+
 		myTestCaseExecutor = new TestCaseMetaExecutor();
 		addTestCaseExecutor(new TestCaseExecutorImpl( myTestStepExecutor, myTestCaseResultWriter ));
 		
@@ -66,6 +67,9 @@ public class PluginCollection
 		                                                                     myTestGroupExecutor,
 		                                                                     myTestGroupResultWriter );
 		addTestGroupExecutor(testGroupExecutor);
+
+		// Default Readers
+		myTestGroupReader = new TestGroupReader(myTestStepExecutor.getInterfaces(), true);
 	}
 
 	/**
@@ -93,17 +97,25 @@ public class PluginCollection
 		return myTestStepExecutor;
 	}
 
-	public ArrayList<String> getKeywords()
+	public SupportedInterfaceList getInterfaces()
 	{
-		return myTestStepExecutor.getKeywords();
+		return myTestStepExecutor.getInterfaces();
 	}
 
+//	/**
+//	 * @param aTestStepCommandExecutor the TestStepCommandExecutor to add
+//	 */
+//	public void addStepCommandExecutor(TestStepCommandExecutor aTestStepCommandExecutor)
+//	{
+//		myTestStepExecutor.addCommandExecutor(aTestStepCommandExecutor);
+//	}
+
 	/**
-	 * @param aTestStepCommandExecutor the TestStepCommandExecutor to add
+	 * @param aSutInterface the SutInterface to add
 	 */
-	public void addStepCommandExecutor(TestStepCommandExecutor aTestStepCommandExecutor)
+	public void addSutInterface(SutInterface aSutInterface)
 	{
-		myTestStepExecutor.addCommandExecutor(aTestStepCommandExecutor);
+		myTestStepExecutor.addSutInterface(aSutInterface);
 	}
 
 	/**

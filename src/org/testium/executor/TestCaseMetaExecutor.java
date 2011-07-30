@@ -6,6 +6,7 @@ import java.util.Hashtable;
 import org.testtoolinterfaces.testresult.TestCaseResultLink;
 import org.testtoolinterfaces.testresult.TestResult.VERDICT;
 import org.testtoolinterfaces.testsuite.TestCaseLink;
+import org.testtoolinterfaces.utils.RunTimeData;
 import org.testtoolinterfaces.utils.Trace;
 import org.testtoolinterfaces.utils.Warning;
 
@@ -21,17 +22,18 @@ public class TestCaseMetaExecutor
 		myExecutors = new Hashtable<String, TestCaseExecutor>();
 	}
 
-	public TestCaseResultLink execute(TestCaseLink aTestCaseLink, File aLogDir)
+	public TestCaseResultLink execute(TestCaseLink aTestCaseLink, File aLogDir, RunTimeData aRTData)
 	{
 		Trace.println(Trace.EXEC, "execute( " 
 						+ aTestCaseLink.getId() + ", "
-			            + aLogDir.getPath() + " )", true );
+			            + aLogDir.getPath() + ", "
+			            + aRTData.size() + " Variables )", true );
 
 		TestCaseResultLink result;
 		if ( myExecutors.containsKey( aTestCaseLink.getScriptType() ) )
 		{
 			TestCaseExecutor executor = myExecutors.get( aTestCaseLink.getScriptType() );
-			result = executor.execute(aTestCaseLink, aLogDir);
+			result = executor.execute(aTestCaseLink, aLogDir, aRTData);
 		}
 		else
 		{

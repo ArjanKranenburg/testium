@@ -1,11 +1,13 @@
 package org.testium;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOError;
 import java.net.URISyntaxException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Enumeration;
 import java.util.Locale;
 
 import javax.xml.parsers.SAXParser;
@@ -14,6 +16,7 @@ import javax.xml.parsers.SAXParserFactory;
 import org.testium.configuration.ConfigurationException;
 import org.testium.configuration.GlobalConfigurationXmlHandler;
 import org.testium.configuration.PersonalConfigurationXmlHandler;
+import org.testium.executor.SupportedInterfaceList;
 import org.testium.executor.TestExecutionException;
 import org.testium.plugins.PluginClassLoader;
 import org.testium.plugins.PluginCollection;
@@ -65,6 +68,10 @@ public class Main
 		else if( command.equalsIgnoreCase( CmdLineParser.PREPARE ) )
 		{
 			doPreparations( testium, rtData );
+		}
+		else if( command.equalsIgnoreCase( CmdLineParser.INTERFACES ) )
+		{
+			showInterfaces( plugins );
 		}
 		else if( command.equalsIgnoreCase( CmdLineParser.KEYWORDS ) )
 		{
@@ -302,6 +309,10 @@ public class Main
 	        // parse the document
 	        xmlReader.parse( configFile.getAbsolutePath() );
 		}
+		catch (FileNotFoundException fnfe)
+		{
+			Trace.print(Trace.UTIL, fnfe);
+		}
 		catch (Exception e)
 		{
 			Trace.print(Trace.UTIL, e);
@@ -471,20 +482,44 @@ public class Main
 	}
 
 	/**
+	 * @param aPlugins
+	 */
+	private static void showInterfaces( PluginCollection aPlugins )
+	{
+		Trace.println(Trace.EXEC, "showInterfaces( aPlugins )", true );
+
+		System.out.println( "Supported interfaces:" );
+		SupportedInterfaceList interfaceList = aPlugins.getInterfaces();
+		for (Enumeration<String> keys = interfaceList.getInterfaceNames(); keys.hasMoreElements();)
+	    {
+			String ifaceName = keys.nextElement();
+	    	System.out.println( "  " + ifaceName );
+	    }
+	}
+
+	/**
 	 * @param aTestium
 	 * @param anRtData
 	 * @throws Error
 	 */
 	private static void showKeywords( PluginCollection aPlugins )
 	{
-		Trace.println(Trace.EXEC, "showKeywords( Testium, runTimeData )", true );
+		Trace.println(Trace.EXEC, "showKeywords( aPlugins )", true );
 
 		System.out.println( "Supported keywords:" );
-		ArrayList<String> keywordList = aPlugins.getKeywords();
-	    for (String keyword : keywordList)
+		SupportedInterfaceList interfaceList = aPlugins.getInterfaces();
+		for (Enumeration<String> keys = interfaceList.getInterfaceNames(); keys.hasMoreElements();)
 	    {
-	    	System.out.println( "  " + keyword );
-	    }
+			String ifaceName = keys.nextElement();
+	    	System.out.println( "  " + ifaceName );
 
+			ArrayList<String> commandList = interfaceList.getInterface(ifaceName).getCommands();
+		    for (String command : commandList)
+		    {
+		    	System.out.println( "    " + command );
+		    }
+		    
+		    System.out.println();
+	    }
 	}
 }

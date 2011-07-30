@@ -14,6 +14,7 @@ import org.testtoolinterfaces.testsuite.TestCase;
 import org.testtoolinterfaces.testsuite.TestCaseImpl;
 import org.testtoolinterfaces.testsuite.TestCaseLink;
 import org.testtoolinterfaces.testsuite.TestStepArrayList;
+import org.testtoolinterfaces.utils.RunTimeData;
 import org.testtoolinterfaces.utils.Trace;
 
 /**
@@ -55,15 +56,19 @@ public abstract class TestCaseAbstractExecutor implements TestCaseExecutor
      * Executes the Test Case as a perl script on the Operating System
      * 
 	 * @param aBaseLogDir the baseDir for log-files
+	 * @param aLogDir
+	 * @param anRTData
      */
+	@Override
     public TestCaseResultLink execute( TestCaseLink aTestCaseLink,
-                                       File aLogDir )
+                                       File aLogDir,
+                                       RunTimeData anRTData )
     {
     	String tcId = aTestCaseLink.getId();
 		Trace.println(Trace.EXEC, "execute( "
 						+ tcId + ", "
-			            + aLogDir.getPath()
-			            + " )", true );
+			            + aLogDir.getPath() + ", "
+			            + anRTData.size() + " Variables )", true );
 
 		if ( !aLogDir.isDirectory() )
 		{
