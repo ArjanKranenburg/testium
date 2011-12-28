@@ -91,5 +91,6 @@ public class TestRunExecutorImpl
 		endDate.setTimeInMillis(System.currentTimeMillis());
 		result.setEndDate( endDate );
 		result.setStatus(TestRunResult.FINISHED);
+		myTestRunResultWriter.write( result, runLogFile );
 	}
 }

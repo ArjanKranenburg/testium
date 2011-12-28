@@ -9,6 +9,7 @@ import org.testtoolinterfaces.testresult.TestResult;
 import org.testtoolinterfaces.testresult.TestStepResult;
 import org.testtoolinterfaces.testsuite.Parameter;
 import org.testtoolinterfaces.testsuite.ParameterArrayList;
+import org.testtoolinterfaces.testsuite.ParameterImpl;
 import org.testtoolinterfaces.testsuite.ParameterVariable;
 import org.testtoolinterfaces.testsuite.TestStepSimple;
 import org.testtoolinterfaces.testsuite.TestSuiteException;
@@ -48,7 +49,7 @@ public class GetListItemCommand implements TestStepCommandExecutor
 			                              DefaultInterface.NAME + "." + COMMAND );
 		}
 
-		Parameter indexPar = parameters.get(PAR_INDEX);
+		ParameterImpl indexPar = (ParameterImpl) parameters.get(PAR_INDEX);
 		int index = indexPar.getValueAsInt();
 		if ( list.size() <= index )
 		{
@@ -117,13 +118,20 @@ public class GetListItemCommand implements TestStepCommandExecutor
 		}
 
 		// Check the index Parameter
-		Parameter indexPar = aParameters.get(PAR_INDEX);
-		if ( indexPar == null )
+		Parameter indexPar_tmp = aParameters.get(PAR_INDEX);
+		if ( indexPar_tmp == null )
 		{
 			throw new TestSuiteException( "Parameter " + PAR_INDEX + " is not set",
 			                              DefaultInterface.NAME + "." + COMMAND );
 		}
 
+		if ( ! ParameterImpl.class.isInstance( indexPar_tmp ) )
+		{
+			throw new TestSuiteException( "Parameter " + PAR_INDEX + " is not a value",
+			                              DefaultInterface.NAME + "." + COMMAND );
+		}
+
+		ParameterImpl indexPar = (ParameterImpl) indexPar_tmp;
 		if ( ! indexPar.getValueType().equals( Integer.class ) )
 		{
 			throw new TestSuiteException( "Parameter " + PAR_INDEX + " must be an integer",

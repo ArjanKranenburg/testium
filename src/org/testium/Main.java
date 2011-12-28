@@ -81,8 +81,61 @@ public class Main
 		{
 			throw new Error( "Unknown Command: " + command );
 		}
+		
+		System.out.flush();
+		System.err.flush();
+		
+		// Find the root thread group
+		ThreadGroup root = Thread.currentThread().getThreadGroup().getParent();
+		System.out.println( "We start with threadgroup: " + root.getName() );
+
+		while (root.getParent() != null)
+		{
+			root = root.getParent();
+			System.out.println( "Up one to: " + root.getName() );
+		}
+		
+		visit( root, 0 );
+		
+		System.runFinalization();
+		try
+		{
+			Thread.sleep(30000);
+		}
+		catch (InterruptedException e)
+		{
+			// none, just exit;
+		}
+		System.exit(0); // Some plugins can have hanging threads. This will stop them.
 	}
 
+	// This method recursively visits all thread groups under `group'.
+	public static void visit(ThreadGroup group, int level) {
+	    // Get threads in `group'
+	    int numThreads = group.activeCount();
+	    Thread[] threads = new Thread[numThreads*2];
+	    numThreads = group.enumerate(threads, false);
+
+        System.out.println( "Threadgroup: " + group.getName() );
+
+	    // Enumerate each thread in `group'
+	    for (int i=0; i<numThreads; i++) {
+	        // Get thread
+	        Thread thread = threads[i];
+	        System.out.println( "Thread: " + thread.getName() + "(" + thread.getPriority() + ") has state " + thread.getState() );
+	    }
+
+	    // Get thread subgroups of `group'
+	    int numGroups = group.activeGroupCount();
+	    ThreadGroup[] groups = new ThreadGroup[numGroups*2];
+	    numGroups = group.enumerate(groups, false);
+
+	    // Recursively visit each subgroup
+	    for (int i=0; i<numGroups; i++) {
+	        visit(groups[i], level+1);
+	    }
+	}
+	
 	/**
 	 * @param rtData
 	 */
@@ -425,7 +478,6 @@ public class Main
 			throws Error
 	{
 		Trace.println(Trace.EXEC, "doExecution( Testium, runTimeData )", true );
-
 		TestGroup testGroup = readTestGroup(aTestium, anRtData);
 		File testSuiteDir = anRtData.getValueAsFile(Testium.PROJECTDIR);
 		if ( testSuiteDir == null )

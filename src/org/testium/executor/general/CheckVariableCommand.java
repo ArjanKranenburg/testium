@@ -8,6 +8,7 @@ import org.testtoolinterfaces.testresult.TestResult;
 import org.testtoolinterfaces.testresult.TestStepResult;
 import org.testtoolinterfaces.testsuite.Parameter;
 import org.testtoolinterfaces.testsuite.ParameterArrayList;
+import org.testtoolinterfaces.testsuite.ParameterImpl;
 import org.testtoolinterfaces.testsuite.ParameterVariable;
 import org.testtoolinterfaces.testsuite.TestStepSimple;
 import org.testtoolinterfaces.testsuite.TestSuiteException;
@@ -32,7 +33,7 @@ public class CheckVariableCommand implements TestStepCommandExecutor
 		
 		ParameterVariable variablePar = (ParameterVariable) parameters.get(PAR_VARIABLE);
 		String variableName = variablePar.getVariableName();
-		Parameter valuePar = parameters.get(PAR_VALUE);
+		ParameterImpl valuePar = (ParameterImpl) parameters.get(PAR_VALUE);
 
 		RunTimeVariable rtVariable = anRTData.get( variableName );
 		if ( rtVariable == null )
@@ -85,7 +86,7 @@ public class CheckVariableCommand implements TestStepCommandExecutor
 			                              DefaultInterface.NAME + "." + COMMAND );
 		}
 
-		if ( ! variablePar.getClass().equals( ParameterVariable.class ) )
+		if ( ! ParameterVariable.class.isInstance( variablePar ) )
 		{
 			throw new TestSuiteException( "Parameter " + PAR_VARIABLE + " is not defined as a variable",
 			                              DefaultInterface.NAME + "." + COMMAND );
@@ -102,6 +103,12 @@ public class CheckVariableCommand implements TestStepCommandExecutor
 		if ( valuePar == null )
 		{
 			throw new TestSuiteException( "Parameter " + PAR_VALUE + " is not set",
+			                              DefaultInterface.NAME + "." + COMMAND );
+		}
+
+		if ( ! ParameterImpl.class.isInstance( valuePar ) )
+		{
+			throw new TestSuiteException( "Parameter " + valuePar.getName() + " is not a value",
 			                              DefaultInterface.NAME + "." + COMMAND );
 		}
 

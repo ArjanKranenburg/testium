@@ -8,6 +8,7 @@ import org.testtoolinterfaces.testresult.TestResult;
 import org.testtoolinterfaces.testresult.TestStepResult;
 import org.testtoolinterfaces.testsuite.Parameter;
 import org.testtoolinterfaces.testsuite.ParameterArrayList;
+import org.testtoolinterfaces.testsuite.ParameterImpl;
 import org.testtoolinterfaces.testsuite.TestStepSimple;
 import org.testtoolinterfaces.testsuite.TestSuiteException;
 import org.testtoolinterfaces.utils.RunTimeData;
@@ -27,7 +28,7 @@ public class WaitCommand implements TestStepCommandExecutor
 
 		TestStepResult result = new TestStepResult( (TestStepSimple) aStep );
 		
-		Parameter timePar = parameters.get(PAR_TIME);
+		ParameterImpl timePar = (ParameterImpl) parameters.get(PAR_TIME);
 		int time = timePar.getValueAsInt();
 	    long sleeptime = new Long(time * 1000);
 		try
@@ -52,13 +53,20 @@ public class WaitCommand implements TestStepCommandExecutor
 	@Override
 	public boolean verifyParameters( ParameterArrayList aParameters ) throws TestSuiteException
 	{
-		Parameter timePar = aParameters.get(PAR_TIME);
-		if ( timePar == null )
+		Parameter timePar_tmp = aParameters.get(PAR_TIME);
+		if ( timePar_tmp == null )
 		{
 			throw new TestSuiteException( "Parameter " + PAR_TIME + " is not set",
 			                              DefaultInterface.NAME + "." + COMMAND );
 		}
 		
+		if ( ! ParameterImpl.class.isInstance( timePar_tmp ) )
+		{
+			throw new TestSuiteException( "Parameter " + timePar_tmp.getName() + " is not a value",
+			                              DefaultInterface.NAME + "." + COMMAND );
+		}
+
+		ParameterImpl timePar = (ParameterImpl) timePar_tmp;
 		if ( ! timePar.getValueType().equals( Integer.class ) )
 		{
 			throw new TestSuiteException( "Parameter " + PAR_TIME + " must be an integer",

@@ -10,7 +10,7 @@ public interface TestCaseExecutor
 {
 	public TestCaseResultLink execute( TestCaseLink aTestCaseLink,
 	                                   File aLogDir,
-	                                   RunTimeData aRTData );
+	                                   RunTimeData aRTData ) throws TestCaseLinkExecutionException;
 
 	public String getType();
 }

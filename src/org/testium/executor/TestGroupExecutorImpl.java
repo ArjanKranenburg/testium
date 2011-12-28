@@ -174,14 +174,14 @@ public class TestGroupExecutorImpl implements TestGroupExecutor
 					throw new InvalidTestTypeException( entry.getType().toString(), "Cannot execute execution entries of type " + entry.getType() );
 				}
 			}
-			catch (InvalidTestTypeException e)
+			catch (Throwable t) // wider than strictly needed, but plugins could be mal-interpreted.
 			{
 				String message = "Execution of " + entry.getType() + " " + entry.getId() + " failed:\n"
-					+ e.getMessage()
+					+ t.getMessage()
 					+ "\nTrying to continue, but this may affect further execution...";
 				aResult.addComment(message);
 				Warning.println(message);
-				Trace.print(Trace.ALL, e);
+				Trace.print(Trace.ALL, t);
 			}
     	}
 	}

@@ -33,7 +33,18 @@ public class TestCaseMetaExecutor
 		if ( myExecutors.containsKey( aTestCaseLink.getScriptType() ) )
 		{
 			TestCaseExecutor executor = myExecutors.get( aTestCaseLink.getScriptType() );
-			result = executor.execute(aTestCaseLink, aLogDir, aRTData);
+			try
+			{
+				result = executor.execute(aTestCaseLink, aLogDir, aRTData);
+			}
+			catch (TestCaseLinkExecutionException e)
+			{
+				Trace.print(Trace.EXEC_PLUS, e);
+				result = new TestCaseResultLink( aTestCaseLink,
+				                                 VERDICT.ERROR,
+				                                 null );
+				result.addComment(e.getMessage());
+			}
 		}
 		else
 		{
@@ -44,7 +55,7 @@ public class TestCaseMetaExecutor
 			String message = "Cannot execute test case scripts of type " + aTestCaseLink.getScriptType() + "\n";
 			result.addComment(message);
 			Warning.println(message);
-			Trace.print(Trace.ALL, "Cannot execute " + aTestCaseLink.toString());
+			Trace.print(Trace.EXEC_PLUS, "Cannot execute " + aTestCaseLink.toString());
 		}
 		
 		return result;

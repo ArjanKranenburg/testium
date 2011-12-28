@@ -79,8 +79,9 @@ public class TestCaseExecutorImpl implements TestCaseExecutor
 			                                      new Hashtable<String, String>() );
 			
 			result = new TestCaseResult( testCase );
+    		result.addComment( e.getLocalizedMessage() );
+    		result.addComment( e.getStackTrace().toString() );
 			result.setResult(VERDICT.ERROR);
-			result.addComment( e.getMessage() );
 		}
 		
 		File logFile = new File(aLogDir, testCase.getId() + "_log.xml");

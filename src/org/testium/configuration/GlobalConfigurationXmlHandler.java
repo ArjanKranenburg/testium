@@ -26,6 +26,7 @@ import org.xml.sax.XMLReader;
  *    <TestPhase>...</TestPhase>
  *    <ProjectDirectory>...</ProjectDirectory>
  *    <TestFile>...</TestFile>
+ *    <Interfaces>...</Interfaces>
  *  ...
  *  </GlobalConfiguration>
  * 

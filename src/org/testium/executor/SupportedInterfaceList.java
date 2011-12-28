@@ -7,7 +7,7 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 
 import org.testtoolinterfaces.testsuite.TestInterface;
-import org.testtoolinterfaces.testsuiteinterface.TestInterfaceList;
+import org.testtoolinterfaces.testsuite.TestInterfaceList;
 
 /**
  * @author Arjan
@@ -47,5 +47,22 @@ public class SupportedInterfaceList implements TestInterfaceList
 	public Enumeration<String> getInterfaceNames()
 	{
 		return myList.keys();
+	}
+	
+	public String toString()
+	{
+		String allInterfaces = "";
+		for (Enumeration<String> names = this.getInterfaceNames(); names.hasMoreElements();)
+		{
+			if ( allInterfaces.isEmpty() )
+			{
+				allInterfaces = names.nextElement();
+			}
+			else
+			{
+				allInterfaces += "," + names.nextElement();
+			}
+		}
+		return allInterfaces;
 	}
 }

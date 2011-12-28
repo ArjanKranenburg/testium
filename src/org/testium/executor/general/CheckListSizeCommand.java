@@ -9,6 +9,7 @@ import org.testtoolinterfaces.testresult.TestResult;
 import org.testtoolinterfaces.testresult.TestStepResult;
 import org.testtoolinterfaces.testsuite.Parameter;
 import org.testtoolinterfaces.testsuite.ParameterArrayList;
+import org.testtoolinterfaces.testsuite.ParameterImpl;
 import org.testtoolinterfaces.testsuite.ParameterVariable;
 import org.testtoolinterfaces.testsuite.TestStepSimple;
 import org.testtoolinterfaces.testsuite.TestSuiteException;
@@ -47,7 +48,7 @@ public class CheckListSizeCommand implements TestStepCommandExecutor
 			                              DefaultInterface.NAME + "." + COMMAND );
 		}
 
-		Parameter sizePar = parameters.get(PAR_SIZE);
+		ParameterImpl sizePar = (ParameterImpl) parameters.get(PAR_SIZE);
 		int expectedSize = sizePar.getValueAsInt();
 		if ( list.size() != expectedSize )
 		{
@@ -90,13 +91,20 @@ public class CheckListSizeCommand implements TestStepCommandExecutor
 		}
 
 		// Check the size Parameter
-		Parameter sizePar = aParameters.get(PAR_SIZE);
-		if ( sizePar == null )
+		Parameter sizePar_tmp = aParameters.get(PAR_SIZE);
+		if ( sizePar_tmp == null )
 		{
 			throw new TestSuiteException( "Parameter " + PAR_SIZE + " is not set",
 			                              DefaultInterface.NAME + "." + COMMAND );
 		}
 
+		if ( ! ParameterImpl.class.isInstance( sizePar_tmp ) )
+		{
+			throw new TestSuiteException( "Parameter " + sizePar_tmp.getName() + " is not a value",
+			                              DefaultInterface.NAME + "." + COMMAND );
+		}
+
+		ParameterImpl sizePar = (ParameterImpl) sizePar_tmp;
 		if ( ! sizePar.getValueType().equals( Integer.class ) )
 		{
 			throw new TestSuiteException( "Parameter " + PAR_SIZE + " must be an integer",

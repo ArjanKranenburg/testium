@@ -14,8 +14,8 @@ import org.testium.executor.general.GetListItemCommand;
 import org.testium.executor.general.SetVariableCommand;
 import org.testium.executor.general.WaitCommand;
 import org.testium.systemundertest.SutInterface;
-import org.testtoolinterfaces.testsuite.Parameter;
 import org.testtoolinterfaces.testsuite.ParameterArrayList;
+import org.testtoolinterfaces.testsuite.ParameterImpl;
 import org.testtoolinterfaces.testsuite.TestSuiteException;
 import org.testtoolinterfaces.testsuiteinterface.DefaultParameterCreator;
 import org.testtoolinterfaces.utils.Trace;
@@ -103,7 +103,7 @@ public class DefaultInterface implements SutInterface
 	}
 
 	@Override
-	public Parameter createParameter( String aName,
+	public ParameterImpl createParameter( String aName,
 	                                  String aType,
 	                                  String aValue )
 			throws TestSuiteException

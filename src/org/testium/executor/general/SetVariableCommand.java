@@ -8,6 +8,7 @@ import org.testtoolinterfaces.testresult.TestResult;
 import org.testtoolinterfaces.testresult.TestStepResult;
 import org.testtoolinterfaces.testsuite.Parameter;
 import org.testtoolinterfaces.testsuite.ParameterArrayList;
+import org.testtoolinterfaces.testsuite.ParameterImpl;
 import org.testtoolinterfaces.testsuite.ParameterVariable;
 import org.testtoolinterfaces.testsuite.TestStepSimple;
 import org.testtoolinterfaces.testsuite.TestSuiteException;
@@ -32,7 +33,7 @@ public class SetVariableCommand implements TestStepCommandExecutor
 		
 		ParameterVariable variablePar = (ParameterVariable) parameters.get(PAR_VARIABLE);
 		String variableName = variablePar.getVariableName();
-		Parameter valuePar = parameters.get(PAR_VALUE);
+		ParameterImpl valuePar = (ParameterImpl) parameters.get(PAR_VALUE);
 
 		RunTimeVariable rtVariable = new RunTimeVariable( variableName, valuePar.getValue() );
 		aVariables.add(rtVariable);
@@ -70,6 +71,12 @@ public class SetVariableCommand implements TestStepCommandExecutor
 		if ( valuePar == null )
 		{
 			throw new TestSuiteException( "Parameter " + PAR_VALUE + " is not set",
+			                              DefaultInterface.NAME + "." + COMMAND );
+		}
+
+		if ( ! ParameterImpl.class.isInstance( valuePar ) )
+		{
+			throw new TestSuiteException( "Parameter " + PAR_VALUE + " is not a value",
 			                              DefaultInterface.NAME + "." + COMMAND );
 		}
 

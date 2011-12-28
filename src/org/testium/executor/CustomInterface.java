@@ -1,39 +1,49 @@
 /**
  * 
  */
-package org.testium.systemundertest;
+package org.testium.executor;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Hashtable;
 
-import org.testium.executor.TestStepCommandExecutor;
-import org.testtoolinterfaces.testresult.SutInfo;
+import org.testium.systemundertest.SutInterface;
 import org.testtoolinterfaces.testsuite.ParameterArrayList;
 import org.testtoolinterfaces.testsuite.ParameterImpl;
 import org.testtoolinterfaces.testsuite.TestSuiteException;
 import org.testtoolinterfaces.testsuiteinterface.DefaultParameterCreator;
-import org.testtoolinterfaces.utils.RunTimeData;
 import org.testtoolinterfaces.utils.Trace;
 
-
 /**
- * @author Arjan Kranenburg
+ * @author Arjan
  *
  */
-public abstract class SutControl implements SutInterface
+public class CustomInterface implements SutInterface, CustomizableInterface
 {
-	public abstract String getSutName();
-	
-	private Hashtable<String, TestStepCommandExecutor> myCommandExecutors;
+	public String myName;
 
-	public SutControl()
+	private Hashtable<String, TestStepCommandExecutor> myCommandExecutors;
+	/**
+	 * 
+	 */
+	public CustomInterface( String aName )
 	{
 		Trace.println(Trace.CONSTRUCTOR);
-
+		myName = aName;
+		
 		myCommandExecutors = new Hashtable<String, TestStepCommandExecutor>();
+	}
+
+	/* (non-Javadoc)
+	 * @see org.testium.systemundertest.SutInterface#getCommands()
+	 */
+	@Override
+	public ArrayList<TestStepCommandExecutor> getCommandExecutors()
+	{
+		Trace.println( Trace.GETTER );
+		Collection<TestStepCommandExecutor> executorCollection = myCommandExecutors.values();
+		return new ArrayList<TestStepCommandExecutor>( executorCollection );
 	}
 
 	/* (non-Javadoc)
@@ -42,16 +52,9 @@ public abstract class SutControl implements SutInterface
 	@Override
 	public String getInterfaceName()
 	{
-		Trace.println( Trace.GETTER );
-		return "SutControl";
+		return myName;
 	}
-	
-	public SutInfo getSutInfo(File aLogDir, RunTimeData aParentRtData)
-	{
-		Trace.println( Trace.GETTER );
-		return new SutInfo( this.getSutName() );
-	}
-	
+
 	@Override
 	public ArrayList<String> getCommands()
 	{
@@ -66,10 +69,10 @@ public abstract class SutControl implements SutInterface
 		ArrayList<String> commands = getCommands();
 		return commands.contains(aCommand);
 	}
-	
+
 	public boolean verifyParameters( String aCommand,
 	                                 ParameterArrayList aParameters )
-				   throws TestSuiteException
+		   throws TestSuiteException
 	{
 		TestStepCommandExecutor executor = this.getCommandExecutor(aCommand);
 		return executor.verifyParameters(aParameters);
@@ -83,15 +86,7 @@ public abstract class SutControl implements SutInterface
 	}
 
 	@Override
-	public ArrayList<TestStepCommandExecutor> getCommandExecutors()
-	{
-		Trace.println( Trace.GETTER );
-		Collection<TestStepCommandExecutor> executorsCollection = myCommandExecutors.values();
-		
-		return new ArrayList<TestStepCommandExecutor>( executorsCollection );
-	}
-
-	protected void add( TestStepCommandExecutor aCommandExecutor )
+	public void add( TestStepCommandExecutor aCommandExecutor )
 	{
 		Trace.println( Trace.UTIL );
 		String command = aCommandExecutor.getCommand();
@@ -103,7 +98,6 @@ public abstract class SutControl implements SutInterface
 	                                  String aType,
 	                                  String aValue )
 			throws TestSuiteException
-
 	{
 		return DefaultParameterCreator.createParameter(aName, aType, aValue);
 	}
