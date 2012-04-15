@@ -4,7 +4,7 @@
 	<target name="CreateExecutableJarFileWithExternalLibrary">
 
 		<delete file="../Testium.jar"/>
-		<property name="version.num" value="0.3.1"/>
+		<property name="version.num" value="0.3.2"/>
 	    <buildnumber file="build.num"/>
 
 	    <!--
