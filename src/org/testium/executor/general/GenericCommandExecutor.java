@@ -18,9 +18,9 @@ import org.testtoolinterfaces.utils.RunTimeData;
 
 public abstract class GenericCommandExecutor implements TestStepCommandExecutor {
 
-	private ArrayList<SpecifiedParameter> myParameterSpecs;
 	private String myCommand;
 	private SutInterface myInterface;
+	private ArrayList<SpecifiedParameter> myParameterSpecs;
 
 	
 	/**
