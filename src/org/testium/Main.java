@@ -159,6 +159,12 @@ public class Main
 			Trace.print(Trace.UTIL, exc);
 			throw new Error( "Cannot determine " + APPLICATIONNAME + "'s basedir: ", exc );
 		}
+		
+		String sysPropBaseDir = System.getProperty( Testium.BASEDIR.toLowerCase() );
+		if ( sysPropBaseDir != null && ! sysPropBaseDir.isEmpty() ) {
+			applicationBaseDir = new File( sysPropBaseDir );
+		}
+
 		RunTimeVariable applBaseDirVar = new RunTimeVariable(Testium.BASEDIR, applicationBaseDir);
 		anRtData.add(applBaseDirVar);
 	}
