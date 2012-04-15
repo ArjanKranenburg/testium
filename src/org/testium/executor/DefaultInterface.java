@@ -11,6 +11,7 @@ import java.util.Hashtable;
 import org.testium.executor.general.CheckListSizeCommand;
 import org.testium.executor.general.CheckVariableCommand;
 import org.testium.executor.general.GetListItemCommand;
+import org.testium.executor.general.PrintVars;
 import org.testium.executor.general.SetVariableCommand;
 import org.testium.executor.general.WaitCommand;
 import org.testium.systemundertest.SutInterface;
@@ -42,6 +43,7 @@ public class DefaultInterface implements SutInterface
 		add(new CheckVariableCommand());
 		add(new SetVariableCommand());
 		add(new GetListItemCommand());
+		add(new PrintVars());
 		add(new CheckListSizeCommand());
 	}
 
