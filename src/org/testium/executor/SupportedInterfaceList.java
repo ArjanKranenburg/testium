@@ -5,6 +5,7 @@ package org.testium.executor;
 
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.Iterator;
 
 import org.testtoolinterfaces.testsuite.TestInterface;
 import org.testtoolinterfaces.testsuite.TestInterfaceList;
@@ -52,17 +53,22 @@ public class SupportedInterfaceList implements TestInterfaceList
 	public String toString()
 	{
 		String allInterfaces = "";
-		for (Enumeration<String> names = this.getInterfaceNames(); names.hasMoreElements();)
+		Iterator<TestInterface> iFaceItr = this.iterator();
+		while(iFaceItr.hasNext())
 		{
-			if ( allInterfaces.isEmpty() )
+			TestInterface iFace = iFaceItr.next();
+			if ( ! allInterfaces.isEmpty() )
 			{
-				allInterfaces = names.nextElement();
+				allInterfaces += ", ";
 			}
-			else
-			{
-				allInterfaces += "," + names.nextElement();
-			}
+			allInterfaces += iFace.getInterfaceName();
 		}
 		return allInterfaces;
+	}
+
+	@Override
+	public Iterator<TestInterface> iterator()
+	{
+		return myList.values().iterator();
 	}
 }

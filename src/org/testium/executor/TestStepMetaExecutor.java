@@ -9,9 +9,8 @@ import org.testtoolinterfaces.testresult.TestStepResult;
 import org.testtoolinterfaces.testsuite.TestStep;
 import org.testtoolinterfaces.testsuite.TestStepScript;
 import org.testtoolinterfaces.testsuite.TestStepCommand;
-import org.testtoolinterfaces.testsuite.TestStepSimple;
+import org.testtoolinterfaces.testsuite.TestStepSequence;
 import org.testtoolinterfaces.testsuite.TestSuiteException;
-import org.testtoolinterfaces.testsuite.TestStep.StepType;
 import org.testtoolinterfaces.utils.RunTimeData;
 import org.testtoolinterfaces.utils.Trace;
 import org.testtoolinterfaces.utils.Warning;
@@ -34,7 +33,7 @@ public class TestStepMetaExecutor
 
 	public TestStepResult execute(TestStep aStep, File aScriptDir, File aLogDir, RunTimeData aRTData)
 	{
-		if ( aStep.getStepType().equals( StepType.set ) )
+		if ( aStep.getClass().equals(TestStepSequence.class) )
 		{
 			return mySetExecutor.execute(aStep, aScriptDir, aLogDir);
 		}// else
@@ -137,7 +136,7 @@ public class TestStepMetaExecutor
 	 * @param message
 	 * @return
 	 */
-	private TestStepResult reportError(TestStepSimple aStep, String message)
+	private TestStepResult reportError(TestStep aStep, String message)
 	{
 		TestStepResult result = new TestStepResult( aStep );
 		result.setResult(TestResult.ERROR);

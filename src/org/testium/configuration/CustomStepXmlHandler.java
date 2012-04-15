@@ -1,15 +1,12 @@
 package org.testium.configuration;
 
-import java.util.ArrayList;
-
 import org.testium.executor.CustomTestStepExecutor;
 import org.testium.executor.CustomizableInterface;
 import org.testium.executor.TestStepMetaExecutor;
 import org.testtoolinterfaces.testsuite.Parameter;
 import org.testtoolinterfaces.testsuite.ParameterArrayList;
 import org.testtoolinterfaces.testsuite.TestInterfaceList;
-import org.testtoolinterfaces.testsuite.TestStep;
-import org.testtoolinterfaces.testsuite.TestStepArrayList;
+import org.testtoolinterfaces.testsuite.TestStepSequence;
 import org.testtoolinterfaces.testsuite.TestSuiteException;
 import org.testtoolinterfaces.testsuiteinterface.ParameterXmlHandler;
 import org.testtoolinterfaces.testsuiteinterface.TestStepSequenceXmlHandler;
@@ -18,7 +15,6 @@ import org.testtoolinterfaces.utils.TTIException;
 import org.testtoolinterfaces.utils.Trace;
 import org.testtoolinterfaces.utils.XmlHandler;
 import org.xml.sax.Attributes;
-import org.xml.sax.SAXParseException;
 import org.xml.sax.XMLReader;
 
 /**
@@ -42,7 +38,7 @@ public class CustomStepXmlHandler extends XmlHandler
 
 	private String myCommand;
 	private String myDescription;
-    private TestStepArrayList myExecutionSteps;
+    private TestStepSequence myExecutionSteps;
 	private ParameterArrayList myParameters;
 
 	private GenericTagAndStringXmlHandler myDescriptionXmlHandler;
@@ -59,24 +55,21 @@ public class CustomStepXmlHandler extends XmlHandler
 		myTestStepExecutor = aTestStepMetaExecutor;
 
 	    myDescriptionXmlHandler = new GenericTagAndStringXmlHandler(anXmlReader, DESCRIPTION_ELEMENT);
-		this.addStartElementHandler(DESCRIPTION_ELEMENT, myDescriptionXmlHandler);
-		myDescriptionXmlHandler.addEndElementHandler(DESCRIPTION_ELEMENT, this);
+		this.addElementHandler(DESCRIPTION_ELEMENT, myDescriptionXmlHandler);
 
-	    ArrayList<TestStep.StepType> execAllowedTypes = new ArrayList<TestStep.StepType>();
-	    execAllowedTypes.add( TestStep.StepType.action );
-	    execAllowedTypes.add( TestStep.StepType.check );
-	    execAllowedTypes.add( TestStep.StepType.set );
+//	    ArrayList<TestStep.StepType> execAllowedTypes = new ArrayList<TestStep.StepType>();
+//	    execAllowedTypes.add( TestStep.StepType.action );
+//	    execAllowedTypes.add( TestStep.StepType.check );
+//	    execAllowedTypes.add( TestStep.StepType.set );
 		myExecutionXmlHandler = new TestStepSequenceXmlHandler( anXmlReader,
 		                                                        EXECUTE_ELEMENT,
-		                                                        execAllowedTypes,
+//		                                                        execAllowedTypes,
 		                                                        anInterfaceList,
 		                                                        true );
-		this.addStartElementHandler(EXECUTE_ELEMENT, myExecutionXmlHandler);
-		myExecutionXmlHandler.addEndElementHandler(EXECUTE_ELEMENT, this);
+		this.addElementHandler(EXECUTE_ELEMENT, myExecutionXmlHandler);
 
 		myParameterXmlHandler = new ParameterXmlHandler(anXmlReader);
-		this.addStartElementHandler(ParameterXmlHandler.START_ELEMENT, myParameterXmlHandler);
-		myParameterXmlHandler.addEndElementHandler(ParameterXmlHandler.START_ELEMENT, this);
+		this.addElementHandler(ParameterXmlHandler.START_ELEMENT, myParameterXmlHandler);
 		
 	    reset();
 	}
@@ -147,17 +140,9 @@ public class CustomStepXmlHandler extends XmlHandler
     	}
     	else if (aQualifiedName.equalsIgnoreCase(ParameterXmlHandler.START_ELEMENT))
     	{
-			try
-			{
-				// Note: No interface is set, so creation is done by the defaultInterface
-	    		Parameter parameter = myParameterXmlHandler.getParameter();
-	    		myParameters.add(parameter);
-			}
-			catch (SAXParseException e)
-			{
-				Trace.print(Trace.SUITE, e);
-				throw new TTIException( "Cannot add Parameter: " + e.getMessage(), e );
-			}
+			// Note: No interface is set, so creation is done by the defaultInterface
+			Parameter parameter = myParameterXmlHandler.getParameter();
+			myParameters.add(parameter);
     		
     		myParameterXmlHandler.reset();
     	}
@@ -189,7 +174,7 @@ public class CustomStepXmlHandler extends XmlHandler
 		CustomTestStepExecutor testStepExecutor = new CustomTestStepExecutor( myCommand,
 		                                                                      myDescription,
 		                                                                      anInterface,
-		                                                                      myExecutionSteps.sort(),
+		                                                                      myExecutionSteps,
 		                                                                      myParameters,
 		                                                                      myTestStepExecutor );
 		
@@ -200,7 +185,7 @@ public class CustomStepXmlHandler extends XmlHandler
 	{
 		myCommand = "";
 		myDescription = "";
-	    myExecutionSteps = new TestStepArrayList();
+	    myExecutionSteps = new TestStepSequence();
 	    myParameters = new ParameterArrayList();
 	}
 }

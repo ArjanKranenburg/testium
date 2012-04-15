@@ -55,8 +55,7 @@ public class TestResultInterfaceConfigurationXmlHandler extends XmlHandler
 
 	    for (XmlHandler handler : xmlHandlers)
 	    {
-			this.addStartElementHandler(handler.getStartElement(), handler);
-			handler.addEndElementHandler(handler.getStartElement(), this);
+			this.addElementHandler(handler.getStartElement(), handler);
 	    }
 	}
 
@@ -95,13 +94,19 @@ public class TestResultInterfaceConfigurationXmlHandler extends XmlHandler
 	{
 	    Trace.println(Trace.UTIL, "handleReturnFromChildElement( " + 
 	    	      aQualifiedName + " )", true);
+		if ( ! GenericTagAndStringXmlHandler.class.isInstance(aChildXmlHandler) )
+		{
+			throw new Error( "ChildXmlHandler (" + aChildXmlHandler.getClass().toString() + ") must be of type GenericTagAndStringXmlHandler" );
+		}
+		GenericTagAndStringXmlHandler childXmlHandler = (GenericTagAndStringXmlHandler) aChildXmlHandler;
+
 	    
 		if (aQualifiedName.equalsIgnoreCase(CFG_OUTPUT_BASE_DIRECTORY))
     	{
 			// If it is set, it was set by personal configuration. We will not overwrite it.
 			if ( ! myRunTimeData.containsKey(Testium.RESULTBASEDIR) )
 			{
-				String resultBaseDirName = myRunTimeData.substituteVars( aChildXmlHandler.getValue() );
+				String resultBaseDirName = myRunTimeData.substituteVars( childXmlHandler.getValue() );
 				File resultBaseDir = new File( resultBaseDirName );
 				RunTimeVariable rtVar = new RunTimeVariable(Testium.RESULTBASEDIR, resultBaseDir);
 				myRunTimeData.add( rtVar );
@@ -109,35 +114,35 @@ public class TestResultInterfaceConfigurationXmlHandler extends XmlHandler
     	}
 		else if (aQualifiedName.equalsIgnoreCase(CFG_STDOUT_ENABLED))
     	{
-			myStdOutEnabled = aChildXmlHandler.getValue().equalsIgnoreCase("true");
+			myStdOutEnabled = ((GenericTagAndBooleanXmlHandler) childXmlHandler).getBoolean();
 			aChildXmlHandler.reset();
     	}
 		else if (aQualifiedName.equalsIgnoreCase(CFG_FILE_ENABLED))
     	{
-			myFileEnabled = aChildXmlHandler.getValue().equalsIgnoreCase("true");
+			myFileEnabled = ((GenericTagAndBooleanXmlHandler) childXmlHandler).getBoolean();
 			aChildXmlHandler.reset();
     	}
 		else if (aQualifiedName.equalsIgnoreCase(CFG_RUN_XSLDIR))
     	{
-			String xslDirName = myRunTimeData.substituteVars( aChildXmlHandler.getValue() );
+			String xslDirName = myRunTimeData.substituteVars( childXmlHandler.getValue() );
 			myRunXslDir = new File( xslDirName );
 			aChildXmlHandler.reset();
     	}
 		else if (aQualifiedName.equalsIgnoreCase(CFG_GROUP_XSLDIR))
     	{
-			String xslDirName = myRunTimeData.substituteVars( aChildXmlHandler.getValue() );
+			String xslDirName = myRunTimeData.substituteVars( childXmlHandler.getValue() );
 			myGroupXslDir = new File( xslDirName );
 			aChildXmlHandler.reset();
     	}
 		else if (aQualifiedName.equalsIgnoreCase(CFG_CASE_XSLDIR))
     	{
-			String xslDirName = myRunTimeData.substituteVars( aChildXmlHandler.getValue() );
+			String xslDirName = myRunTimeData.substituteVars( childXmlHandler.getValue() );
 			myCaseXslDir = new File( xslDirName );
 			aChildXmlHandler.reset();
     	}
 		else if (aQualifiedName.equalsIgnoreCase(CFG_OUTPUT_FILENAME))
     	{
-			myFileName = myRunTimeData.substituteVars( aChildXmlHandler.getValue() );
+			myFileName = myRunTimeData.substituteVars( childXmlHandler.getValue() );
 			aChildXmlHandler.reset();
     	}
 

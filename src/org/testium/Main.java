@@ -8,6 +8,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Enumeration;
+import java.util.Iterator;
 import java.util.Locale;
 
 import javax.xml.parsers.SAXParser;
@@ -24,6 +25,7 @@ import org.testtoolinterfaces.cmdline.CmdLineExecutionParser;
 import org.testtoolinterfaces.cmdline.CmdLineParser;
 import org.testtoolinterfaces.cmdline.ParameterException;
 import org.testtoolinterfaces.testsuite.TestGroup;
+import org.testtoolinterfaces.testsuite.TestInterface;
 import org.testtoolinterfaces.utils.RunTimeData;
 import org.testtoolinterfaces.utils.RunTimeVariable;
 import org.testtoolinterfaces.utils.Trace;
@@ -86,16 +88,16 @@ public class Main
 		System.err.flush();
 		
 		// Find the root thread group
-		ThreadGroup root = Thread.currentThread().getThreadGroup().getParent();
-		System.out.println( "We start with threadgroup: " + root.getName() );
-
-		while (root.getParent() != null)
-		{
-			root = root.getParent();
-			System.out.println( "Up one to: " + root.getName() );
-		}
-		
-		visit( root, 0 );
+//		ThreadGroup root = Thread.currentThread().getThreadGroup().getParent();
+//		System.out.println( "We start with threadgroup: " + root.getName() );
+//
+//		while (root.getParent() != null)
+//		{
+//			root = root.getParent();
+//			System.out.println( "Up one to: " + root.getName() );
+//		}
+//		
+//		visit( root, 0 );
 		
 		System.runFinalization();
 		try
@@ -109,32 +111,32 @@ public class Main
 		System.exit(0); // Some plugins can have hanging threads. This will stop them.
 	}
 
-	// This method recursively visits all thread groups under `group'.
-	public static void visit(ThreadGroup group, int level) {
-	    // Get threads in `group'
-	    int numThreads = group.activeCount();
-	    Thread[] threads = new Thread[numThreads*2];
-	    numThreads = group.enumerate(threads, false);
-
-        System.out.println( "Threadgroup: " + group.getName() );
-
-	    // Enumerate each thread in `group'
-	    for (int i=0; i<numThreads; i++) {
-	        // Get thread
-	        Thread thread = threads[i];
-	        System.out.println( "Thread: " + thread.getName() + "(" + thread.getPriority() + ") has state " + thread.getState() );
-	    }
-
-	    // Get thread subgroups of `group'
-	    int numGroups = group.activeGroupCount();
-	    ThreadGroup[] groups = new ThreadGroup[numGroups*2];
-	    numGroups = group.enumerate(groups, false);
-
-	    // Recursively visit each subgroup
-	    for (int i=0; i<numGroups; i++) {
-	        visit(groups[i], level+1);
-	    }
-	}
+//	// This method recursively visits all thread groups under `group'.
+//	public static void visit(ThreadGroup group, int level) {
+//	    // Get threads in `group'
+//	    int numThreads = group.activeCount();
+//	    Thread[] threads = new Thread[numThreads*2];
+//	    numThreads = group.enumerate(threads, false);
+//
+//        System.out.println( "Threadgroup: " + group.getName() );
+//
+//	    // Enumerate each thread in `group'
+//	    for (int i=0; i<numThreads; i++) {
+//	        // Get thread
+//	        Thread thread = threads[i];
+//	        System.out.println( "Thread: " + thread.getName() + "(" + thread.getPriority() + ") has state " + thread.getState() );
+//	    }
+//
+//	    // Get thread subgroups of `group'
+//	    int numGroups = group.activeGroupCount();
+//	    ThreadGroup[] groups = new ThreadGroup[numGroups*2];
+//	    numGroups = group.enumerate(groups, false);
+//
+//	    // Recursively visit each subgroup
+//	    for (int i=0; i<numGroups; i++) {
+//	        visit(groups[i], level+1);
+//	    }
+//	}
 	
 	/**
 	 * @param rtData
@@ -560,18 +562,19 @@ public class Main
 
 		System.out.println( "Supported keywords:" );
 		SupportedInterfaceList interfaceList = aPlugins.getInterfaces();
-		for (Enumeration<String> keys = interfaceList.getInterfaceNames(); keys.hasMoreElements();)
-	    {
-			String ifaceName = keys.nextElement();
-	    	System.out.println( "  " + ifaceName );
+		Iterator<TestInterface> iFaceItr = interfaceList.iterator();
+		while(iFaceItr.hasNext())
+		{
+			TestInterface iFace = iFaceItr.next();
+			System.out.println( "  " + iFace.getInterfaceName() );
 
-			ArrayList<String> commandList = interfaceList.getInterface(ifaceName).getCommands();
+			ArrayList<String> commandList = iFace.getCommands();
 		    for (String command : commandList)
 		    {
 		    	System.out.println( "    " + command );
 		    }
 		    
 		    System.out.println();
-	    }
+		}
 	}
 }

@@ -1,6 +1,7 @@
 package org.testium.executor;
 
 import java.io.File;
+import java.util.Iterator;
 
 import org.testtoolinterfaces.testresult.TestStepResult;
 import org.testtoolinterfaces.testresult.TestResult.VERDICT;
@@ -9,8 +10,7 @@ import org.testtoolinterfaces.testsuite.ParameterArrayList;
 import org.testtoolinterfaces.testsuite.ParameterHash;
 import org.testtoolinterfaces.testsuite.ParameterVariable;
 import org.testtoolinterfaces.testsuite.TestStep;
-import org.testtoolinterfaces.testsuite.TestStepArrayList;
-import org.testtoolinterfaces.testsuite.TestStepSimple;
+import org.testtoolinterfaces.testsuite.TestStepSequence;
 import org.testtoolinterfaces.testsuite.TestSuiteException;
 import org.testtoolinterfaces.utils.RunTimeData;
 
@@ -19,7 +19,7 @@ public class CustomTestStepExecutor implements TestStepCommandExecutor
 	private String myCommand;
 	private String myDescription;
 	private CustomizableInterface myInterface;
-	private TestStepArrayList mySteps;
+	private TestStepSequence mySteps;
 	private ParameterArrayList myParameters;
 
 	private TestStepMetaExecutor myTestStepExecutor;
@@ -27,7 +27,7 @@ public class CustomTestStepExecutor implements TestStepCommandExecutor
 	public CustomTestStepExecutor( String aCommand,
 	                               String aDescription,
 	                               CustomizableInterface anInterface,
-	                               TestStepArrayList aSteps,
+	                               TestStepSequence aSteps,
 	                               ParameterArrayList aParameters,
 	                               TestStepMetaExecutor aTestStepMetaExecutor )
 	{
@@ -46,7 +46,7 @@ public class CustomTestStepExecutor implements TestStepCommandExecutor
 	}
 
 	@Override
-	public TestStepResult execute( TestStepSimple aStep,
+	public TestStepResult execute( TestStep aStep,
 	                               RunTimeData aVariables,
 	                               File aLogDir ) throws TestSuiteException
 	{
@@ -59,10 +59,11 @@ public class CustomTestStepExecutor implements TestStepCommandExecutor
 		}
 
 		TestStepResult result = new TestStepResult( aStep );
-		
-		for (int key = 0; key < mySteps.size(); key++)
-    	{
-			TestStep step = mySteps.get(key);
+
+		Iterator<TestStep> stepsItr = mySteps.iterator();
+		while(stepsItr.hasNext())
+		{
+		    TestStep step = stepsItr.next();
 			TestStepResult tsResult = myTestStepExecutor.execute(step, new File( "" ), aLogDir, aVariables);
 			result.addSubStep(tsResult);
 			
@@ -70,7 +71,8 @@ public class CustomTestStepExecutor implements TestStepCommandExecutor
 			{
 				return result;
 			}
-    	}
+		} 
+
 		// TODO Auto-generated method stub
 		return result;
 	}

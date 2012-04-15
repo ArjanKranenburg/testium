@@ -7,14 +7,12 @@ import org.testtoolinterfaces.testresult.TestStepResult;
 import org.testtoolinterfaces.testsuite.ParameterArrayList;
 import org.testtoolinterfaces.testsuite.TestStep;
 import org.testtoolinterfaces.testsuite.TestStepCommand;
-import org.testtoolinterfaces.testsuite.TestStep.StepType;
 
 public class TestStepSetExecutor
 {
 	public TestStepResult execute(TestStep aStep, File aScriptDir, File aLogDir)
 	{
-		TestStepCommand testStep = new TestStepCommand( StepType.set,
-		                                              aStep.getSequenceNr(),
+		TestStepCommand testStep = new TestStepCommand( aStep.getSequenceNr(),
 		                                              "",
 		                                              "set",
 		                                              null, //TestInterface. TODO this will probably give an NPE

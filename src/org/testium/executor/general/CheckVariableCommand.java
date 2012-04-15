@@ -10,7 +10,7 @@ import org.testtoolinterfaces.testsuite.Parameter;
 import org.testtoolinterfaces.testsuite.ParameterArrayList;
 import org.testtoolinterfaces.testsuite.ParameterImpl;
 import org.testtoolinterfaces.testsuite.ParameterVariable;
-import org.testtoolinterfaces.testsuite.TestStepSimple;
+import org.testtoolinterfaces.testsuite.TestStep;
 import org.testtoolinterfaces.testsuite.TestSuiteException;
 import org.testtoolinterfaces.utils.RunTimeData;
 import org.testtoolinterfaces.utils.RunTimeVariable;
@@ -22,14 +22,14 @@ public class CheckVariableCommand implements TestStepCommandExecutor
 	private static final String PAR_VARIABLE = "VARIABLE";
 	private static final String PAR_VALUE = "VALUE";
 	
-	public TestStepResult execute( TestStepSimple aStep,
+	public TestStepResult execute( TestStep aStep,
 	                               RunTimeData anRTData,
 	                               File aLogDir ) throws TestSuiteException
 	{
 		ParameterArrayList parameters = aStep.getParameters();
 		verifyParameters(parameters);
 
-		TestStepResult result = new TestStepResult( (TestStepSimple) aStep );
+		TestStepResult result = new TestStepResult( aStep );
 		
 		ParameterVariable variablePar = (ParameterVariable) parameters.get(PAR_VARIABLE);
 		String variableName = variablePar.getVariableName();

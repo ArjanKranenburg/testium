@@ -3,6 +3,7 @@ package org.testium.executor;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOError;
+import java.util.Iterator;
 
 import org.testtoolinterfaces.testresult.TestCaseResultLink;
 import org.testtoolinterfaces.testresult.TestGroupResult;
@@ -11,11 +12,11 @@ import org.testtoolinterfaces.testresult.TestStepResult;
 import org.testtoolinterfaces.testresultinterface.TestGroupResultWriter;
 import org.testtoolinterfaces.testsuite.TestCaseLink;
 import org.testtoolinterfaces.testsuite.TestEntry;
-import org.testtoolinterfaces.testsuite.TestEntryArrayList;
+import org.testtoolinterfaces.testsuite.TestEntrySequence;
 import org.testtoolinterfaces.testsuite.TestGroup;
 import org.testtoolinterfaces.testsuite.TestGroupLink;
 import org.testtoolinterfaces.testsuite.TestStep;
-import org.testtoolinterfaces.testsuite.TestStepArrayList;
+import org.testtoolinterfaces.testsuite.TestStepSequence;
 import org.testtoolinterfaces.testsuiteinterface.TestGroupReader;
 import org.testtoolinterfaces.utils.RunTimeData;
 import org.testtoolinterfaces.utils.Trace;
@@ -100,17 +101,17 @@ public class TestGroupExecutorImpl implements TestGroupExecutor
 						+ aTestGroupResult.getId() + ", "
 						+ aRTData.size() + " Variables )", true );
 
-    	TestStepArrayList prepareSteps = aTestGroup.getPrepareSteps();
+    	TestStepSequence prepareSteps = aTestGroup.getPrepareSteps();
     	executePrepareSteps(prepareSteps, aTestGroupResult, aScriptDir, aLogDir, aRTData);
 
-    	TestEntryArrayList execSteps = aTestGroup.getExecutionEntries();
+    	TestEntrySequence execSteps = aTestGroup.getExecutionEntries();
 		executeExecSteps(execSteps, aTestGroupResult, aScriptDir, aLogDir, aRTData);
 
-    	TestStepArrayList restoreSteps = aTestGroup.getRestoreSteps();
+    	TestStepSequence restoreSteps = aTestGroup.getRestoreSteps();
     	executeRestoreSteps(restoreSteps, aTestGroupResult, aScriptDir, aLogDir, aRTData);
 	}
 
-	public void executePrepareSteps( TestStepArrayList aPrepareSteps,
+	public void executePrepareSteps( TestStepSequence aPrepareSteps,
 	                                 TestGroupResult aResult,
 	                                 File aScriptDir,
 	                                 File aLogDir,
@@ -122,15 +123,16 @@ public class TestGroupExecutorImpl implements TestGroupExecutor
 			            + aLogDir.getPath()
 			            + " )", true );
 
-		for (int key = 0; key < aPrepareSteps.size(); key++)
-    	{
-    		TestStep step = aPrepareSteps.get(key);
+		Iterator<TestStep> stepsItr = aPrepareSteps.iterator();
+		while(stepsItr.hasNext())
+		{
+		    TestStep step = stepsItr.next();
 			TestStepResult tsResult = myTestStepExecutor.execute(step, aScriptDir, aLogDir, aRTData);
 			aResult.addInitialization(tsResult);
     	}
 	}
 
-	public void executeExecSteps( TestEntryArrayList anExecEntries,
+	public void executeExecSteps( TestEntrySequence anExecEntries,
 	                              TestGroupResult aResult,
 	                              File aScriptDir,
 	                              File aLogDir,
@@ -143,9 +145,10 @@ public class TestGroupExecutorImpl implements TestGroupExecutor
 			            + aLogDir.getPath() + ", "
 						+ aRTData.size() + " Variables )", true );
 
-		for (int key = 0; key < anExecEntries.size(); key++)
-    	{
-			TestEntry entry = anExecEntries.get(key);
+		Iterator<TestEntry> entriesItr = anExecEntries.iterator();
+		while(entriesItr.hasNext())
+		{
+			TestEntry entry = entriesItr.next();
 			RunTimeData rtData = new RunTimeData( aRTData );
 			try
 			{
@@ -186,7 +189,7 @@ public class TestGroupExecutorImpl implements TestGroupExecutor
     	}
 	}
 
-	public void executeRestoreSteps( TestStepArrayList aRestoreSteps,
+	public void executeRestoreSteps( TestStepSequence aRestoreSteps,
 	                                 TestGroupResult aResult,
 	                                 File aScriptDir,
 	                                 File aLogDir,
@@ -198,9 +201,10 @@ public class TestGroupExecutorImpl implements TestGroupExecutor
 			            + aLogDir.getPath()
 			            + " )", true );
 
-		for (int key = 0; key < aRestoreSteps.size(); key++)
-    	{
-    		TestStep step = aRestoreSteps.get(key);
+		Iterator<TestStep> stepsItr = aRestoreSteps.iterator();
+		while(stepsItr.hasNext())
+		{
+		    TestStep step = stepsItr.next();
 			TestStepResult tsResult = myTestStepExecutor.execute(step, aScriptDir, aLogDir, aRTData);
 			aResult.addRestore(tsResult);
     	}

@@ -19,8 +19,7 @@ public class InterfacesXmlHandler extends XmlHandler
 	    Trace.println(Trace.CONSTRUCTOR);
 
 	    myInterfaceXmlHandler = new InterfaceXmlHandler( anXmlReader, anInterfaceList, aTestStepMetaExecutor );
-		this.addStartElementHandler(InterfaceXmlHandler.START_ELEMENT, myInterfaceXmlHandler);
-		myInterfaceXmlHandler.addEndElementHandler(InterfaceXmlHandler.START_ELEMENT, this);
+		this.addElementHandler(InterfaceXmlHandler.START_ELEMENT, myInterfaceXmlHandler);
 
 	    reset();
 	}

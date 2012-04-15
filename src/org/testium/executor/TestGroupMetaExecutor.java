@@ -11,6 +11,12 @@ import org.testtoolinterfaces.utils.RunTimeData;
 import org.testtoolinterfaces.utils.Trace;
 import org.testtoolinterfaces.utils.Warning;
 
+/**
+ * Dispatches the execution of TestGroups to the right TestGroupExecutor depending on the TestGroup type.
+ * 
+ * @author Arjan
+ *
+ */
 public class TestGroupMetaExecutor
 {
 	private Hashtable<String, TestGroupExecutor> myExecutors;
@@ -40,9 +46,9 @@ public class TestGroupMetaExecutor
 			            + aResult.getId() + ", "
 			            + aRTData.size() + " Variables )", true );
 
-		if ( myExecutors.containsKey( aTestGroupLink.getGroupType() ) )
+		if ( myExecutors.containsKey( aTestGroupLink.getLinkType() ) )
 		{
-			TestGroupExecutor executor = myExecutors.get( aTestGroupLink.getGroupType() );
+			TestGroupExecutor executor = myExecutors.get( aTestGroupLink.getLinkType() );
 			
 			executor.execute(aTestGroupLink, aLogDir, aResult, aRTData);
 		}
@@ -52,7 +58,7 @@ public class TestGroupMetaExecutor
 			                                  new ResultSummary(0, 0, 0, 0),
 			                                  null );
 
-			String message = "Cannot execute test group scripts of type " + aTestGroupLink.getGroupType() + "\n";
+			String message = "Cannot execute test group scripts of type " + aTestGroupLink.getLinkType() + "\n";
 			result.addComment(message);
 			Warning.println(message);
 			Trace.print(Trace.ALL, "Cannot execute " + aTestGroupLink.getId());

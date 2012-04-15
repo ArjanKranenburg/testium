@@ -78,8 +78,7 @@ public class GlobalConfigurationXmlHandler extends XmlHandler
 
 	    for (XmlHandler handler : xmlHandlers)
 	    {
-			this.addStartElementHandler(handler.getStartElement(), handler);
-			handler.addEndElementHandler(handler.getStartElement(), this);
+			this.addElementHandler(handler.getStartElement(), handler);
 	    }
 	}
 
@@ -117,62 +116,68 @@ public class GlobalConfigurationXmlHandler extends XmlHandler
 	{
 		Trace.println(Trace.UTIL, "handleReturnFromChildElement( " 
 	            + aQualifiedName + " )", true );
+		if ( ! GenericTagAndStringXmlHandler.class.isInstance(aChildXmlHandler) )
+		{
+			throw new Error( "ChildXmlHandler (" + aChildXmlHandler.getClass().toString() + ") must be of type GenericTagAndStringXmlHandler" );
+		}
+		GenericTagAndStringXmlHandler childXmlHandler = (GenericTagAndStringXmlHandler) aChildXmlHandler;
+
 		RunTimeVariable rtVar = null;
 		if (aQualifiedName.equalsIgnoreCase(CFG_PLUGIN_LOADERS))
     	{
-			String pluginLoaderStr = aChildXmlHandler.getValue();
+			String pluginLoaderStr = childXmlHandler.getValue();
 			ArrayList<String> pluginLoaders = convertStringToPluginLoaders(pluginLoaderStr);
 			rtVar = new RunTimeVariable(Testium.PLUGINLOADERS, pluginLoaders);
     	}
 		else if (aQualifiedName.equalsIgnoreCase(CFG_PLUGINS_DIRECTORY))
     	{
-			String pluginsDirName = myRunTimeData.substituteVars( aChildXmlHandler.getValue() );
+			String pluginsDirName = myRunTimeData.substituteVars( childXmlHandler.getValue() );
 			File pluginsDirectory = new File( pluginsDirName );
 			rtVar = new RunTimeVariable(Testium.PLUGINSDIR, pluginsDirectory);
     	}
 		else if (aQualifiedName.equalsIgnoreCase(CFG_TESTENVIRONMENT))
     	{
-			String testEnvironment = myRunTimeData.substituteVars( aChildXmlHandler.getValue() );
+			String testEnvironment = myRunTimeData.substituteVars( childXmlHandler.getValue() );
 			rtVar = new RunTimeVariable(Testium.TESTENVIRONMENT, testEnvironment);
     	}
 		else if (aQualifiedName.equalsIgnoreCase(CFG_TESTPHASE))
     	{
-			String testPhase = myRunTimeData.substituteVars( aChildXmlHandler.getValue() );
+			String testPhase = myRunTimeData.substituteVars( childXmlHandler.getValue() );
 			rtVar = new RunTimeVariable(Testium.TESTPHASE, testPhase);
     	}
 		else if (aQualifiedName.equalsIgnoreCase(CFG_DEFAULT_CONFIGFILE))
     	{
-			String defaultConfigFileName = myRunTimeData.substituteVars( aChildXmlHandler.getValue() );
+			String defaultConfigFileName = myRunTimeData.substituteVars( childXmlHandler.getValue() );
 			File defaultConfigFile = new File( defaultConfigFileName );
 			rtVar = new RunTimeVariable(Testium.DEFAULTCONFIGFILE, defaultConfigFile);
     	}
 		else if (aQualifiedName.equalsIgnoreCase(CFG_USER_CONFIGDIR))
     	{
-			String userConfigDirName = myRunTimeData.substituteVars( aChildXmlHandler.getValue() );
+			String userConfigDirName = myRunTimeData.substituteVars( childXmlHandler.getValue() );
 			File userConfigDir = new File( userConfigDirName );
 			rtVar = new RunTimeVariable(Testium.USERCONFIGDIR, userConfigDir);
     	}
 		else if (aQualifiedName.equalsIgnoreCase(CFG_CONFIGDIR))
     	{
-			String configDirName = myRunTimeData.substituteVars( aChildXmlHandler.getValue() );
+			String configDirName = myRunTimeData.substituteVars( childXmlHandler.getValue() );
 			File configDir = new File( configDirName );
 			rtVar = new RunTimeVariable(Testium.CONFIGDIR, configDir);
     	}
 		else if (aQualifiedName.equalsIgnoreCase(CFG_PROJECTDIR))
     	{
-			String projectDirName = myRunTimeData.substituteVars( aChildXmlHandler.getValue() );
+			String projectDirName = myRunTimeData.substituteVars( childXmlHandler.getValue() );
 			File projectDir = new File( projectDirName );
 			rtVar = new RunTimeVariable(Testium.PROJECTDIR, projectDir);
     	}
 		else if (aQualifiedName.equalsIgnoreCase(CFG_TESTFILE))
     	{
-			String testFileName = myRunTimeData.substituteVars( aChildXmlHandler.getValue() );
+			String testFileName = myRunTimeData.substituteVars( childXmlHandler.getValue() );
 			File testFile = new File( testFileName );
 			rtVar = new RunTimeVariable(Testium.TESTFILE, testFile);
     	}
 		else if (aQualifiedName.equalsIgnoreCase(CFG_TRACE_BASECLASS))
     	{
-			String traceBaseClass = aChildXmlHandler.getValue();
+			String traceBaseClass = childXmlHandler.getValue();
 			Trace.getInstance().addBaseClass(traceBaseClass);
 			String pkgBases = (String) myRunTimeData.getValue(Testium.TRACEPKGBASES);
 			pkgBases += ";" + traceBaseClass;
@@ -180,25 +185,25 @@ public class GlobalConfigurationXmlHandler extends XmlHandler
     	}
 		else if (aQualifiedName.equalsIgnoreCase(CFG_TRACE_CLASS))
     	{
-			String traceClass = aChildXmlHandler.getValue();
+			String traceClass = childXmlHandler.getValue();
 			Trace.getInstance().setTraceClass(traceClass);
 			rtVar = new RunTimeVariable(Testium.TRACECLASS, traceClass);
     	}
 		else if (aQualifiedName.equalsIgnoreCase(CFG_TRACE_LEVEL))
     	{
-			Trace.LEVEL traceLevel = Trace.LEVEL.valueOf( aChildXmlHandler.getValue() );
+			Trace.LEVEL traceLevel = Trace.LEVEL.valueOf( childXmlHandler.getValue() );
 			Trace.getInstance().setTraceLevel(traceLevel);
 			rtVar = new RunTimeVariable(Testium.TRACELEVEL, traceLevel);
     	}
 		else if (aQualifiedName.equalsIgnoreCase(CFG_TRACE_DEPTH))
     	{
-			int traceDepth = (new Integer(aChildXmlHandler.getValue())).intValue();
+			int traceDepth = (new Integer(childXmlHandler.getValue())).intValue();
 			Trace.getInstance().setDepth( traceDepth );
 			rtVar = new RunTimeVariable(Testium.TRACEDEPTH, traceDepth);
     	}
 		else
 		{
-			String value = aChildXmlHandler.getValue();
+			String value = childXmlHandler.getValue();
 			rtVar = new RunTimeVariable(aQualifiedName, value);
 		}
 

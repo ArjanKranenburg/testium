@@ -30,9 +30,9 @@ public class TestCaseMetaExecutor
 			            + aRTData.size() + " Variables )", true );
 
 		TestCaseResultLink result;
-		if ( myExecutors.containsKey( aTestCaseLink.getScriptType() ) )
+		if ( myExecutors.containsKey( aTestCaseLink.getLinkType() ) )
 		{
-			TestCaseExecutor executor = myExecutors.get( aTestCaseLink.getScriptType() );
+			TestCaseExecutor executor = myExecutors.get( aTestCaseLink.getLinkType() );
 			try
 			{
 				result = executor.execute(aTestCaseLink, aLogDir, aRTData);
@@ -52,7 +52,7 @@ public class TestCaseMetaExecutor
 			                                 VERDICT.ERROR,
 			                                 null );
 
-			String message = "Cannot execute test case scripts of type " + aTestCaseLink.getScriptType() + "\n";
+			String message = "Cannot execute test case scripts of type " + aTestCaseLink.getLinkType() + "\n";
 			result.addComment(message);
 			Warning.println(message);
 			Trace.print(Trace.EXEC_PLUS, "Cannot execute " + aTestCaseLink.toString());

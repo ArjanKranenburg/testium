@@ -9,7 +9,7 @@ import org.testtoolinterfaces.testresult.TestStepResult;
 import org.testtoolinterfaces.testsuite.Parameter;
 import org.testtoolinterfaces.testsuite.ParameterArrayList;
 import org.testtoolinterfaces.testsuite.ParameterImpl;
-import org.testtoolinterfaces.testsuite.TestStepSimple;
+import org.testtoolinterfaces.testsuite.TestStep;
 import org.testtoolinterfaces.testsuite.TestSuiteException;
 import org.testtoolinterfaces.utils.RunTimeData;
 
@@ -19,14 +19,14 @@ public class WaitCommand implements TestStepCommandExecutor
 	private static final String COMMAND = "wait";
 	private static final String PAR_TIME = "TIME";
 	
-	public TestStepResult execute( TestStepSimple aStep,
+	public TestStepResult execute( TestStep aStep,
 	                               RunTimeData aVariables,
 	                               File aLogDir ) throws TestSuiteException
 	{
 		ParameterArrayList parameters = aStep.getParameters();
 		verifyParameters(parameters);
 
-		TestStepResult result = new TestStepResult( (TestStepSimple) aStep );
+		TestStepResult result = new TestStepResult( aStep );
 		
 		ParameterImpl timePar = (ParameterImpl) parameters.get(PAR_TIME);
 		int time = timePar.getValueAsInt();

@@ -13,7 +13,7 @@ import org.testtoolinterfaces.testresultinterface.TestCaseResultWriter;
 import org.testtoolinterfaces.testsuite.TestCase;
 import org.testtoolinterfaces.testsuite.TestCaseImpl;
 import org.testtoolinterfaces.testsuite.TestCaseLink;
-import org.testtoolinterfaces.testsuite.TestStepArrayList;
+import org.testtoolinterfaces.testsuite.TestStepSequence;
 import org.testtoolinterfaces.utils.RunTimeData;
 import org.testtoolinterfaces.utils.Trace;
 
@@ -84,12 +84,13 @@ public abstract class TestCaseAbstractExecutor implements TestCaseExecutor
 		File resultFile = new File( caseLogDir, tcId + ".xml" );
 
 		TestCase testCase = new TestCaseImpl( tcId,
-		                                      new Hashtable<String, String>(),
 		                                      description,
+		                                      0,
 		                                      requirements,
-		                                      new TestStepArrayList(),
-		                                      new TestStepArrayList(),
-		                                      new TestStepArrayList(),
+		                                      new TestStepSequence(),
+		                                      new TestStepSequence(),
+		                                      new TestStepSequence(),
+		                                      new Hashtable<String, String>(),
 		                                      new Hashtable<String, String>());
 		TestCaseResult result = new TestCaseResult( testCase );
     	myTestCaseResultWriter.write( result, resultFile );

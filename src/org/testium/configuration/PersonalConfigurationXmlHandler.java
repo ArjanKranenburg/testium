@@ -60,8 +60,7 @@ public class PersonalConfigurationXmlHandler extends XmlHandler
 
 	    for (XmlHandler handler : xmlHandlers)
 	    {
-			this.addStartElementHandler(handler.getStartElement(), handler);
-			handler.addEndElementHandler(handler.getStartElement(), this);
+			this.addElementHandler(handler.getStartElement(), handler);
 	    }
 	}
 
@@ -99,50 +98,56 @@ public class PersonalConfigurationXmlHandler extends XmlHandler
 	{
 		Trace.println(Trace.UTIL, "handleReturnFromChildElement( " 
 	            + aQualifiedName + " )", true );
+		if ( ! GenericTagAndStringXmlHandler.class.isInstance(aChildXmlHandler) )
+		{
+			throw new Error( "ChildXmlHandler (" + aChildXmlHandler.getClass().toString() + ") must be of type GenericTagAndStringXmlHandler" );
+		}
+		GenericTagAndStringXmlHandler childXmlHandler = (GenericTagAndStringXmlHandler) aChildXmlHandler;
+
 		RunTimeVariable rtVar = null;
 		if (aQualifiedName.equalsIgnoreCase(CFG_TEST_RESULT_OUTPUT_BASE_DIRECTORY))
     	{
-			String resultBaseDirName = myRunTimeData.substituteVars( aChildXmlHandler.getValue() );
+			String resultBaseDirName = myRunTimeData.substituteVars( childXmlHandler.getValue() );
 			File resultBaseDir = new File( resultBaseDirName );
 			rtVar = new RunTimeVariable(Testium.RESULTBASEDIR, resultBaseDir);
     	}
 		else if (aQualifiedName.equalsIgnoreCase(CFG_TESTENVIRONMENT))
     	{
-			String testEnvironment = aChildXmlHandler.getValue();
+			String testEnvironment = childXmlHandler.getValue();
 			rtVar = new RunTimeVariable(Testium.TESTENVIRONMENT, testEnvironment);
     	}
 		else if (aQualifiedName.equalsIgnoreCase(CFG_TESTPHASE))
     	{
-			String testPhase = aChildXmlHandler.getValue();
+			String testPhase = childXmlHandler.getValue();
 			rtVar = new RunTimeVariable(Testium.TESTPHASE, testPhase);
     	}
 		else if (aQualifiedName.equalsIgnoreCase(CFG_TRACE_ENABLED))
     	{
-			boolean traceEnabled = aChildXmlHandler.getValue().equalsIgnoreCase("true");
+			boolean traceEnabled = ((GenericTagAndBooleanXmlHandler) childXmlHandler).getBoolean();
 			Trace.getInstance().setEnabled( traceEnabled );
 			rtVar = new RunTimeVariable(Testium.TRACEENABLED, traceEnabled);
     	}
 		else if (aQualifiedName.equalsIgnoreCase(CFG_TRACE_CLASS))
     	{
-			String traceClass = aChildXmlHandler.getValue();
+			String traceClass = childXmlHandler.getValue();
 			Trace.getInstance().setTraceClass(traceClass);
 			rtVar = new RunTimeVariable(Testium.TRACECLASS, traceClass);
     	}
 		else if (aQualifiedName.equalsIgnoreCase(CFG_TRACE_LEVEL))
     	{
-			Trace.LEVEL traceLevel = Trace.LEVEL.valueOf( aChildXmlHandler.getValue() );
+			Trace.LEVEL traceLevel = Trace.LEVEL.valueOf( childXmlHandler.getValue() );
 			Trace.getInstance().setTraceLevel(traceLevel);
 			rtVar = new RunTimeVariable(Testium.TRACELEVEL, traceLevel);
     	}
 		else if (aQualifiedName.equalsIgnoreCase(CFG_TRACE_DEPTH))
     	{
-			int traceDepth = (new Integer(aChildXmlHandler.getValue())).intValue();
+			int traceDepth = (new Integer(childXmlHandler.getValue())).intValue();
 			Trace.getInstance().setDepth( traceDepth );
 			rtVar = new RunTimeVariable(Testium.TRACEDEPTH, traceDepth);
     	}
 		else
 		{
-			String value = aChildXmlHandler.getValue();
+			String value = childXmlHandler.getValue();
 			rtVar = new RunTimeVariable(aQualifiedName.toLowerCase(), value);
 		}
 

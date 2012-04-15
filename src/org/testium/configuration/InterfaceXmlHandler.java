@@ -32,8 +32,7 @@ public class InterfaceXmlHandler extends XmlHandler
 	    myInterfaceList = anInterfaceList;
 	    
 	    myCustomStepXmlHandler = new CustomStepXmlHandler(anXmlReader, anInterfaceList, aTestStepMetaExecutor);
-		this.addStartElementHandler(CustomStepXmlHandler.START_ELEMENT, myCustomStepXmlHandler);
-		myCustomStepXmlHandler.addEndElementHandler(CustomStepXmlHandler.START_ELEMENT, this);
+		this.addElementHandler(CustomStepXmlHandler.START_ELEMENT, myCustomStepXmlHandler);
 
 	    reset();
 	}

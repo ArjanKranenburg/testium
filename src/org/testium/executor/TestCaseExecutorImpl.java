@@ -5,6 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.IOError;
 import java.util.ArrayList;
 import java.util.Hashtable;
+import java.util.Iterator;
 
 import org.testtoolinterfaces.testresult.TestCaseResult;
 import org.testtoolinterfaces.testresult.TestCaseResultLink;
@@ -15,7 +16,7 @@ import org.testtoolinterfaces.testsuite.TestCase;
 import org.testtoolinterfaces.testsuite.TestCaseImpl;
 import org.testtoolinterfaces.testsuite.TestCaseLink;
 import org.testtoolinterfaces.testsuite.TestStep;
-import org.testtoolinterfaces.testsuite.TestStepArrayList;
+import org.testtoolinterfaces.testsuite.TestStepSequence;
 import org.testtoolinterfaces.testsuite.TestSuiteException;
 import org.testtoolinterfaces.testsuiteinterface.TestCaseReader;
 import org.testtoolinterfaces.utils.RunTimeData;
@@ -70,13 +71,14 @@ public class TestCaseExecutorImpl implements TestCaseExecutor
 		catch (TestSuiteException e)
 		{
 			testCase = new TestCaseImpl( aTestCaseLink.getId(),
-			                                      new Hashtable<String, String>(),
-			                                      aTestCaseLink.getDescription(), 
-			                                      new ArrayList<String>(),
-			                                      new TestStepArrayList(),
-			                                      new TestStepArrayList(),
-			                                      new TestStepArrayList(),
-			                                      new Hashtable<String, String>() );
+                                         aTestCaseLink.getDescription(),
+	                                     0,
+	                                     new ArrayList<String>(),
+	                                     new TestStepSequence(),
+	                                     new TestStepSequence(),
+	                                     new TestStepSequence(),
+	                                     new Hashtable<String, String>(),
+	                                     new Hashtable<String, String>() );
 			
 			result = new TestCaseResult( testCase );
     		result.addComment( e.getLocalizedMessage() );
@@ -87,13 +89,13 @@ public class TestCaseExecutorImpl implements TestCaseExecutor
 		File logFile = new File(aLogDir, testCase.getId() + "_log.xml");
 		myTestCaseResultWriter.write(result, logFile);
 
-    	ArrayList<TestStep> prepareSteps = testCase.getPrepareSteps();
+    	TestStepSequence prepareSteps = testCase.getPrepareSteps();
     	executePrepareSteps(prepareSteps, result, scriptDir, aLogDir, aRTData);
 
-    	ArrayList<TestStep> execSteps = testCase.getExecutionSteps();
+    	TestStepSequence execSteps = testCase.getExecutionSteps();
     	executeExecSteps(execSteps, result, scriptDir, aLogDir, aRTData);
 
-    	ArrayList<TestStep> restoreSteps = testCase.getRestoreSteps();
+    	TestStepSequence restoreSteps = testCase.getRestoreSteps();
     	executeRestoreSteps(restoreSteps, result, scriptDir, aLogDir, aRTData);
 
 		TestCaseResultLink tcResultLink = new TestCaseResultLink( aTestCaseLink,
@@ -105,29 +107,31 @@ public class TestCaseExecutorImpl implements TestCaseExecutor
     	return tcResultLink;
 	}
 
-	public void executePrepareSteps( ArrayList<TestStep> anPrepareSteps,
+	public void executePrepareSteps( TestStepSequence aPrepareSteps,
 	                                 TestCaseResult aResult,
 	                                 File aScriptDir,
 	                                 File aLogDir,
 	                                 RunTimeData aRTData )
 	{
-		for (int key = 0; key < anPrepareSteps.size(); key++)
-    	{
-    		TestStep step = anPrepareSteps.get(key);
+		Iterator<TestStep> stepsItr = aPrepareSteps.iterator();
+		while(stepsItr.hasNext())
+		{
+		    TestStep step = stepsItr.next();
 			TestStepResult tsResult = myTestStepExecutor.execute(step, aScriptDir, aLogDir, aRTData);
 			aResult.addInitialization(tsResult);
     	}
 	}
 
-	public void executeExecSteps( ArrayList<TestStep> anExecSteps,
+	public void executeExecSteps( TestStepSequence anExecSteps,
 	                              TestCaseResult aResult,
 	                              File aScriptDir,
 	                              File aLogDir,
 	                              RunTimeData aRTData )
 	{
-		for (int key = 0; key < anExecSteps.size(); key++)
-    	{
-			TestStep step = anExecSteps.get(key);
+		Iterator<TestStep> stepsItr = anExecSteps.iterator();
+		while(stepsItr.hasNext())
+		{
+		    TestStep step = stepsItr.next();
 			TestStepResult tsResult = myTestStepExecutor.execute(step, aScriptDir, aLogDir, aRTData);
 			aResult.addExecution(tsResult);
 			
@@ -138,15 +142,16 @@ public class TestCaseExecutorImpl implements TestCaseExecutor
     	}
 	}
 
-	public void executeRestoreSteps( ArrayList<TestStep> aRestoreSteps,
+	public void executeRestoreSteps( TestStepSequence aRestoreSteps,
 	                                 TestCaseResult aResult,
 	                                 File aScriptDir,
 	                                 File aLogDir,
 	                                 RunTimeData aRTData )
 	{
-		for (int key = 0; key < aRestoreSteps.size(); key++)
-    	{
-    		TestStep step = aRestoreSteps.get(key);
+		Iterator<TestStep> stepsItr = aRestoreSteps.iterator();
+		while(stepsItr.hasNext())
+		{
+		    TestStep step = stepsItr.next();
 			TestStepResult tsResult = myTestStepExecutor.execute(step, aScriptDir, aLogDir, aRTData);
 			aResult.addRestore(tsResult);
     	}
