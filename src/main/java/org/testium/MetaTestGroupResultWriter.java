@@ -19,7 +19,6 @@ public class MetaTestGroupResultWriter implements TestGroupResultWriter
 		myWriters = new ArrayList<TestGroupResultWriter>();
 	}
 
-	@Override
 	public void notify( TestGroupResult aGroupResult )
 	{
 		// NOP
@@ -32,7 +31,6 @@ public class MetaTestGroupResultWriter implements TestGroupResultWriter
 //	    }
 	}
 
-	@Override
 	public void write(TestGroupResult aGroupResult, File aResultFile)
 	{
 	    for (TestGroupResultWriter resultWriter : myWriters)

@@ -40,7 +40,6 @@ public class TestGroupResultStdOutWriter implements TestGroupResultWriter
 		myTsResultWriter = new TestStepResultStdOutWriter( anIndentLevel+1 );
 	}
 
-	@Override
 	public void write(TestGroupResult aTestGroupResult, File aResultFile)
 	{
 	    String testGroupResultId = aTestGroupResult.getId();
@@ -60,7 +59,6 @@ public class TestGroupResultStdOutWriter implements TestGroupResultWriter
 	    aTestGroupResult.register(this);
 	}
 
-	@Override
 	public void notify(TestGroupResult aTestGroupResult)
 	{
 	    String testGroupResultId = aTestGroupResult.getId();

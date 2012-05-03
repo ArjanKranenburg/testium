@@ -51,7 +51,6 @@ public class TestGroupExecutorImpl implements TestGroupExecutor
 		myTestGroupReader = new TestGroupReader( myTestStepExecutor.getInterfaces(), true );
 	}
 
-	@Override
 	public void execute( TestGroupLink aTestGroupLink,
 	                     File aLogDir,
 	                     TestGroupResult aTestGroupResult,
@@ -87,7 +86,6 @@ public class TestGroupExecutorImpl implements TestGroupExecutor
 		execute( testGroup, scriptDir, groupLogDir, tgResult, aRTData );
 	}
 
-	@Override
 	public void execute( TestGroup aTestGroup,
 	                     File aScriptDir,
 	                     File aLogDir,
@@ -210,7 +208,6 @@ public class TestGroupExecutorImpl implements TestGroupExecutor
     	}
 	}
 	
-	@Override
 	public String getType()
 	{
 		return TYPE;

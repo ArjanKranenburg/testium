@@ -26,7 +26,6 @@ public class PrintVars implements TestStepCommandExecutor {
 
 	public PrintVars() {}
 
-	@Override
 	public TestStepResult execute( TestStep aStep,
 	                               RunTimeData aVariables,
 	                               File aLogDir ) throws TestSuiteException
@@ -58,12 +57,10 @@ public class PrintVars implements TestStepCommandExecutor {
 		return result;
 	}
 
-	@Override
 	public String getCommand() {
 		return COMMAND;
 	}
 
-	@Override
 	public boolean verifyParameters(ParameterArrayList aParameters) {
 		return true;
 	}

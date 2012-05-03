@@ -32,7 +32,6 @@ public final class DummySutCommand implements TestStepCommandExecutor
 		myAction = anAction;
 	}
 
-	@Override
 	public TestStepResult execute( TestStep aStep,
 	                               RunTimeData aVariables,
 	                               File aLogDir )
@@ -44,13 +43,11 @@ public final class DummySutCommand implements TestStepCommandExecutor
 		return result;
 	}
 
-	@Override
 	public String getCommand()
 	{
 		return myAction;
 	}
 
-	@Override
 	public boolean verifyParameters( ParameterArrayList aParameters )
 	{
 		Trace.println( Trace.EXEC_PLUS );

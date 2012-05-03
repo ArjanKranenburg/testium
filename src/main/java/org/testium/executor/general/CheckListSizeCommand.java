@@ -61,13 +61,11 @@ public class CheckListSizeCommand implements TestStepCommandExecutor
 		return result;
 	}
 
-	@Override
 	public String getCommand()
 	{
 		return COMMAND;
 	}
 
-	@Override
 	public boolean verifyParameters( ParameterArrayList aParameters ) throws TestSuiteException
 	{
 		// Check the list variable Parameter

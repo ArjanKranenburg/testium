@@ -29,7 +29,6 @@ public class SupportedInterfaceList implements TestInterfaceList
 	/* (non-Javadoc)
 	 * @see org.testtoolinterfaces.testsuiteinterface.TestInterfaceList#getInterface(java.lang.String)
 	 */
-	@Override
 	public TestInterface getInterface(String anInterfaceName)
 	{
 		return myList.get(anInterfaceName);
@@ -66,7 +65,6 @@ public class SupportedInterfaceList implements TestInterfaceList
 		return allInterfaces;
 	}
 
-	@Override
 	public Iterator<TestInterface> iterator()
 	{
 		return myList.values().iterator();

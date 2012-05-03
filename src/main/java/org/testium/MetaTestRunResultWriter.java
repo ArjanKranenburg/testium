@@ -19,7 +19,6 @@ public class MetaTestRunResultWriter implements TestRunResultWriter
 		myWriters = new ArrayList<TestRunResultWriter>();
 	}
 
-	@Override
 	public void notify(TestRunResult aRunResult)
 	{
 		// NOP
@@ -32,7 +31,6 @@ public class MetaTestRunResultWriter implements TestRunResultWriter
 //	    }
 	}
 
-	@Override
 	public void write(TestRunResult aRunResult, File aResultFile)
 	{
 	    for (TestRunResultWriter resultWriter : myWriters)

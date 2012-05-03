@@ -1,103 +1,103 @@
 /**
  * 
  */
-package org.testium.executor;
+package org.testium.systemundertest;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Hashtable;
 
-import org.testium.systemundertest.SutInterface;
+import org.testium.executor.TestStepCommandExecutor;
+import org.testtoolinterfaces.testresult.SutInfo;
 import org.testtoolinterfaces.testsuite.ParameterArrayList;
 import org.testtoolinterfaces.testsuite.ParameterImpl;
 import org.testtoolinterfaces.testsuite.TestSuiteException;
 import org.testtoolinterfaces.testsuiteinterface.DefaultParameterCreator;
+import org.testtoolinterfaces.utils.RunTimeData;
 import org.testtoolinterfaces.utils.Trace;
 
+
 /**
- * @author Arjan
+ * @author Arjan Kranenburg
  *
  */
-public class CustomInterface implements SutInterface, CustomizableInterface
+public abstract class SutControl implements SutInterface
 {
-	public String myName;
-
+	public abstract String getSutName();
+	
 	private Hashtable<String, TestStepCommandExecutor> myCommandExecutors;
-	/**
-	 * 
-	 */
-	public CustomInterface( String aName )
+
+	public SutControl()
 	{
 		Trace.println(Trace.CONSTRUCTOR);
-		myName = aName;
-		
-		myCommandExecutors = new Hashtable<String, TestStepCommandExecutor>();
-	}
 
-	/* (non-Javadoc)
-	 * @see org.testium.systemundertest.SutInterface#getCommands()
-	 */
-	@Override
-	public ArrayList<TestStepCommandExecutor> getCommandExecutors()
-	{
-		Trace.println( Trace.GETTER );
-		Collection<TestStepCommandExecutor> executorCollection = myCommandExecutors.values();
-		return new ArrayList<TestStepCommandExecutor>( executorCollection );
+		myCommandExecutors = new Hashtable<String, TestStepCommandExecutor>();
 	}
 
 	/* (non-Javadoc)
 	 * @see org.testium.systemundertest.SutInterface#getInterfaceName()
 	 */
-	@Override
 	public String getInterfaceName()
 	{
-		return myName;
+		Trace.println( Trace.GETTER );
+		return "SutControl";
 	}
-
-	@Override
+	
+	public SutInfo getSutInfo(File aLogDir, RunTimeData aParentRtData)
+	{
+		Trace.println( Trace.GETTER );
+		return new SutInfo( this.getSutName() );
+	}
+	
 	public ArrayList<String> getCommands()
 	{
 		Trace.println( Trace.GETTER );
 		return Collections.list(myCommandExecutors.keys());
 	}
 
-	@Override
 	public boolean hasCommand(String aCommand)
 	{
 		Trace.println( Trace.UTIL );
 		ArrayList<String> commands = getCommands();
 		return commands.contains(aCommand);
 	}
-
+	
 	public boolean verifyParameters( String aCommand,
 	                                 ParameterArrayList aParameters )
-		   throws TestSuiteException
+				   throws TestSuiteException
 	{
 		TestStepCommandExecutor executor = this.getCommandExecutor(aCommand);
 		return executor.verifyParameters(aParameters);
 	}
 
-	@Override
 	public TestStepCommandExecutor getCommandExecutor(String aCommand)
 	{
 		Trace.println( Trace.GETTER );
 		return myCommandExecutors.get(aCommand);
 	}
 
-	@Override
-	public void add( TestStepCommandExecutor aCommandExecutor )
+	public ArrayList<TestStepCommandExecutor> getCommandExecutors()
+	{
+		Trace.println( Trace.GETTER );
+		Collection<TestStepCommandExecutor> executorsCollection = myCommandExecutors.values();
+		
+		return new ArrayList<TestStepCommandExecutor>( executorsCollection );
+	}
+
+	protected void add( TestStepCommandExecutor aCommandExecutor )
 	{
 		Trace.println( Trace.UTIL );
 		String command = aCommandExecutor.getCommand();
 		myCommandExecutors.put(command, aCommandExecutor);
 	}
 
-	@Override
 	public ParameterImpl createParameter( String aName,
 	                                  String aType,
 	                                  String aValue )
 			throws TestSuiteException
+
 	{
 		return DefaultParameterCreator.createParameter(aName, aType, aValue);
 	}

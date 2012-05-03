@@ -19,7 +19,6 @@ public class MetaTestCaseResultWriter implements TestCaseResultWriter
 		myWriters = new ArrayList<TestCaseResultWriter>();
 	}
 
-	@Override
 	public void notify( TestCaseResult aCaseResult )
 	{
 		// NOP
@@ -32,7 +31,6 @@ public class MetaTestCaseResultWriter implements TestCaseResultWriter
 //	    }
 	}
 
-	@Override
 	public void write(TestCaseResult aGroupResult, File aResultFile)
 	{
 	    for (TestCaseResultWriter resultWriter : myWriters)

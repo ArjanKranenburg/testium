@@ -16,7 +16,6 @@ public class TestRunResultStdOutWriter implements TestRunResultWriter
 		Trace.println( Trace.CONSTRUCTOR );
 	}
 
-	@Override
 	public void write( TestRunResult aRunResult, File aFile )
 	{
 	    Trace.println(Trace.UTIL);
@@ -32,7 +31,6 @@ public class TestRunResultStdOutWriter implements TestRunResultWriter
 		aRunResult.register(this);
 	}
 
-	@Override
 	public void notify( TestRunResult aRunResult )
 	{
 	    Trace.println(Trace.UTIL);

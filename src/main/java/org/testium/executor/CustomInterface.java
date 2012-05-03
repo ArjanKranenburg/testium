@@ -8,12 +8,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Hashtable;
 
-import org.testium.executor.general.CheckListSizeCommand;
-import org.testium.executor.general.CheckVariableCommand;
-import org.testium.executor.general.GetListItemCommand;
-import org.testium.executor.general.PrintVars;
-import org.testium.executor.general.SetVariableCommand;
-import org.testium.executor.general.WaitCommand;
 import org.testium.systemundertest.SutInterface;
 import org.testtoolinterfaces.testsuite.ParameterArrayList;
 import org.testtoolinterfaces.testsuite.ParameterImpl;
@@ -25,32 +19,25 @@ import org.testtoolinterfaces.utils.Trace;
  * @author Arjan
  *
  */
-public class DefaultInterface implements SutInterface
+public class CustomInterface implements SutInterface, CustomizableInterface
 {
-	public final static String NAME			 = "Default";
+	public String myName;
 
 	private Hashtable<String, TestStepCommandExecutor> myCommandExecutors;
 	/**
 	 * 
 	 */
-	public DefaultInterface()
+	public CustomInterface( String aName )
 	{
 		Trace.println(Trace.CONSTRUCTOR);
-
+		myName = aName;
+		
 		myCommandExecutors = new Hashtable<String, TestStepCommandExecutor>();
-
-		add(new WaitCommand());
-		add(new CheckVariableCommand());
-		add(new SetVariableCommand());
-		add(new GetListItemCommand());
-		add(new PrintVars());
-		add(new CheckListSizeCommand());
 	}
 
 	/* (non-Javadoc)
 	 * @see org.testium.systemundertest.SutInterface#getCommands()
 	 */
-	@Override
 	public ArrayList<TestStepCommandExecutor> getCommandExecutors()
 	{
 		Trace.println( Trace.GETTER );
@@ -61,20 +48,17 @@ public class DefaultInterface implements SutInterface
 	/* (non-Javadoc)
 	 * @see org.testium.systemundertest.SutInterface#getInterfaceName()
 	 */
-	@Override
 	public String getInterfaceName()
 	{
-		return NAME;
+		return myName;
 	}
 
-	@Override
 	public ArrayList<String> getCommands()
 	{
 		Trace.println( Trace.GETTER );
 		return Collections.list(myCommandExecutors.keys());
 	}
 
-	@Override
 	public boolean hasCommand(String aCommand)
 	{
 		Trace.println( Trace.UTIL );
@@ -90,21 +74,19 @@ public class DefaultInterface implements SutInterface
 		return executor.verifyParameters(aParameters);
 	}
 
-	@Override
 	public TestStepCommandExecutor getCommandExecutor(String aCommand)
 	{
 		Trace.println( Trace.GETTER );
 		return myCommandExecutors.get(aCommand);
 	}
 
-	private void add( TestStepCommandExecutor aCommandExecutor )
+	public void add( TestStepCommandExecutor aCommandExecutor )
 	{
 		Trace.println( Trace.UTIL );
 		String command = aCommandExecutor.getCommand();
 		myCommandExecutors.put(command, aCommandExecutor);
 	}
 
-	@Override
 	public ParameterImpl createParameter( String aName,
 	                                  String aType,
 	                                  String aValue )

@@ -43,7 +43,6 @@ public class TestCaseExecutorImpl implements TestCaseExecutor
 		myTestCaseReader = new TestCaseReader( myTestStepExecutor.getInterfaces(), true );
 	}
 
-	@Override
 	public TestCaseResultLink execute(TestCaseLink aTestCaseLink, File aLogDir, RunTimeData aRTData)
 	{
 		if ( !aLogDir.isDirectory() )
@@ -157,7 +156,6 @@ public class TestCaseExecutorImpl implements TestCaseExecutor
     	}
 	}
 
-	@Override
 	public String getType()
 	{
 		return TYPE;

@@ -6,3 +6,5 @@
 .project
 bin
 Testium.jar
+/build
+/target

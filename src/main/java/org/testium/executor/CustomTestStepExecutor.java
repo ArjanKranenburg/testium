@@ -39,13 +39,11 @@ public class CustomTestStepExecutor implements TestStepCommandExecutor
 		myTestStepExecutor = aTestStepMetaExecutor;
 	}
 
-	@Override
 	public String getCommand()
 	{
 		return myCommand;
 	}
 
-	@Override
 	public TestStepResult execute( TestStep aStep,
 	                               RunTimeData aVariables,
 	                               File aLogDir ) throws TestSuiteException
@@ -77,7 +75,6 @@ public class CustomTestStepExecutor implements TestStepCommandExecutor
 		return result;
 	}
 
-	@Override
 	public boolean verifyParameters( ParameterArrayList aParameters )
 																	throws TestSuiteException
 	{

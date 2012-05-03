@@ -59,7 +59,6 @@ public abstract class TestCaseAbstractExecutor implements TestCaseExecutor
 	 * @param aLogDir
 	 * @param anRTData
      */
-	@Override
     public TestCaseResultLink execute( TestCaseLink aTestCaseLink,
                                        File aLogDir,
                                        RunTimeData anRTData )

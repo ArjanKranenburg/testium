@@ -46,7 +46,6 @@ public abstract class GenericCommandExecutor implements TestStepCommandExecutor 
 		myParameterSpecs = parameterSpecs;
 	}
 	
-	@Override
 	public String getCommand()
 	{
 		return myCommand;
@@ -63,7 +62,6 @@ public abstract class GenericCommandExecutor implements TestStepCommandExecutor 
 	}
 
 
-	@Override
 	public TestStepResult execute( TestStep aStep,
 	                               RunTimeData aVariables,
 	                               File aLogDir ) throws TestSuiteException
@@ -164,7 +162,6 @@ public abstract class GenericCommandExecutor implements TestStepCommandExecutor 
 		return this.getInterfaceName() + "." + this.getCommand();
 	}
 
-	@Override
 	public boolean verifyParameters( ParameterArrayList aParameters)
 				   throws TestSuiteException
 	{

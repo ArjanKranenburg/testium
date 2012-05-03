@@ -44,13 +44,11 @@ public class WaitCommand implements TestStepCommandExecutor
 		return result;
 	}
 
-	@Override
 	public String getCommand()
 	{
 		return COMMAND;
 	}
 
-	@Override
 	public boolean verifyParameters( ParameterArrayList aParameters ) throws TestSuiteException
 	{
 		Parameter timePar_tmp = aParameters.get(PAR_TIME);
