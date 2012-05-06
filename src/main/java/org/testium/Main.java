@@ -44,6 +44,8 @@ public class Main
 		Trace.getInstance().addBaseClass("org.testium");
 		Trace.getInstance().addBaseClass("org.testtoolinterfaces");
 
+String classpath = System.getProperty( "java.class.path" );
+System.out.println( "Class-path: " + classpath );
 		RunTimeData rtData = new RunTimeData();
 
 		defineBaseDir(rtData);
@@ -411,6 +413,8 @@ public class Main
 			throw new Error( "Plugin Directory is not found: " + pluginDir.getAbsolutePath() );
 		}
 	
+		Trace.println(Trace.UTIL, "Loading plugins from: " + pluginDir.getAbsolutePath(), true );
+System.out.println( "Loading plugins from: " + pluginDir.getAbsolutePath() );
 		PluginCollection plugins;
 		try
 		{

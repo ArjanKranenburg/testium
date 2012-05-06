@@ -4,6 +4,7 @@
 package org.testium.executor.general;
 
 import java.io.File;
+import java.lang.reflect.Proxy;
 import java.util.Enumeration;
 
 import org.testium.executor.TestStepCommandExecutor;
@@ -33,28 +34,47 @@ public class PrintVars implements TestStepCommandExecutor {
 		TestStepResult result = new TestStepResult( aStep );
 
     	result.addComment("Current Variables:" );
-	    for (Enumeration<String> keys = aVariables.keys(); keys.hasMoreElements();) {
-	    	String key = keys.nextElement();
-	    	RunTimeVariable rtVar = aVariables.get(key);
-	    	if ( rtVar == null )
-	    	{
-	    		// This is only possible when rtData.put( key, null ) was used in stead of rtData.add( aVariable )
-	    		continue;
-	    	}
-
-	    	Object valueObj = rtVar.getValue();
-	    	String value = "null";
-	    	if ( valueObj != null )	{
-	    		value = valueObj.toString();
-	    	}
-
-	    	result.addComment(key + " -> ("
-					+ rtVar.getType().getCanonicalName() + ") " + value);
-	    }
-    	result.addComment("Note: In addition, variables in the parentscope may exist" );
+	    addVarsToComment(aVariables, result);
 
 	    result.setResult(VERDICT.PASSED);
 		return result;
+	}
+
+	private void addVarsToComment(RunTimeData aVariables, TestStepResult result) {
+		for (Enumeration<String> keys = aVariables.keys(); keys.hasMoreElements();)
+	    {
+	    	try
+	    	{
+		    	String key = keys.nextElement();
+		    	RunTimeVariable rtVar = aVariables.get(key);
+		    	if ( rtVar == null )
+		    	{
+		    		// This is only possible when rtData.put( key, null ) was used in stead of rtData.add( aVariable )
+		    		continue;
+		    	}
+	
+		    	Object valueObj = rtVar.getValue();
+		    	String value = "null";
+		    	if ( valueObj != null )	{
+		    		if ( ! (valueObj instanceof Proxy) ) {
+			    		value = "proxied";
+		    		}
+		    		value = valueObj.toString();
+		    	}
+	
+		    	result.addComment(key + " -> ("
+						+ rtVar.getType().getCanonicalName() + ") " + value);
+	    	}
+	    	catch (Exception e)
+	    	{
+	    		System.out.println( "Exception " + e.getMessage() );
+	    	}
+	    }
+		
+    	RunTimeData parentScope = aVariables.getParentScope();
+		if ( parentScope != null ) {
+		    addVarsToComment(parentScope, result);
+		}
 	}
 
 	public String getCommand() {

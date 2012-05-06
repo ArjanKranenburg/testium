@@ -27,6 +27,8 @@ import org.xml.sax.XMLReader;
  *    <ProjectDirectory>...</ProjectDirectory>
  *    <TestFile>...</TestFile>
  *    <Interfaces>...</Interfaces>
+ *    <ExitCodeOnFailures>...</ExitCodeOnFailures>
+ *    <ExitCodeOnErrors>...</ExitCodeOnErrors>
  *  ...
  *  </GlobalConfiguration>
  * 

@@ -54,6 +54,7 @@ public class PluginClassLoader extends URLClassLoader
     	ArrayList<URL> urlArray = new ArrayList<URL>();
     	for ( File file : aPluginDir.listFiles(new JarFileFilter()) )
     	{
+System.out.println( "Adding to list of potential plugins: " + file.getAbsolutePath() );
     		try
     		{
 				urlArray.add(file.toURI().toURL());
@@ -77,13 +78,14 @@ public class PluginClassLoader extends URLClassLoader
 		ArrayList<String> pluginLoaders = (ArrayList<String>) aRtData.getValue(Testium.PLUGINLOADERS);
     	for ( String className : pluginLoaders )
     	{
+System.out.println( "Trying to load plugin: " + className );
 			try
 			{
 				plugin = (Plugin) pluginLoader.findClass(className).newInstance();
 			}
 			catch (Throwable e)
 			{
-				throw new ConfigurationException( "Class \"" + className + "\" could not be loaded:\n" + e.getMessage(), e );
+				throw new ConfigurationException( "Class \"" + className + "\" could not be loaded:\n" + e.getLocalizedMessage(), e );
 			}
 			plugin.loadPlugIn( pluginCollection, aRtData );
     	}
