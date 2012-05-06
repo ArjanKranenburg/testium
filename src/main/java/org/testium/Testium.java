@@ -28,6 +28,9 @@ public class Testium
 	
 		/** Default personal configuration file */ 								DEFAULTCONFIGFILE,
 		
+		/** Exit code on Failed Test Cases */									EXITCODEONFAILURES,
+		/** Exit code on Erroneous Test Cases */								EXITCODEONERRORS,
+		
 		/** Global configuration file */										GLOBALCONFIGFILE,
 	
 		/** Help */							 									HELP,
@@ -74,6 +77,9 @@ public class Testium
 	public final static String CONFIGFILE	     = KEYS.CONFIGFILE.toString();		// As java.io.File
 
 	public final static String DEFAULTCONFIGFILE = KEYS.DEFAULTCONFIGFILE.toString(); // As java.io.File
+	
+	public final static String EXITCODEONFAILURES = KEYS.EXITCODEONFAILURES.toString(); // As Integer
+	public final static String EXITCODEONERRORS  = KEYS.EXITCODEONERRORS.toString(); // As Integer
 	
 	public final static String FILE  	         = KEYS.TESTFILE.toString();		// As java.io.File
 	
@@ -136,7 +142,7 @@ public class Testium
 		return myTestGroupReader.readTgFile(aTestGroup);
 	}
 
-	public void execute( TestGroup aTestGroup, File aBaseExecutionDir, RunTimeData anRtData ) throws TestExecutionException
+	public int execute( TestGroup aTestGroup, File aBaseExecutionDir, RunTimeData anRtData ) throws TestExecutionException
 	{
 		Trace.println(Trace.EXEC, "execute( " + aTestGroup.getId() + " )", true);
 
@@ -159,7 +165,7 @@ public class Testium
 			// nop, i.e. leave it Unknown
 		}
 
-		myTestRunExecutor.execute(aTestGroup, username, hostname, sut, aBaseExecutionDir, anRtData);
+		return myTestRunExecutor.execute(aTestGroup, username, hostname, sut, aBaseExecutionDir, anRtData);
 	}
 
 	public void prepare( TestGroup aTestGroup,

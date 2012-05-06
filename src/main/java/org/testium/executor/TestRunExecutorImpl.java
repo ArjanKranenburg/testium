@@ -39,7 +39,7 @@ public class TestRunExecutorImpl
 		myTestRunResultWriter = aTestRunResultWriter;
 	}
 
-	public void execute( TestGroup aTestGroup,
+	public int execute( TestGroup aTestGroup,
 	                     String aUsername,
 	                     String aHostname,
 	                     SutInfo aSut,
@@ -92,5 +92,17 @@ public class TestRunExecutorImpl
 		result.setEndDate( endDate );
 		result.setStatus(TestRunResult.FINISHED);
 		myTestRunResultWriter.write( result, runLogFile );
+		
+		if ( result.getNrOfTCsError() > 0 )
+		{
+			return anRtData.getValueAs(Integer.class, Testium.EXITCODEONERRORS).intValue();
+		}
+
+		if ( result.getNrOfTCsFailed() > 0 )
+		{
+			return anRtData.getValueAs(Integer.class, Testium.EXITCODEONFAILURES).intValue();
+		}
+		
+		return 0;
 	}
 }

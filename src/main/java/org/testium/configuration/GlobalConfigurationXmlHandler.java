@@ -26,9 +26,9 @@ import org.xml.sax.XMLReader;
  *    <TestPhase>...</TestPhase>
  *    <ProjectDirectory>...</ProjectDirectory>
  *    <TestFile>...</TestFile>
- *    <Interfaces>...</Interfaces>
  *    <ExitCodeOnFailures>...</ExitCodeOnFailures>
  *    <ExitCodeOnErrors>...</ExitCodeOnErrors>
+ *    <Interfaces>...</Interfaces>
  *  ...
  *  </GlobalConfiguration>
  * 
@@ -46,6 +46,8 @@ public class GlobalConfigurationXmlHandler extends XmlHandler
 	public static final String CFG_CONFIGDIR = "ConfigurationDirectory";
 	public static final String CFG_PROJECTDIR = "ProjectDirectory";
 	public static final String CFG_TESTFILE = "TestFile";
+	public static final String CFG_EXITCODE_ONFAILURES = "ExitCodeOnFailures";
+	public static final String CFG_EXITCODE_ONERRORS = "ExitCodeOnErrors";
 
 	// Trace
 	private static final String CFG_TRACE_BASECLASS = "TraceBaseClass";
@@ -62,26 +64,27 @@ public class GlobalConfigurationXmlHandler extends XmlHandler
 		
 		myRunTimeData = aRtData;
 
-	    ArrayList<XmlHandler> xmlHandlers = new ArrayList<XmlHandler>();
-	    xmlHandlers.add(new GenericTagAndStringXmlHandler(anXmlReader, CFG_PLUGIN_LOADERS));
-	    xmlHandlers.add(new GenericTagAndStringXmlHandler(anXmlReader, CFG_PLUGINS_DIRECTORY));
-	    xmlHandlers.add(new GenericTagAndStringXmlHandler(anXmlReader, CFG_TESTENVIRONMENT));
-	    xmlHandlers.add(new GenericTagAndStringXmlHandler(anXmlReader, CFG_TESTPHASE));
-	    xmlHandlers.add(new GenericTagAndStringXmlHandler(anXmlReader, CFG_DEFAULT_CONFIGFILE));
-	    xmlHandlers.add(new GenericTagAndStringXmlHandler(anXmlReader, CFG_USER_CONFIGDIR));
-	    xmlHandlers.add(new GenericTagAndStringXmlHandler(anXmlReader, CFG_CONFIGDIR));
-	    xmlHandlers.add(new GenericTagAndStringXmlHandler(anXmlReader, CFG_PROJECTDIR));
-	    xmlHandlers.add(new GenericTagAndStringXmlHandler(anXmlReader, CFG_TESTFILE));
+		this.addElementHandler(new GenericTagAndStringXmlHandler(anXmlReader, CFG_PLUGIN_LOADERS));
+		this.addElementHandler(new GenericTagAndStringXmlHandler(anXmlReader, CFG_PLUGINS_DIRECTORY));
+	    this.addElementHandler(new GenericTagAndStringXmlHandler(anXmlReader, CFG_TESTENVIRONMENT));
+	    this.addElementHandler(new GenericTagAndStringXmlHandler(anXmlReader, CFG_TESTPHASE));
+	    this.addElementHandler(new GenericTagAndStringXmlHandler(anXmlReader, CFG_DEFAULT_CONFIGFILE));
+	    this.addElementHandler(new GenericTagAndStringXmlHandler(anXmlReader, CFG_USER_CONFIGDIR));
+	    this.addElementHandler(new GenericTagAndStringXmlHandler(anXmlReader, CFG_CONFIGDIR));
+	    this.addElementHandler(new GenericTagAndStringXmlHandler(anXmlReader, CFG_PROJECTDIR));
+	    this.addElementHandler(new GenericTagAndStringXmlHandler(anXmlReader, CFG_TESTFILE));
+	    this.addElementHandler(new GenericTagAndStringXmlHandler(anXmlReader, CFG_EXITCODE_ONFAILURES));
+	    this.addElementHandler(new GenericTagAndStringXmlHandler(anXmlReader, CFG_EXITCODE_ONERRORS));
 
-	    xmlHandlers.add(new GenericTagAndStringXmlHandler(anXmlReader, CFG_TRACE_BASECLASS));
-	    xmlHandlers.add(new GenericTagAndStringXmlHandler(anXmlReader, CFG_TRACE_CLASS));
-	    xmlHandlers.add(new GenericTagAndStringXmlHandler(anXmlReader, CFG_TRACE_LEVEL));
-	    xmlHandlers.add(new GenericTagAndStringXmlHandler(anXmlReader, CFG_TRACE_DEPTH));
-
-	    for (XmlHandler handler : xmlHandlers)
-	    {
-			this.addElementHandler(handler.getStartElement(), handler);
-	    }
+	    this.addElementHandler(new GenericTagAndStringXmlHandler(anXmlReader, CFG_TRACE_BASECLASS));
+	    this.addElementHandler(new GenericTagAndStringXmlHandler(anXmlReader, CFG_TRACE_CLASS));
+	    this.addElementHandler(new GenericTagAndStringXmlHandler(anXmlReader, CFG_TRACE_LEVEL));
+	    this.addElementHandler(new GenericTagAndStringXmlHandler(anXmlReader, CFG_TRACE_DEPTH));
+	    
+	    // Set default values
+		myRunTimeData.add( new RunTimeVariable(Testium.EXITCODEONFAILURES, new Integer(0)) );
+		myRunTimeData.add( new RunTimeVariable(Testium.EXITCODEONERRORS, new Integer(1)) );
+	    
 	}
 
 	@Override
@@ -170,6 +173,22 @@ public class GlobalConfigurationXmlHandler extends XmlHandler
 			String projectDirName = myRunTimeData.substituteVars( childXmlHandler.getValue() );
 			File projectDir = new File( projectDirName );
 			rtVar = new RunTimeVariable(Testium.PROJECTDIR, projectDir);
+    	}
+		else if (aQualifiedName.equalsIgnoreCase(CFG_TESTFILE))
+    	{
+			String testFileName = myRunTimeData.substituteVars( childXmlHandler.getValue() );
+			File testFile = new File( testFileName );
+			rtVar = new RunTimeVariable(Testium.TESTFILE, testFile);
+    	}
+		else if (aQualifiedName.equalsIgnoreCase(CFG_EXITCODE_ONFAILURES))
+    	{
+			Integer exitCodeOnFailures = new Integer( childXmlHandler.getValue() );
+			rtVar = new RunTimeVariable(Testium.EXITCODEONFAILURES, exitCodeOnFailures);
+    	}
+		else if (aQualifiedName.equalsIgnoreCase(CFG_EXITCODE_ONERRORS))
+    	{
+			Integer exitCodeOnErrors = new Integer( childXmlHandler.getValue() );
+			rtVar = new RunTimeVariable(Testium.EXITCODEONERRORS, exitCodeOnErrors);
     	}
 		else if (aQualifiedName.equalsIgnoreCase(CFG_TESTFILE))
     	{

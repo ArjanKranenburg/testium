@@ -61,13 +61,14 @@ System.out.println( "Class-path: " + classpath );
 		Testium testium = createTestium(rtData, plugins);
 
 		String command = rtData.getValueAsString(Testium.COMMAND);
+		int returnValue = 0;
 		if( command.equalsIgnoreCase( CmdLineParser.VALIDATE ) )
 		{
 			doValidation( testium, rtData );
 		}
 		else if( command.equalsIgnoreCase( CmdLineParser.EXECUTE ) )
 		{
-			doExecution( testium, rtData );
+			returnValue = doExecution( testium, rtData );
 		}
 		else if( command.equalsIgnoreCase( CmdLineParser.PREPARE ) )
 		{
@@ -110,7 +111,7 @@ System.out.println( "Class-path: " + classpath );
 		{
 			// none, just exit;
 		}
-		System.exit(0); // Some plugins can have hanging threads. This will stop them.
+		System.exit( returnValue ); // Some plugins can have hanging threads. This will stop them.
 	}
 
 //	// This method recursively visits all thread groups under `group'.
@@ -486,7 +487,7 @@ System.out.println( "Loading plugins from: " + pluginDir.getAbsolutePath() );
 	 * @param rtData
 	 * @throws Error
 	 */
-	private static void doExecution( Testium aTestium, RunTimeData anRtData )
+	private static int doExecution( Testium aTestium, RunTimeData anRtData )
 			throws Error
 	{
 		Trace.println(Trace.EXEC, "doExecution( Testium, runTimeData )", true );
@@ -503,7 +504,7 @@ System.out.println( "Loading plugins from: " + pluginDir.getAbsolutePath() );
 
 		try
 		{
-			aTestium.execute( testGroup, testSuiteDir, anRtData );
+			return aTestium.execute( testGroup, testSuiteDir, anRtData );
 		}
 		catch (TestExecutionException e)
 		{
