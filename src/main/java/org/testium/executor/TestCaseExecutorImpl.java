@@ -85,17 +85,20 @@ public class TestCaseExecutorImpl implements TestCaseExecutor
 			result.setResult(VERDICT.ERROR);
 		}
 		
-		File logFile = new File(aLogDir, testCase.getId() + "_log.xml");
+    	File logDir = new File( aLogDir, testCase.getId() );
+    	logDir.mkdir();
+    	
+		File logFile = new File(logDir, testCase.getId() + "_log.xml");
 		myTestCaseResultWriter.write(result, logFile);
 
     	TestStepSequence prepareSteps = testCase.getPrepareSteps();
-    	executePrepareSteps(prepareSteps, result, scriptDir, aLogDir, aRTData);
+    	executePrepareSteps(prepareSteps, result, scriptDir, logDir, aRTData);
 
     	TestStepSequence execSteps = testCase.getExecutionSteps();
-    	executeExecSteps(execSteps, result, scriptDir, aLogDir, aRTData);
+    	executeExecSteps(execSteps, result, scriptDir, logDir, aRTData);
 
     	TestStepSequence restoreSteps = testCase.getRestoreSteps();
-    	executeRestoreSteps(restoreSteps, result, scriptDir, aLogDir, aRTData);
+    	executeRestoreSteps(restoreSteps, result, scriptDir, logDir, aRTData);
 
 		TestCaseResultLink tcResultLink = new TestCaseResultLink( aTestCaseLink,
     	                                       result.getResult(),

@@ -128,13 +128,24 @@ public abstract class GenericCommandExecutor implements TestStepCommandExecutor 
 			throw new TestSuiteException( "Mandatory parameter " + parName + " is not set",
 					toString() );
 		}
-		else if ( par instanceof ParameterImpl )
+
+		if ( ! (par instanceof ParameterImpl || par instanceof ParameterVariable) )
+		{
+			throw new TestSuiteException( "Parameter \"" + parName + "\" is not a value or variable",
+					toString() );
+		}
+
+		if ( par instanceof ParameterImpl )
 		{
 			// Note: It is already verified (in the verifiedParameters() function) if it is allowed
 			//       for a parameter to be a value or variable.
 
 			ParameterImpl parVal = (ParameterImpl) par;
 			value = parVal.getValueAs(parType);
+			if ( value == null )
+			{
+				throw new TestSuiteException( "Parameter \"" + parName + "\" is not of type " +	parType.getName() );
+			}
 			if ( parType == String.class )
 			{
 				value = aVariables.substituteVars((String) value);
@@ -144,6 +155,10 @@ public abstract class GenericCommandExecutor implements TestStepCommandExecutor 
 		{
 			ParameterVariable parVar = (ParameterVariable) par;
 			value = aVariables.getValueAs(parType, parVar.getVariableName());
+			if ( value == null )
+			{
+				throw new TestSuiteException( "Parameter \"" + parName + "\" is not of type " +	parType.getName() );
+			}
 		}
 		else
 		{
