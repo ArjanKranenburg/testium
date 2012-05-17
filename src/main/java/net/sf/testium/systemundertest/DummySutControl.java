@@ -22,7 +22,7 @@ public final class DummySutControl extends SutControl
 	}
 	
 	/* (non-Javadoc)
-	 * @see org.testium.systemundertest.SutControl#getSutName()
+	 * @see net.sf.testium.systemundertest.SutControl#getSutName()
 	 */
 	@Override
 	public String getSutName()

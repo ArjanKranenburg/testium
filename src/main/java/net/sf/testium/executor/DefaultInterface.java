@@ -49,7 +49,7 @@ public class DefaultInterface implements SutInterface
 	}
 
 	/* (non-Javadoc)
-	 * @see org.testium.systemundertest.SutInterface#getCommands()
+	 * @see net.sf.testium.systemundertest.SutInterface#getCommands()
 	 */
 	public ArrayList<TestStepCommandExecutor> getCommandExecutors()
 	{
@@ -59,7 +59,7 @@ public class DefaultInterface implements SutInterface
 	}
 
 	/* (non-Javadoc)
-	 * @see org.testium.systemundertest.SutInterface#getInterfaceName()
+	 * @see net.sf.testium.systemundertest.SutInterface#getInterfaceName()
 	 */
 	public String getInterfaceName()
 	{

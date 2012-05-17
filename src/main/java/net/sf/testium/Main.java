@@ -42,7 +42,7 @@ public class Main
 	 */
 	public static void main(String[] args)
 	{
-		Trace.getInstance().addBaseClass("org.testium");
+		Trace.getInstance().addBaseClass("net.sf.testium");
 		Trace.getInstance().addBaseClass("org.testtoolinterfaces");
 
 String classpath = System.getProperty( "java.class.path" );

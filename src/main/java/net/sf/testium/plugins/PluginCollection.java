@@ -17,8 +17,8 @@ import net.sf.testium.systemundertest.DummySutControl;
 import net.sf.testium.systemundertest.SutControl;
 import net.sf.testium.systemundertest.SutInterface;
 
-//import org.testium.executor.TestStepCommandExecutor;
-//import org.testium.executor.WaitCommand;
+//import net.sf.testium.executor.TestStepCommandExecutor;
+//import net.sf.testium.executor.WaitCommand;
 import org.testtoolinterfaces.testresultinterface.TestCaseResultWriter;
 import org.testtoolinterfaces.testresultinterface.TestGroupResultWriter;
 import org.testtoolinterfaces.testresultinterface.TestRunResultWriter;

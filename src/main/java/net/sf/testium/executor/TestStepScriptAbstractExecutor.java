@@ -19,7 +19,7 @@ public abstract class TestStepScriptAbstractExecutor implements TestStepScriptEx
 	                                    File aLogDir );
 
 	/* (non-Javadoc)
-	 * @see org.Testium.Executor.TestStepExecutor#execute(org.testtoolinterfaces.testsuite.TestStepScript, java.io.File, java.io.File)
+	 * @see net.sf.testium.Executor.TestStepExecutor#execute(org.testtoolinterfaces.testsuite.TestStepScript, java.io.File, java.io.File)
 	 */
 	public TestStepResult execute( TestStepScript aStep, File aScriptDir, File aLogDir )
 	{

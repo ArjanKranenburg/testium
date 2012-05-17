@@ -38,7 +38,7 @@ public abstract class SutControl implements SutInterface
 	}
 
 	/* (non-Javadoc)
-	 * @see org.testium.systemundertest.SutInterface#getInterfaceName()
+	 * @see net.sf.testium.systemundertest.SutInterface#getInterfaceName()
 	 */
 	public String getInterfaceName()
 	{
