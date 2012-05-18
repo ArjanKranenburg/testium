@@ -8,3 +8,4 @@ bin
 Testium.jar
 /build
 /target
+/pom.xml.asc

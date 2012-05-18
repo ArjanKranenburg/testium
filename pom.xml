@@ -98,7 +98,7 @@
         <configuration>
           <archive>
             <manifest>
-              <mainClass>org.testium.Main</mainClass>
+              <mainClass>net.sf.testium.Main</mainClass>
               <addClasspath>true</addClasspath>
               <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
               <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
