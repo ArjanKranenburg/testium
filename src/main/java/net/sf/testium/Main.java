@@ -45,8 +45,6 @@ public class Main
 		Trace.getInstance().addBaseClass("net.sf.testium");
 		Trace.getInstance().addBaseClass("org.testtoolinterfaces");
 
-String classpath = System.getProperty( "java.class.path" );
-System.out.println( "Class-path: " + classpath );
 		RunTimeData rtData = new RunTimeData();
 
 		defineBaseDir(rtData);
@@ -416,7 +414,6 @@ System.out.println( "Class-path: " + classpath );
 		}
 	
 		Trace.println(Trace.UTIL, "Loading plugins from: " + pluginDir.getAbsolutePath(), true );
-System.out.println( "Loading plugins from: " + pluginDir.getAbsolutePath() );
 		PluginCollection plugins;
 		try
 		{

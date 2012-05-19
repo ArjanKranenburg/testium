@@ -40,7 +40,7 @@ public class PluginClassLoader extends URLClassLoader
 		Trace.append(Trace.CONSTRUCTOR, " )\n");
     }
     
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public Class findClass(String aClassName) throws ClassNotFoundException
     {
 		Trace.println(Trace.UTIL, "findClass( " + aClassName + " )", true);
@@ -55,7 +55,6 @@ public class PluginClassLoader extends URLClassLoader
     	ArrayList<URL> urlArray = new ArrayList<URL>();
     	for ( File file : aPluginDir.listFiles(new JarFileFilter()) )
     	{
-System.out.println( "Adding to list of potential plugins: " + file.getAbsolutePath() );
     		try
     		{
 				urlArray.add(file.toURI().toURL());
@@ -79,7 +78,6 @@ System.out.println( "Adding to list of potential plugins: " + file.getAbsolutePa
 		ArrayList<String> pluginLoaders = (ArrayList<String>) aRtData.getValue(Testium.PLUGINLOADERS);
     	for ( String className : pluginLoaders )
     	{
-System.out.println( "Trying to load plugin: " + className );
 			try
 			{
 				plugin = (Plugin) pluginLoader.findClass(className).newInstance();
@@ -94,12 +92,12 @@ System.out.println( "Trying to load plugin: " + className );
     	return pluginCollection;
 	}
 	
-	@SuppressWarnings("unchecked")
 	public static void addJarToClassLoader(File aFile) throws MalformedURLException
 	{
 		Trace.println(Trace.UTIL, "addJarToClassLoader( " + aFile.getName() + " )", true);
 		URL url = null;
 		url = aFile.toURI().toURL();
+		@SuppressWarnings("rawtypes")
 		Class[] parameters = new Class[]{URL.class};
 
 		URLClassLoader sysloader = (URLClassLoader)ClassLoader.getSystemClassLoader();
