@@ -4,13 +4,16 @@ public class SpecifiedParameter
 {
 	private String myName;
 	private Class<?> myType;
+//	private Class<?>[] myTypes;
 	private boolean myOptional;
 	private boolean myValue;
 	private boolean myVariable;
 	private boolean myEmpty;
+	private Object myDefaultValue;
 	
 	public SpecifiedParameter( String aName,
 	                           Class<?> aType,
+//	                           Class<?>[] aTypes,
 	                           boolean optional,
 	                           boolean value,
 	                           boolean variable,
@@ -18,10 +21,12 @@ public class SpecifiedParameter
 	{
 		myName = aName;
 		myType = aType;
+//		myTypes = aTypes;
 		myOptional = optional;
 		myValue = value;
 		myVariable = variable;
 		myEmpty = empty;
+		myDefaultValue = null;
 	}
 
 	/**
@@ -40,6 +45,14 @@ public class SpecifiedParameter
 		return myType;
 	}
 
+//	/**
+//	 * @return the types
+//	 */
+//	public Class<?>[] getTypes()
+//	{
+//		return myTypes;
+//	}
+//
 	/**
 	 * @return if this parameter is optional
 	 */
@@ -73,18 +86,37 @@ public class SpecifiedParameter
 	}
 	
 	/**
-	 * @return a copy of this ParamSpec, but with the optional-flag set, i.e. the parameter is optional
+	 * @return if an empty flag is allowed
 	 */
-	public SpecifiedParameter optional()
+	public SpecifiedParameter setDefaultValue( Object defaultValue )
 	{
-		return new SpecifiedParameter( myName, myType, true, myValue, myVariable, myEmpty);
+		myDefaultValue = defaultValue;
+		return this;
 	}
-
+	
 	/**
-	 * @return a copy of this ParamSpec, but with the optional-flag NOT set, i.e. the parameter is mandatory
+	 * @return the default value
 	 */
-	public SpecifiedParameter mandatory()
+	public Object getDefaultValue()
 	{
-		return new SpecifiedParameter( myName, myType, false, myValue, myVariable, myEmpty);
+		return myDefaultValue;
 	}
+	
+//	/**
+//	 * @return sets the optional-flag, i.e. the parameter is optional
+//	 */
+//	public SpecifiedParameter optional()
+//	{
+//		this.myOptional = true;
+//		return this;
+//	}
+//
+//	/**
+//	 * @return sets the optional-flag t, i.e. the parameter is mandatory
+//	 */
+//	public SpecifiedParameter mandatory()
+//	{
+//		this.myOptional = false;
+//		return this;
+//	}
 }

@@ -30,4 +30,9 @@ public final class DummySutControl extends SutControl
 		Trace.println( Trace.GETTER );
 		return NAME;
 	}
+	
+	public void destroy()
+	{
+		// NOP	
+	}
 }

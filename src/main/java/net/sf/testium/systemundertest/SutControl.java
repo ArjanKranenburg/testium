@@ -102,4 +102,10 @@ public abstract class SutControl implements SutInterface
 	{
 		return DefaultParameterCreator.createParameter(aName, aType, aValue);
 	}
+
+	@Override
+	public String toString()
+	{
+		return this.getInterfaceName();
+	}
 }

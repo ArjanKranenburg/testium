@@ -12,7 +12,7 @@ import net.sf.testium.executor.general.CheckListSizeCommand;
 import net.sf.testium.executor.general.CheckVariableCommand;
 import net.sf.testium.executor.general.GetListItemCommand;
 import net.sf.testium.executor.general.PrintVars;
-import net.sf.testium.executor.general.SetVariableCommand;
+import net.sf.testium.executor.general.SetVariable;
 import net.sf.testium.executor.general.WaitCommand;
 import net.sf.testium.systemundertest.SutInterface;
 
@@ -42,10 +42,10 @@ public class DefaultInterface implements SutInterface
 
 		add(new WaitCommand());
 		add(new CheckVariableCommand());
-		add(new SetVariableCommand());
+		add(new SetVariable( this));
 		add(new GetListItemCommand());
 		add(new PrintVars());
-		add(new CheckListSizeCommand());
+		add(new CheckListSizeCommand(this));
 	}
 
 	/* (non-Javadoc)
@@ -106,5 +106,16 @@ public class DefaultInterface implements SutInterface
 			throws TestSuiteException
 	{
 		return DefaultParameterCreator.createParameter(aName, aType, aValue);
+	}
+
+	@Override
+	public String toString()
+	{
+		return this.getInterfaceName();
+	}
+	
+	public void destroy()
+	{
+		// NOP	
 	}
 }

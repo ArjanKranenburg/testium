@@ -102,14 +102,15 @@ public class Main
 //		visit( root, 0 );
 		
 		System.runFinalization();
-		try
-		{
-			Thread.sleep(30000);
-		}
-		catch (InterruptedException e)
-		{
-			// none, just exit;
-		}
+//		try
+//		{
+//			Thread.sleep(30000);
+//		}
+//		catch (InterruptedException e)
+//		{
+//			// none, just exit;
+//		}
+		destroyInterfaces( plugins );
 		System.exit( returnValue ); // Some plugins can have hanging threads. This will stop them.
 	}
 
@@ -558,6 +559,19 @@ public class Main
 			String ifaceName = keys.nextElement();
 	    	System.out.println( "  " + ifaceName );
 	    }
+	}
+
+	private static void destroyInterfaces(PluginCollection aPlugins)
+	{
+		Trace.println(Trace.EXEC, "destroyInterfaces( rtData )", true );
+
+		SupportedInterfaceList interfaceList = aPlugins.getInterfaces();
+		Iterator<TestInterface> iFaceItr = interfaceList.iterator();
+		while(iFaceItr.hasNext())
+		{
+			TestInterface iFace = iFaceItr.next();
+			iFace.destroy();
+		}
 	}
 
 	/**

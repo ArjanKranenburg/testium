@@ -95,4 +95,15 @@ public class CustomInterface implements SutInterface, CustomizableInterface
 	{
 		return DefaultParameterCreator.createParameter(aName, aType, aValue);
 	}
+
+	@Override
+	public String toString()
+	{
+		return this.getInterfaceName();
+	}
+
+	public void destroy()
+	{
+		// NOP	
+	}
 }

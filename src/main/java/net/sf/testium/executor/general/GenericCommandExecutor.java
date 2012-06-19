@@ -52,9 +52,14 @@ public abstract class GenericCommandExecutor implements TestStepCommandExecutor 
 		return myCommand;
 	}
 
+	protected SutInterface getInterface()
+	{
+		return myInterface;
+	}
+
 	public String getInterfaceName()
 	{
-		return myInterface.getInterfaceName();
+		return this.getInterface().getInterfaceName();
 	}
 
 	protected void addParamSpec(SpecifiedParameter specifiedParameter)
@@ -62,6 +67,10 @@ public abstract class GenericCommandExecutor implements TestStepCommandExecutor 
 		myParameterSpecs.add(specifiedParameter);
 	}
 
+	protected Iterator<SpecifiedParameter> getParametersIterator()
+	{
+		return myParameterSpecs.iterator();
+	}
 
 	public TestStepResult execute( TestStep aStep,
 	                               RunTimeData aVariables,
@@ -113,12 +122,12 @@ public abstract class GenericCommandExecutor implements TestStepCommandExecutor 
 								  ParameterArrayList parameters,
 								  SpecifiedParameter aParSpec) throws Exception
 	{
-
 		String parName = aParSpec.getName();
 		Class<?> parType = aParSpec.getType();
+//		Class<?>[] parTypes = aParSpec.getTypes();
 		
 		Parameter par = parameters.get(parName);
-		Object value;
+		Object value = null;
 		
 		if ( par == null )
 		{
@@ -142,10 +151,22 @@ public abstract class GenericCommandExecutor implements TestStepCommandExecutor 
 			//       for a parameter to be a value or variable.
 
 			ParameterImpl parVal = (ParameterImpl) par;
-			value = parVal.getValueAs(parType);
+//			for ( Class<?> parType : parTypes )
+//			{
+				value = parVal.getValueAs(parType);
+//				if ( value != null )
+//				{
+//					if ( parType == String.class )
+//					{
+//						value = aVariables.substituteVars((String) value);
+//					}
+//					break;
+//				}
+//			}
 			if ( value == null )
 			{
-				throw new TestSuiteException( "Parameter \"" + parName + "\" is not of type " +	parType.getName() );
+				throw new TestSuiteException( "Parameter \"" + parName + "\" is not of type " +	parType );
+//				throw new TestSuiteException( "Parameter \"" + parName + "\" is not of one of the types " +	parTypes.toString() );
 			}
 			if ( parType == String.class )
 			{
@@ -155,10 +176,19 @@ public abstract class GenericCommandExecutor implements TestStepCommandExecutor 
 		else if ( par instanceof ParameterVariable )
 		{
 			ParameterVariable parVar = (ParameterVariable) par;
-			value = aVariables.getValueAs(parType, parVar.getVariableName());
+//			for ( Class<?> parType : aParSpec.getTypes() )
+//			{
+				value = aVariables.getValueAs(parType, parVar.getVariableName());
+//				value = aVariables.getValue(parVar.getVariableName());
+//				if ( value != null )
+//				{
+//					break;
+//				}
+//			}
 			if ( value == null )
 			{
-				throw new TestSuiteException( "Parameter \"" + parName + "\" is not of type " +	parType.getName() );
+				throw new TestSuiteException( "Parameter \"" + parName + "\" is not of type " +	parType );
+//				throw new TestSuiteException( "Parameter \"" + parName + "\" is not of one of the types " +	parTypes.toString() );
 			}
 		}
 		else
@@ -166,7 +196,21 @@ public abstract class GenericCommandExecutor implements TestStepCommandExecutor 
 			throw new TestSuiteException( "Parameter \"" + parName + "\" is not a value or variable",
 					toString() );
 		}
+
+		return value;
+	}
+
+	@SuppressWarnings("unchecked")
+	protected <T> T obtainOptionalValue( RunTimeData aVariables,
+			ParameterArrayList parameters,
+			SpecifiedParameter aParSpec ) throws Exception {
+		T value = (T) aParSpec.getDefaultValue();
 		
+		Object valuePar = obtainValue(aVariables, parameters, aParSpec);
+		if ( aParSpec.getType().isInstance( valuePar ) ) {
+			value = (T) valuePar;
+		}
+
 		return value;
 	}
 
@@ -188,29 +232,49 @@ public abstract class GenericCommandExecutor implements TestStepCommandExecutor 
 			SpecifiedParameter paramSpec = paramSpecItr.next();
 			Parameter par = aParameters.get( paramSpec.getName() );
 
-			// 1. Check that the parameter exists
-			if ( par == null )
+			if ( ! verifyParameterExists( par, paramSpec ) )
 			{
-				if ( paramSpec.isOptional() )
-				{
-					continue;
-				} //else
-				throw new TestSuiteException( "Mandatory parameter " + paramSpec.getName() + " is not set",
-						toString() );
+				continue; // Exception was thrown if it is mandatory
 			}
 
-			// 2. Check that the parameter is correctly a value or variable
-			if ( par.getClass().equals( ParameterVariable.class ) )
-			{
-				verifyParameterVariable(par, paramSpec);
-			}
-			else // it's a value
-			{
-				verifyParameterValue(par, paramSpec);
-			}
+			verifyValueOrVariable(par, paramSpec);
 		}	
 		
 		return true;
+	}
+
+	protected boolean verifyParameterExists(Parameter par, SpecifiedParameter paramSpec) throws TestSuiteException
+	{
+		if ( par == null )
+		{
+			if ( paramSpec.isOptional() )
+			{
+				return false;
+			} //else
+			throw new TestSuiteException( "Mandatory parameter " + paramSpec.getName() + " is not set",
+					toString() );
+		}
+
+		return true;
+	}
+
+	/**
+	 * @param paramSpec
+	 * @param par
+	 * @throws TestSuiteException
+	 */
+	protected void verifyValueOrVariable( Parameter par, SpecifiedParameter paramSpec )
+			throws TestSuiteException
+	{
+		// 2. Check that the parameter is correctly a value or variable
+		if ( par.getClass().equals( ParameterVariable.class ) )
+		{
+			verifyParameterVariable(par, paramSpec);
+		}
+		else // it's a value
+		{
+			verifyParameterValue(par, paramSpec);
+		}
 	}
 
 	/**
@@ -234,6 +298,7 @@ public abstract class GenericCommandExecutor implements TestStepCommandExecutor 
 		}
 
 		ParameterImpl parameter = (ParameterImpl) aPar;
+//		Class<? extends Object>[] paramTypes = aParSpec.getTypes();
 		Class<? extends Object> paramType = aParSpec.getType();
 		if ( ! parameter.getValueType().equals(paramType) )
 		{
