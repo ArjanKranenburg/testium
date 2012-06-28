@@ -8,12 +8,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Hashtable;
 
-import net.sf.testium.executor.general.CheckListSizeCommand;
-import net.sf.testium.executor.general.CheckVariableCommand;
-import net.sf.testium.executor.general.GetListItemCommand;
-import net.sf.testium.executor.general.PrintVars;
-import net.sf.testium.executor.general.SetVariable;
-import net.sf.testium.executor.general.WaitCommand;
+import net.sf.testium.executor.general.*;
 import net.sf.testium.systemundertest.SutInterface;
 
 import org.testtoolinterfaces.testsuite.ParameterArrayList;
@@ -43,9 +38,9 @@ public class DefaultInterface implements SutInterface
 		add(new WaitCommand());
 		add(new CheckVariableCommand());
 		add(new SetVariable( this));
-		add(new GetListItemCommand());
+		add(new GetListItem(this));
 		add(new PrintVars());
-		add(new CheckListSizeCommand(this));
+		add(new CheckListSize(this));
 	}
 
 	/* (non-Javadoc)
