@@ -68,7 +68,7 @@ public class WaitCommand implements TestStepCommandExecutor
 		ParameterImpl timePar = (ParameterImpl) timePar_tmp;
 		if ( ! timePar.getValueType().equals( Integer.class ) )
 		{
-			throw new TestSuiteException( "Parameter " + PAR_TIME + " must be an integer",
+			throw new TestSuiteException( "Parameter " + PAR_TIME + " must be an 'int'",
 			                              DefaultInterface.NAME + "." + COMMAND );
 		}
 
