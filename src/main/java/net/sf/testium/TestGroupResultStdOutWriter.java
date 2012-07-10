@@ -45,15 +45,17 @@ public class TestGroupResultStdOutWriter implements TestGroupResultWriter
 	    String testGroupResultId = aTestGroupResult.getId();
 	    Trace.println(Trace.UTIL, "write( " + testGroupResultId + " )", true);
 
-	    if ( ! myPrintedTGs.contains( testGroupResultId ) )
+	    String tgLongId = aTestGroupResult.getExecutionPath() + "." + testGroupResultId;
+
+	    if ( ! myPrintedTGs.contains( tgLongId ) )
 	    {
 		    String indent = repeat( ' ', myIndentLevel );
 			System.out.println( indent + testGroupResultId );
 	    	
-			myPrintedTGs.add(testGroupResultId);
-			myPrintedTCs.put(testGroupResultId, new ArrayList<String>());
-			myPrintedPrepares.put(testGroupResultId, new ArrayList<String>());
-			myPrintedRestores.put(testGroupResultId, new ArrayList<String>());
+			myPrintedTGs.add(tgLongId);
+			myPrintedTCs.put(tgLongId, new ArrayList<String>());
+			myPrintedPrepares.put(tgLongId, new ArrayList<String>());
+			myPrintedRestores.put(tgLongId, new ArrayList<String>());
 	    }
 
 	    aTestGroupResult.register(this);
@@ -64,15 +66,16 @@ public class TestGroupResultStdOutWriter implements TestGroupResultWriter
 	    String testGroupResultId = aTestGroupResult.getId();
 	    Trace.println(Trace.UTIL, "update( " + testGroupResultId + " )", true);
 
-	    if ( ! myPrintedTGs.contains( testGroupResultId ) )
+	    String tgLongId = aTestGroupResult.getExecutionPath() + "." + testGroupResultId;
+	    if ( ! myPrintedTGs.contains( tgLongId ) )
 	    {
 			String indent = repeat( ' ', myIndentLevel );
 			System.out.println( indent + testGroupResultId );
 	    	
-			myPrintedTGs.add(testGroupResultId);
-			myPrintedTCs.put(testGroupResultId, new ArrayList<String>());
-			myPrintedPrepares.put(testGroupResultId, new ArrayList<String>());
-			myPrintedRestores.put(testGroupResultId, new ArrayList<String>());
+			myPrintedTGs.add(tgLongId);
+			myPrintedTCs.put(tgLongId, new ArrayList<String>());
+			myPrintedPrepares.put(tgLongId, new ArrayList<String>());
+			myPrintedRestores.put(tgLongId, new ArrayList<String>());
 	    }
 	    
 		// Prepare Steps
@@ -80,10 +83,10 @@ public class TestGroupResultStdOutWriter implements TestGroupResultWriter
     	for (int key = 0; key < prepareResults.size(); key++)
     	{
     		String tsId = prepareResults.get(key).getDisplayName();
-    		if ( ! myPrintedPrepares.get(testGroupResultId).contains(tsId) )
+    		if ( ! myPrintedPrepares.get(tgLongId).contains(tsId) )
     		{
     			myTsResultWriter.print(prepareResults.get(key));
-    			myPrintedPrepares.get(testGroupResultId).add( tsId );
+    			myPrintedPrepares.get(tgLongId).add( tsId );
     		}
     	}
 
@@ -105,10 +108,10 @@ public class TestGroupResultStdOutWriter implements TestGroupResultWriter
     	for (int key = 0; key < tcResults.size(); key++)
     	{
     		String tcId = tcResults.get(key).getId();
-    		if ( ! myPrintedTCs.get(testGroupResultId).contains(tcId) )
+    		if ( ! myPrintedTCs.get(tgLongId).contains(tcId) )
     		{
         		myTcResultWriter.print(tcResults.get(key));
-        		myPrintedTCs.get(testGroupResultId).add( tcId );
+        		myPrintedTCs.get(tgLongId).add( tcId );
     		}
     	}
 
@@ -117,10 +120,10 @@ public class TestGroupResultStdOutWriter implements TestGroupResultWriter
     	for (int key = 0; key < restoreResults.size(); key++)
     	{
     		String tsId = restoreResults.get(key).getDisplayName();
-    		if ( ! myPrintedRestores.get(testGroupResultId).contains(tsId) )
+    		if ( ! myPrintedRestores.get(tgLongId).contains(tsId) )
     		{
     			myTsResultWriter.print(restoreResults.get(key));
-    			myPrintedRestores.get(testGroupResultId).add( tsId );
+    			myPrintedRestores.get(tgLongId).add( tsId );
     		}
     	}
 	}

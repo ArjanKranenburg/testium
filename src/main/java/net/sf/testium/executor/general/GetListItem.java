@@ -40,7 +40,6 @@ public class GetListItem extends GenericCommandExecutor
 		this.addParamSpec( PARSPEC_OUTPUT );
 	}
 
-
 	@Override
 	protected void doExecute(RunTimeData aVariables,
 			ParameterArrayList parameters, TestStepResult result)
@@ -49,6 +48,7 @@ public class GetListItem extends GenericCommandExecutor
 		@SuppressWarnings("unchecked")
 		List<Object> list = (List<Object>) this.obtainValue(aVariables, parameters, PARSPEC_LIST);
 		int index = (Integer) this.obtainOptionalValue(aVariables, parameters, PARSPEC_INDEX);
+		String outputName = (String) obtainValue(aVariables, parameters, PARSPEC_OUTPUT);
 
 //		if ( list == null )
 //		{
@@ -56,13 +56,15 @@ public class GetListItem extends GenericCommandExecutor
 //			                              this.toString() );
 //		}
 
+		String listName = parameters.get(PAR_LIST).getName();
+		result.setDisplayName( result.getDisplayName() + " " + listName + " " + index + " -> " + outputName );
+
 		if ( list.size() <= index )
 		{
 			throw new TestSuiteException( "Index " + index + " is not present in a List of size " + list.size(),
 					this.toString() );
 		}
 
-		String outputName = (String) obtainValue(aVariables, parameters, PARSPEC_OUTPUT);
 
 		RunTimeVariable outputVariable = new RunTimeVariable( outputName, list.get(index) );
 		aVariables.add(outputVariable);

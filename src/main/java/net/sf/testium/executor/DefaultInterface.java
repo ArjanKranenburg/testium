@@ -35,11 +35,11 @@ public class DefaultInterface implements SutInterface
 
 		myCommandExecutors = new Hashtable<String, TestStepCommandExecutor>();
 
-		add(new WaitCommand());
-		add(new CheckVariableCommand());
+		add(new WaitCommand( this ));
+		add(new CheckVariableCommand( this ));
 		add(new SetVariable( this));
 		add(new GetListItem(this));
-		add(new PrintVars());
+		add(new PrintVars( this ));
 		add(new CheckListSize(this));
 	}
 

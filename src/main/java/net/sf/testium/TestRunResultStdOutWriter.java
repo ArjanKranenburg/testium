@@ -24,7 +24,7 @@ public class TestRunResultStdOutWriter implements TestRunResultWriter
 			return;
 		}
 
-		System.out.println( "Tests started at:        " + aRunResult.getStartDateString() + " " + aRunResult.getStartTimeString() );
+//		System.out.println( "Tests started at:        " + aRunResult.getStartDateString() + " " + aRunResult.getStartTimeString() );
 		System.out.println();
 		System.out.println( aRunResult.getTestSuite() );
 
@@ -47,6 +47,7 @@ public class TestRunResultStdOutWriter implements TestRunResultWriter
    			System.out.println( "Total Test Cases Unknown: " + aRunResult.getNrOfTCsUnknown() );
    			System.out.println();
    			System.out.println( "Tests finished at:       " + aRunResult.getEndDateString() + " " + aRunResult.getEndTimeString() );
+   			System.out.println( "Tests started at:        " + aRunResult.getStartDateString() + " " + aRunResult.getStartTimeString() );
    		}
 	}
 }

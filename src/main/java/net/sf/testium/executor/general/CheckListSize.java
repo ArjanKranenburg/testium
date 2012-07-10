@@ -3,16 +3,12 @@ package net.sf.testium.executor.general;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.sf.testium.systemundertest.SutInterface;
+
 import org.testtoolinterfaces.testresult.TestStepResult;
 import org.testtoolinterfaces.testsuite.ParameterArrayList;
 import org.testtoolinterfaces.testsuite.TestSuiteException;
 import org.testtoolinterfaces.utils.RunTimeData;
-
-import net.sf.testium.executor.general.GenericCommandExecutor;
-
-
-import net.sf.testium.executor.general.SpecifiedParameter;
-import net.sf.testium.systemundertest.SutInterface;
 public class CheckListSize extends GenericCommandExecutor
 {
 	private static final String COMMAND = "checkListSize";
@@ -44,6 +40,9 @@ public class CheckListSize extends GenericCommandExecutor
 		@SuppressWarnings("unchecked")
 		List<Object> list = (List<Object>) this.obtainValue(aVariables, parameters, PARSPEC_LIST);
 		int expectedSize = (Integer) this.obtainOptionalValue(aVariables, parameters, PARSPEC_SIZE);
+
+		String listName = parameters.get(PAR_LIST).getName();
+		result.setDisplayName( result.getDisplayName() + " " + listName + " " + expectedSize );
 
 		if ( list.size() != expectedSize )
 		{

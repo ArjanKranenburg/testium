@@ -22,6 +22,7 @@ public class SetVariable extends GenericCommandExecutor
 	public SetVariable(SutInterface anInterface)
 	{
 		super(COMMAND, anInterface, new ArrayList<SpecifiedParameter>() );
+
 		this.addParamSpec(PARSPEC_NAME);
 		this.addParamSpec(PARSPEC_VALUE);
 	}
@@ -34,6 +35,7 @@ public class SetVariable extends GenericCommandExecutor
 		String variableName = (String) this.obtainValue(aVariables, parameters, PARSPEC_NAME);
 		String variableValue = (String) this.obtainValue(aVariables, parameters, PARSPEC_VALUE);
 		
+		result.setDisplayName( result.getDisplayName() + " " + variableValue + " -> " + variableName );
 		RunTimeVariable rtVariable = new RunTimeVariable( variableName, variableValue );
 		aVariables.add(rtVariable);
 	}

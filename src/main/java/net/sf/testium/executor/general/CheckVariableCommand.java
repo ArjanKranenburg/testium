@@ -1,42 +1,54 @@
 package net.sf.testium.executor.general;
 
-import java.io.File;
+import java.util.ArrayList;
 
 import net.sf.testium.executor.DefaultInterface;
-import net.sf.testium.executor.TestStepCommandExecutor;
+import net.sf.testium.systemundertest.SutInterface;
 
-import org.testtoolinterfaces.testresult.TestResult;
 import org.testtoolinterfaces.testresult.TestStepResult;
-import org.testtoolinterfaces.testsuite.Parameter;
 import org.testtoolinterfaces.testsuite.ParameterArrayList;
 import org.testtoolinterfaces.testsuite.ParameterImpl;
 import org.testtoolinterfaces.testsuite.ParameterVariable;
-import org.testtoolinterfaces.testsuite.TestStep;
 import org.testtoolinterfaces.testsuite.TestSuiteException;
 import org.testtoolinterfaces.utils.RunTimeData;
 import org.testtoolinterfaces.utils.RunTimeVariable;
 
 
-public class CheckVariableCommand implements TestStepCommandExecutor
+public class CheckVariableCommand extends GenericCommandExecutor
 {
 	private static final String COMMAND = "checkVariable";
+	
 	private static final String PAR_VARIABLE = "VARIABLE";
 	private static final String PAR_VALUE = "VALUE";
-	
-	public TestStepResult execute( TestStep aStep,
-	                               RunTimeData anRTData,
-	                               File aLogDir ) throws TestSuiteException
-	{
-		ParameterArrayList parameters = aStep.getParameters();
-		verifyParameters(parameters);
 
-		TestStepResult result = new TestStepResult( aStep );
-		
+	private static final SpecifiedParameter PARSPEC_VARIABLE = new SpecifiedParameter( 
+			PAR_VARIABLE, String.class, false, false, true, false );
+	private static final SpecifiedParameter PARSPEC_VALUE = new SpecifiedParameter( 
+			PAR_VALUE, String.class, false, true, true, true );
+
+	/**
+	 *
+	 */
+	public CheckVariableCommand( SutInterface aSutInterface )
+	{
+		super( COMMAND, aSutInterface, new ArrayList<SpecifiedParameter>() );
+
+		this.addParamSpec( PARSPEC_VARIABLE );
+		this.addParamSpec( PARSPEC_VALUE );
+	}
+
+	@Override
+	protected void doExecute(RunTimeData aVariables,
+			ParameterArrayList parameters, TestStepResult result)
+			throws Exception 
+	{
+
 		ParameterVariable variablePar = (ParameterVariable) parameters.get(PAR_VARIABLE);
 		String variableName = variablePar.getVariableName();
 		ParameterImpl valuePar = (ParameterImpl) parameters.get(PAR_VALUE);
 
-		RunTimeVariable rtVariable = anRTData.get( variableName );
+		result.setDisplayName( result.getDisplayName() + " " + variableName + " " + valuePar.getValue().toString() );
+		RunTimeVariable rtVariable = aVariables.get( variableName );
 		if ( rtVariable == null )
 		{
 			throw new TestSuiteException( "Variable " + variableName + " is not set",
@@ -50,67 +62,12 @@ public class CheckVariableCommand implements TestStepCommandExecutor
 			                              + PAR_VARIABLE + " of type " + rtVariable.getType(),
 			                              DefaultInterface.NAME + "." + COMMAND );
 		}
-		
-//anRTData.print();
-		if ( rtVariable.getValue().equals( valuePar.getValue() ) )
+
+		if ( ! rtVariable.getValue().equals( valuePar.getValue() ) )
 		{
-			result.setResult(TestResult.PASSED);
-		}
-		else
-		{
-			result.setResult(TestResult.FAILED);
-			result.setComment( "Variable has value " + rtVariable.getValue().toString()
+			throw new TestSuiteException( "Variable has value " + rtVariable.getValue().toString()
 			                   + ". Expected " + valuePar.getValue().toString() );
-// TODO This comment does not end up as comment in the result file
 // TODO The ParameterResult must contain the real and expected parameter.
-//System.out.println( "Variable has value " + rtVariable.getValue().toString()
-//                    + ". Expected " + valuePar.getValue().toString() );
 		}
-
-		return result;
-	}
-
-	public String getCommand()
-	{
-		return COMMAND;
-	}
-
-	public boolean verifyParameters( ParameterArrayList aParameters ) throws TestSuiteException
-	{
-		// Check the Variable Parameter
-		Parameter variablePar = aParameters.get(PAR_VARIABLE);
-		if ( variablePar == null )
-		{
-			throw new TestSuiteException( "Parameter " + PAR_VARIABLE + " is not set",
-			                              DefaultInterface.NAME + "." + COMMAND );
-		}
-
-		if ( ! ParameterVariable.class.isInstance( variablePar ) )
-		{
-			throw new TestSuiteException( "Parameter " + PAR_VARIABLE + " is not defined as a variable",
-			                              DefaultInterface.NAME + "." + COMMAND );
-		}
-		
-		if ( ((ParameterVariable) variablePar).getVariableName().isEmpty() )
-		{
-			throw new TestSuiteException( "Variable name of " + PAR_VARIABLE + " cannot be empty",
-			                              DefaultInterface.NAME + "." + COMMAND );
-		}
-
-		// Check the Value Parameter
-		Parameter valuePar = aParameters.get(PAR_VALUE);
-		if ( valuePar == null )
-		{
-			throw new TestSuiteException( "Parameter " + PAR_VALUE + " is not set",
-			                              DefaultInterface.NAME + "." + COMMAND );
-		}
-
-		if ( ! ParameterImpl.class.isInstance( valuePar ) )
-		{
-			throw new TestSuiteException( "Parameter " + valuePar.getName() + " is not a value",
-			                              DefaultInterface.NAME + "." + COMMAND );
-		}
-
-		return true;
 	}
 }

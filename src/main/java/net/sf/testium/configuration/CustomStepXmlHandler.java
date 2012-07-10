@@ -56,7 +56,7 @@ public class CustomStepXmlHandler extends XmlHandler
 		myTestStepExecutor = aTestStepMetaExecutor;
 
 	    myDescriptionXmlHandler = new GenericTagAndStringXmlHandler(anXmlReader, DESCRIPTION_ELEMENT);
-		this.addElementHandler(DESCRIPTION_ELEMENT, myDescriptionXmlHandler);
+		this.addElementHandler(myDescriptionXmlHandler);
 
 //	    ArrayList<TestStep.StepType> execAllowedTypes = new ArrayList<TestStep.StepType>();
 //	    execAllowedTypes.add( TestStep.StepType.action );
@@ -67,10 +67,10 @@ public class CustomStepXmlHandler extends XmlHandler
 //		                                                        execAllowedTypes,
 		                                                        anInterfaceList,
 		                                                        true );
-		this.addElementHandler(EXECUTE_ELEMENT, myExecutionXmlHandler);
+		this.addElementHandler(myExecutionXmlHandler);
 
 		myParameterXmlHandler = new ParameterXmlHandler(anXmlReader);
-		this.addElementHandler(ParameterXmlHandler.START_ELEMENT, myParameterXmlHandler);
+		this.addElementHandler(myParameterXmlHandler);
 		
 	    reset();
 	}

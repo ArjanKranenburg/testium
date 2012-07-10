@@ -3,17 +3,14 @@
  */
 package net.sf.testium.executor.general;
 
-import java.io.File;
 import java.lang.reflect.Proxy;
+import java.util.ArrayList;
 import java.util.Enumeration;
 
-import net.sf.testium.executor.TestStepCommandExecutor;
+import net.sf.testium.systemundertest.SutInterface;
 
-import org.testtoolinterfaces.testresult.TestResult.VERDICT;
 import org.testtoolinterfaces.testresult.TestStepResult;
 import org.testtoolinterfaces.testsuite.ParameterArrayList;
-import org.testtoolinterfaces.testsuite.TestStep;
-import org.testtoolinterfaces.testsuite.TestSuiteException;
 import org.testtoolinterfaces.utils.RunTimeData;
 import org.testtoolinterfaces.utils.RunTimeVariable;
 
@@ -23,30 +20,42 @@ import org.testtoolinterfaces.utils.RunTimeVariable;
  * @author Arjan Kranenburg
  *
  */
-public class PrintVars implements TestStepCommandExecutor {
+public class PrintVars extends GenericCommandExecutor
+{
 	private static final String COMMAND = "printVars";
+	private static final String PAR_TOSCREEN = "toScreen";
 
-	public PrintVars() {}
+	private static final SpecifiedParameter PARSPEC_TOSCREEN = new SpecifiedParameter( 
+			PAR_TOSCREEN, Boolean.class, true, true, false, false )
+				.setDefaultValue( true );
 
-	public TestStepResult execute( TestStep aStep,
-	                               RunTimeData aVariables,
-	                               File aLogDir ) throws TestSuiteException
+	public PrintVars( SutInterface aSutInterface  )
 	{
-		TestStepResult result = new TestStepResult( aStep );
+		super( COMMAND, aSutInterface, new ArrayList<SpecifiedParameter>() );
 
+		this.addParamSpec( PARSPEC_TOSCREEN );
+	}
+
+	@Override
+	protected void doExecute(RunTimeData aVariables,
+			ParameterArrayList parameters, TestStepResult result)
+			throws Exception
+	{
     	result.addComment("Current Variables:" );
 	    addVarsToComment(aVariables, result);
-
-	    result.setResult(VERDICT.PASSED);
-		return result;
+	    
+	    boolean toScreen = this.obtainOptionalValue(aVariables, parameters, PARSPEC_TOSCREEN);
+	    if ( toScreen ) {
+	    	aVariables.print();
+	    }
 	}
 
 	private void addVarsToComment(RunTimeData aVariables, TestStepResult result) {
 		for (Enumeration<String> keys = aVariables.keys(); keys.hasMoreElements();)
 	    {
+	    	String key = keys.nextElement();
 	    	try
 	    	{
-		    	String key = keys.nextElement();
 		    	RunTimeVariable rtVar = aVariables.get(key);
 		    	if ( rtVar == null )
 		    	{
@@ -68,7 +77,7 @@ public class PrintVars implements TestStepCommandExecutor {
 	    	}
 	    	catch (Exception e)
 	    	{
-	    		System.out.println( "Exception " + e.getMessage() );
+		    	result.addComment(key + " -> Error ( " + e.getMessage() + " )" );
 	    	}
 	    }
 		
@@ -76,13 +85,5 @@ public class PrintVars implements TestStepCommandExecutor {
 		if ( parentScope != null ) {
 		    addVarsToComment(parentScope, result);
 		}
-	}
-
-	public String getCommand() {
-		return COMMAND;
-	}
-
-	public boolean verifyParameters(ParameterArrayList aParameters) {
-		return true;
 	}
 }

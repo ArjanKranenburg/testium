@@ -4,7 +4,7 @@
   <artifactId>testium</artifactId>
   <version>0.3.4-SNAPSHOT</version>
   <name>Testium</name>
-  <description>A flexible and pluginable test execution framework.</description>
+  <description>A flexible and plugin-able test execution framework.</description>
   <url>http://testium.sf.net/</url>
   <packaging>jar</packaging>
 
@@ -46,12 +46,12 @@
   	<dependency>
   	  <groupId>org.testtoolinterfaces</groupId>
   	  <artifactId>utils</artifactId>
-  	  <version>0.1.3-SNAPSHOT</version>
+  	  <version>0.1.6</version>
   	</dependency>
   	<dependency>
   	  <groupId>org.testtoolinterfaces</groupId>
   	  <artifactId>cmdlineinterface</artifactId>
-  	  <version>0.3.0</version>
+  	  <version>0.3.1</version>
   	</dependency>
   	<dependency>
   	  <groupId>net.sf.jopt-simple</groupId>
@@ -61,22 +61,22 @@
   	<dependency>
   	  <groupId>org.testtoolinterfaces</groupId>
   	  <artifactId>testsuite</artifactId>
-  	  <version>0.3.1-SNAPSHOT</version>
+  	  <version>0.3.2</version>
   	</dependency>
   	<dependency>
   	  <groupId>org.testtoolinterfaces</groupId>
   	  <artifactId>testresult</artifactId>
-  	  <version>0.3.0</version>
+  	  <version>0.3.2</version>
   	</dependency>
   	<dependency>
   	  <groupId>org.testtoolinterfaces</groupId>
   	  <artifactId>testsuiteinterface</artifactId>
-  	  <version>0.3.1-SNAPSHOT</version>
+  	  <version>0.3.1</version>
   	</dependency>
   	<dependency>
   	  <groupId>org.testtoolinterfaces</groupId>
   	  <artifactId>testresultinterface</artifactId>
-  	  <version>0.3.1-SNAPSHOT</version>
+  	  <version>0.3.2</version>
   	</dependency>
   </dependencies>
 
