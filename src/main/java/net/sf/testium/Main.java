@@ -6,6 +6,7 @@ import java.io.IOError;
 import java.net.URISyntaxException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Iterator;
@@ -592,6 +593,7 @@ public class Main
 			System.out.println( "  " + iFace.getInterfaceName() );
 
 			ArrayList<String> commandList = iFace.getCommands();
+			Collections.sort(commandList);
 		    for (String command : commandList)
 		    {
 		    	System.out.println( "    " + command );
