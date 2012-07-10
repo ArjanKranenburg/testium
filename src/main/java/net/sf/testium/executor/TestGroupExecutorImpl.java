@@ -76,6 +76,7 @@ public class TestGroupExecutorImpl implements TestGroupExecutor
 
 		File logFile = new File(groupLogDir, aTestGroupLink.getId() + "_log.xml");
 		TestGroupResult tgResult = new TestGroupResult( testGroup );
+		tgResult.setExecutionPath( aTestGroupResult.getExecutionPath() + "." + aTestGroupResult.getId() );
     	myTestGroupResultWriter.write( tgResult, logFile );
 
     	TestGroupResultLink tgResultLink = new TestGroupResultLink( aTestGroupLink,
@@ -126,6 +127,7 @@ public class TestGroupExecutorImpl implements TestGroupExecutor
 		{
 		    TestStep step = stepsItr.next();
 			TestStepResult tsResult = myTestStepExecutor.execute(step, aScriptDir, aLogDir, aRTData);
+			tsResult.setExecutionPath( aResult.getExecutionPath() + "." + aResult.getId() );
 			aResult.addInitialization(tsResult);
     	}
 	}
@@ -168,6 +170,7 @@ public class TestGroupExecutorImpl implements TestGroupExecutor
 					tcLink.setLinkDir( aScriptDir );
 
 					TestCaseResultLink tcResult = myTestCaseExecutor.execute(tcLink, aLogDir, rtData);
+					tcResult.setExecutionPath( aResult.getExecutionPath() + "." + aResult.getId() );
 					aResult.addTestCase(tcResult);
 				}
 				else
@@ -204,6 +207,7 @@ public class TestGroupExecutorImpl implements TestGroupExecutor
 		{
 		    TestStep step = stepsItr.next();
 			TestStepResult tsResult = myTestStepExecutor.execute(step, aScriptDir, aLogDir, aRTData);
+			tsResult.setExecutionPath( aResult.getExecutionPath() + "." + aResult.getId() );
 			aResult.addRestore(tsResult);
     	}
 	}
