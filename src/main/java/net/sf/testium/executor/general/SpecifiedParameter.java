@@ -86,7 +86,8 @@ public class SpecifiedParameter
 	}
 	
 	/**
-	 * @return if an empty flag is allowed
+	 * Sets the default value if optional
+	 * @return this object
 	 */
 	public SpecifiedParameter setDefaultValue( Object defaultValue )
 	{

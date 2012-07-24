@@ -111,7 +111,7 @@ public class InterfaceXmlHandler extends XmlHandler
     			throw new TTIException( "The interface is not defined. Unable to add a step to an unknown interface" );
     		}
     		
-    		if ( ! CustomizableInterface.class.isInstance(myInterface) )
+    		if ( ! CustomInterface.class.isInstance(myInterface) )
     		{
     			throw new TTIException( "The " + myInterface.getInterfaceName() + " interface is not customizable. "
     			                        + "Unable to add a step to it." );
@@ -119,7 +119,7 @@ public class InterfaceXmlHandler extends XmlHandler
 
 			try
 			{
-				myCustomStepXmlHandler.addTestStepExecutor( (CustomizableInterface) myInterface );
+				myCustomStepXmlHandler.addTestStepExecutor( (CustomInterface) myInterface );
 			}
 			catch (TestSuiteException e)
 			{

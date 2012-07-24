@@ -1,8 +1,12 @@
 package net.sf.testium.configuration;
 
-import net.sf.testium.executor.CustomTestStepExecutor;
+import java.util.ArrayList;
+
+import net.sf.testium.executor.CustomInterface;
 import net.sf.testium.executor.CustomizableInterface;
 import net.sf.testium.executor.TestStepMetaExecutor;
+import net.sf.testium.executor.general.CustomTestStepExecutor;
+import net.sf.testium.executor.general.SpecifiedParameter;
 
 import org.testtoolinterfaces.testsuite.Parameter;
 import org.testtoolinterfaces.testsuite.ParameterArrayList;
@@ -23,7 +27,7 @@ import org.xml.sax.XMLReader;
  * 
  * <customstep command="...">
  *  <description>...</description>
- *  <execute>
+ *  <parameters>...</parameters>
  *   ...
  *  </execute>
  * </customstep>
@@ -40,11 +44,11 @@ public class CustomStepXmlHandler extends XmlHandler
 	private String myCommand;
 	private String myDescription;
     private TestStepSequence myExecutionSteps;
-	private ParameterArrayList myParameters;
+    private ArrayList<SpecifiedParameter> myParameterSpecs;
 
 	private GenericTagAndStringXmlHandler myDescriptionXmlHandler;
 	private TestStepSequenceXmlHandler myExecutionXmlHandler;
-	private ParameterXmlHandler myParameterXmlHandler;
+	private ParameterSpecificationXmlHandler myParameterSpecXmlHandler;
 
 	private TestStepMetaExecutor myTestStepExecutor;
 
@@ -69,8 +73,8 @@ public class CustomStepXmlHandler extends XmlHandler
 		                                                        true );
 		this.addElementHandler(myExecutionXmlHandler);
 
-		myParameterXmlHandler = new ParameterXmlHandler(anXmlReader);
-		this.addElementHandler(myParameterXmlHandler);
+		myParameterSpecXmlHandler = new ParameterSpecificationXmlHandler(anXmlReader);
+		this.addElementHandler(myParameterSpecXmlHandler);
 		
 	    reset();
 	}
@@ -139,13 +143,13 @@ public class CustomStepXmlHandler extends XmlHandler
     		myExecutionSteps = myExecutionXmlHandler.getSteps();
     		myExecutionXmlHandler.reset();
     	}
-    	else if (aQualifiedName.equalsIgnoreCase(ParameterXmlHandler.START_ELEMENT))
+    	else if (aQualifiedName.equalsIgnoreCase(ParameterSpecificationXmlHandler.START_ELEMENT))
     	{
 			// Note: No interface is set, so creation is done by the defaultInterface
-			Parameter parameter = myParameterXmlHandler.getParameter();
-			myParameters.add(parameter);
+			SpecifiedParameter parameter = myParameterSpecXmlHandler.getParameterSpec();
+			myParameterSpecs.add(parameter);
     		
-    		myParameterXmlHandler.reset();
+			myParameterSpecXmlHandler.reset();
     	}
 		else
     	{ // Programming fault
@@ -158,7 +162,7 @@ public class CustomStepXmlHandler extends XmlHandler
 	 * @param  anInterface	the CustomizableInterface where steps can be added to
      * @throws TestSuiteException 
      */
-    public void addTestStepExecutor( CustomizableInterface anInterface ) throws TestSuiteException
+    public void addTestStepExecutor( CustomInterface anInterface ) throws TestSuiteException
     {
 		Trace.println(Trace.SUITE);
 
@@ -175,8 +179,8 @@ public class CustomStepXmlHandler extends XmlHandler
 		CustomTestStepExecutor testStepExecutor = new CustomTestStepExecutor( myCommand,
 		                                                                      myDescription,
 		                                                                      anInterface,
+		                                                                      myParameterSpecs,
 		                                                                      myExecutionSteps,
-		                                                                      myParameters,
 		                                                                      myTestStepExecutor );
 		
 		anInterface.add(testStepExecutor);
@@ -187,6 +191,6 @@ public class CustomStepXmlHandler extends XmlHandler
 		myCommand = "";
 		myDescription = "";
 	    myExecutionSteps = new TestStepSequence();
-	    myParameters = new ParameterArrayList();
+	    myParameterSpecs = new ArrayList<SpecifiedParameter>();
 	}
 }
