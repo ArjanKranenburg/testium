@@ -5,17 +5,11 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 import net.sf.testium.executor.CustomInterface;
-import net.sf.testium.executor.CustomizableInterface;
-import net.sf.testium.executor.TestStepCommandExecutor;
 import net.sf.testium.executor.TestStepMetaExecutor;
-import net.sf.testium.systemundertest.SutInterface;
 
-import org.testtoolinterfaces.testresult.TestStepResult;
 import org.testtoolinterfaces.testresult.TestResult.VERDICT;
-import org.testtoolinterfaces.testsuite.Parameter;
+import org.testtoolinterfaces.testresult.TestStepResult;
 import org.testtoolinterfaces.testsuite.ParameterArrayList;
-import org.testtoolinterfaces.testsuite.ParameterHash;
-import org.testtoolinterfaces.testsuite.ParameterVariable;
 import org.testtoolinterfaces.testsuite.TestStep;
 import org.testtoolinterfaces.testsuite.TestStepSequence;
 import org.testtoolinterfaces.testsuite.TestSuiteException;

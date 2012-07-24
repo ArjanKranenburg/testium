@@ -1,7 +1,6 @@
 package net.sf.testium.configuration;
 
 import net.sf.testium.executor.CustomInterface;
-import net.sf.testium.executor.CustomizableInterface;
 import net.sf.testium.executor.SupportedInterfaceList;
 import net.sf.testium.executor.TestStepMetaExecutor;
 
@@ -33,7 +32,7 @@ public class InterfaceXmlHandler extends XmlHandler
 	    myInterfaceList = anInterfaceList;
 	    
 	    myCustomStepXmlHandler = new CustomStepXmlHandler(anXmlReader, anInterfaceList, aTestStepMetaExecutor);
-		this.addElementHandler(CustomStepXmlHandler.START_ELEMENT, myCustomStepXmlHandler);
+		this.addElementHandler(myCustomStepXmlHandler);
 
 	    reset();
 	}

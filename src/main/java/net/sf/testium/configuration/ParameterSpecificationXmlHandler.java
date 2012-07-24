@@ -10,16 +10,14 @@ import org.testtoolinterfaces.utils.XmlHandler;
 import org.xml.sax.Attributes;
 import org.xml.sax.XMLReader;
 
-
 /**
- * XmlHandler to read the parameter part from a TTI-XML file
- *  <parameterspec name="...">
- *    <type>...</type>
+ * XmlHandler to read the parameter Specification from an XML file
+ *  <parameterspec name="..." type="...">
  *    <optional>...</optional>
  *    <valueAllowed>...</valueAllowed>
  *    <variableAllowed>...</variableAllowed>
  *    <emptyAllowed>...</emptyAllowed>
- *    <default>...<default>
+ *    <default>...</default>
  *  </parameterspec>
  * 
  * @author Arjan Kranenburg 
@@ -188,7 +186,7 @@ public class ParameterSpecificationXmlHandler extends XmlHandler {
 		Class<?> type;
 		try
 		{
-			type = Class.forName(myType);
+			type = Class.forName("java.lang." + myType);
 		} catch (ClassNotFoundException e)
 		{
 			throw new TestSuiteException("No class \"" + myType + "\" known for parameter \"" + myName + "\"" );

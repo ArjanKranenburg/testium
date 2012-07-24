@@ -3,7 +3,6 @@ package net.sf.testium.configuration;
 import java.util.ArrayList;
 
 import net.sf.testium.executor.CustomInterface;
-import net.sf.testium.executor.CustomizableInterface;
 import net.sf.testium.executor.TestStepMetaExecutor;
 import net.sf.testium.executor.general.CustomTestStepExecutor;
 import net.sf.testium.executor.general.SpecifiedParameter;
@@ -145,7 +144,6 @@ public class CustomStepXmlHandler extends XmlHandler
     	}
     	else if (aQualifiedName.equalsIgnoreCase(ParameterSpecificationXmlHandler.START_ELEMENT))
     	{
-			// Note: No interface is set, so creation is done by the defaultInterface
 			SpecifiedParameter parameter = myParameterSpecXmlHandler.getParameterSpec();
 			myParameterSpecs.add(parameter);
     		
@@ -159,7 +157,7 @@ public class CustomStepXmlHandler extends XmlHandler
 	}
 
 	/**
-	 * @param  anInterface	the CustomizableInterface where steps can be added to
+	 * @param  anInterface	the CustomInterface where steps can be added to
      * @throws TestSuiteException 
      */
     public void addTestStepExecutor( CustomInterface anInterface ) throws TestSuiteException

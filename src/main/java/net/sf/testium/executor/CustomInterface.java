@@ -20,7 +20,7 @@ import org.testtoolinterfaces.utils.Trace;
  * @author Arjan
  *
  */
-public class CustomInterface implements SutInterface, CustomizableInterface
+public class CustomInterface implements SutInterface
 {
 	public String myName;
 
