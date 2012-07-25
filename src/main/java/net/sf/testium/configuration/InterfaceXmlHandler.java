@@ -1,17 +1,30 @@
 package net.sf.testium.configuration;
 
+import java.io.File;
+
 import net.sf.testium.executor.CustomInterface;
 import net.sf.testium.executor.SupportedInterfaceList;
 import net.sf.testium.executor.TestStepMetaExecutor;
 
 import org.testtoolinterfaces.testsuite.TestInterface;
 import org.testtoolinterfaces.testsuite.TestSuiteException;
+import org.testtoolinterfaces.utils.GenericTagAndStringXmlHandler;
+import org.testtoolinterfaces.utils.RunTimeData;
 import org.testtoolinterfaces.utils.TTIException;
 import org.testtoolinterfaces.utils.Trace;
 import org.testtoolinterfaces.utils.XmlHandler;
 import org.xml.sax.Attributes;
 import org.xml.sax.XMLReader;
 
+/**
+ * @author Arjan Kranenburg 
+ * 
+ *  <Interface name="...">
+ *    <CustomStepDefinitionsLink>...</CustomStepDefinitionsLink>
+ *    <CustomStep>...</CustomStep>
+ *  </Interface>
+ * 
+ */
 
 public class InterfaceXmlHandler extends XmlHandler
 {
@@ -19,22 +32,35 @@ public class InterfaceXmlHandler extends XmlHandler
 
 	private static final String	ATTR_NAME			= "name";
 
-	private SupportedInterfaceList myInterfaceList;
-	private CustomStepXmlHandler myCustomStepXmlHandler;
+	private static final String CUSTOMSTEP_DEFINITIONS_LINK_ELEMENT = "CustomStepDefinitionsLink";
 
+	private CustomStepXmlHandler myCustomStepXmlHandler;
+	private GenericTagAndStringXmlHandler myCustomStepDefinitionsLinkXmlHandler;
+
+	private final RunTimeData myRtData;
 	private TestInterface myInterface;
+	private SupportedInterfaceList myInterfaceList;
+    private final TestStepMetaExecutor myTestStepMetaExecutor;
 	
-	public InterfaceXmlHandler(XMLReader anXmlReader, SupportedInterfaceList anInterfaceList, TestStepMetaExecutor aTestStepMetaExecutor)
+	public InterfaceXmlHandler( XMLReader anXmlReader,
+								RunTimeData anRtData,
+								SupportedInterfaceList anInterfaceList,
+								TestStepMetaExecutor aTestStepMetaExecutor )
 	{
 	    super(anXmlReader, START_ELEMENT);
 	    Trace.println(Trace.CONSTRUCTOR);
 
+		myRtData = anRtData;
 	    myInterfaceList = anInterfaceList;
+		myTestStepMetaExecutor = aTestStepMetaExecutor;
 	    
 	    myCustomStepXmlHandler = new CustomStepXmlHandler(anXmlReader, anInterfaceList, aTestStepMetaExecutor);
 		this.addElementHandler(myCustomStepXmlHandler);
 
-	    reset();
+		myCustomStepDefinitionsLinkXmlHandler = new GenericTagAndStringXmlHandler(anXmlReader, CUSTOMSTEP_DEFINITIONS_LINK_ELEMENT);
+		this.addElementHandler(myCustomStepDefinitionsLinkXmlHandler);
+
+		reset();
 	}
 
 	@Override
@@ -62,24 +88,18 @@ public class InterfaceXmlHandler extends XmlHandler
 		            + aQualifiedName, true );
 	     	if (aQualifiedName.equalsIgnoreCase(START_ELEMENT))
 	    	{
+	     		String name = "";
 			    for (int i = 0; i < att.getLength(); i++)
 			    {
 		    		Trace.append( Trace.SUITE, ", " + att.getQName(i) + "=" + att.getValue(i) );
 			    	if (att.getQName(i).equalsIgnoreCase(ATTR_NAME))
 			    	{
-			        	String name = att.getValue(i);
+			        	name = att.getValue(i);
 			    		if ( name.isEmpty() )
 			    		{
-			    			return;
+							throw new Error( "The attribute '" + ATTR_NAME + "' cannot be empty" );
 			    		}
 			    		
-			    		myInterface = myInterfaceList.getInterface(name);
-			    		if ( myInterface == null )
-			    		{
-			    			// Create new interface
-			    			myInterface = new CustomInterface( name );
-			    			myInterfaceList.add(myInterface);
-			    		}
 			    	} // else ignore
 			    	else
 			    	{
@@ -87,6 +107,19 @@ public class InterfaceXmlHandler extends XmlHandler
 						                 + "' is not supported for configuration of the Selenium Plugin, element " + START_ELEMENT );
 			    	}
 			    }
+
+	    		if ( name.isEmpty() )
+	    		{
+					throw new Error( "The attribute '" + ATTR_NAME + "' is not defined for an interface" );
+	    		}
+	    		
+	    		myInterface = myInterfaceList.getInterface(name);
+	    		if ( myInterface == null )
+	    		{
+	    			// Create new interface
+	    			myInterface = new CustomInterface( name );
+	    			myInterfaceList.add(myInterface);
+	    		}
 	    	}
 			Trace.append( Trace.SUITE, " )\n" );
 	}
@@ -125,6 +158,26 @@ public class InterfaceXmlHandler extends XmlHandler
     			throw new TTIException( "Unable to add a step: " + e.getMessage(), e );
 			}
 			myCustomStepXmlHandler.reset();
+    	}
+		else if (aQualifiedName.equalsIgnoreCase( CUSTOMSTEP_DEFINITIONS_LINK_ELEMENT ))
+    	{
+			String fileName = myCustomStepDefinitionsLinkXmlHandler.getValue();
+			myCustomStepDefinitionsLinkXmlHandler.reset();
+
+			fileName = myRtData.substituteVars(fileName);
+			try {
+				if ( ! (myInterface instanceof CustomInterface) )
+				{
+					throw new TTIException( "Interface is not customizable: " + myInterface.getInterfaceName() );
+				}
+				CustomStepDefinitionsXmlHandler.loadElementDefinitions( new File( fileName ),
+																  myRtData,
+																  (CustomInterface) myInterface,
+																  myInterfaceList,
+																  myTestStepMetaExecutor );
+			} catch (ConfigurationException ce) {
+				throw new TTIException( "Failed to load element Definitions from file: " + fileName, ce );
+			}
     	}
 		else
     	{ // Programming fault

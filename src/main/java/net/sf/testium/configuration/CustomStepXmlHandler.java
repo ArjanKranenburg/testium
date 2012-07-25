@@ -24,17 +24,17 @@ import org.xml.sax.XMLReader;
 /**
  * @author Arjan Kranenburg 
  * 
- * <customstep command="...">
+ * <CustomStep command="...">
  *  <description>...</description>
  *  <parameters>...</parameters>
  *   ...
  *  </execute>
- * </customstep>
+ * </CustomStep>
  */
 
 public class CustomStepXmlHandler extends XmlHandler
 {
-	public static final String START_ELEMENT = "customstep";
+	public static final String START_ELEMENT = "CustomStep";
 
 	private static final String	ATTR_COMMAND			= "command";
 	private static final String DESCRIPTION_ELEMENT 	= "description";
