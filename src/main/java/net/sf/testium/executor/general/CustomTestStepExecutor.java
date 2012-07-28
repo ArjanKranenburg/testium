@@ -18,7 +18,6 @@ import org.testtoolinterfaces.utils.RunTimeData;
 public class CustomTestStepExecutor extends GenericCommandExecutor
 {
 	private String myDescription;
-	private ArrayList<SpecifiedParameter> myParameterSpecs;
 	private TestStepSequence mySteps;
 
 	private TestStepMetaExecutor myTestStepExecutor;
@@ -38,10 +37,14 @@ public class CustomTestStepExecutor extends GenericCommandExecutor
 
 		myDescription = aDescription;
 		mySteps = aSteps;
-		myParameterSpecs = aParameterSpecs;
 		myTestStepExecutor = aTestStepMetaExecutor;
 	}
 
+	/**
+	 *  Overrides to call a different doExecute()
+	 *
+	 * @see net.sf.testium.executor.general.GenericCommandExecutor#execute(org.testtoolinterfaces.testsuite.TestStep, org.testtoolinterfaces.utils.RunTimeData, java.io.File)
+	 */
 	public TestStepResult execute( TestStep aStep,
 								   RunTimeData aVariables,
 								   File aLogDir )
@@ -51,7 +54,12 @@ public class CustomTestStepExecutor extends GenericCommandExecutor
 		verifyParameters(parameters);
 		
 		TestStepResult result = new TestStepResult( aStep );
-		
+
+		if ( ! myDescription.isEmpty() )
+		{
+			aStep.setDescription(myDescription);
+		}
+
 		try
 		{
 			doExecute(aVariables, parameters, result, aLogDir);
@@ -65,38 +73,6 @@ public class CustomTestStepExecutor extends GenericCommandExecutor
 		return result;
 	}
 	
-//	public TestStepResult execute( TestStep aStep,
-//	                               RunTimeData aVariables,
-//	                               File aLogDir ) throws TestSuiteException
-//	{
-//		ParameterArrayList parameters = aStep.getParameters();
-//		verifyParameters(parameters);
-//
-//		if( aStep.getDescription().isEmpty() )
-//		{
-//			aStep.setDescription( myDescription );
-//		}
-//
-//		TestStepResult result = new TestStepResult( aStep );
-//
-//		Iterator<TestStep> stepsItr = mySteps.iterator();
-//		while(stepsItr.hasNext())
-//		{
-//		    TestStep step = stepsItr.next();
-//			TestStepResult tsResult = myTestStepExecutor.execute(step, new File( "" ), aLogDir, aVariables);
-//			result.addSubStep(tsResult);
-//			
-//			if ( result.getResult().equals(VERDICT.ERROR) )
-//			{
-//				return result;
-//			}
-//		} 
-//
-//		// TODO Auto-generated method stub
-//		return result;
-//	}
-
-
 	protected void doExecute( RunTimeData aVariables,
 							  ParameterArrayList parameters,
 							  TestStepResult result,
@@ -109,11 +85,6 @@ public class CustomTestStepExecutor extends GenericCommandExecutor
 		    TestStep step = stepsItr.next();
 			TestStepResult tsResult = myTestStepExecutor.execute(step, new File( "" ), aLogDir, aVariables);
 			result.addSubStep(tsResult);
-			
-//			if ( result.getResult().equals(VERDICT.ERROR) )
-//			{
-//				throw new TestSuiteException( "Method should not have been called" );
-//			}
 		} 
 	}
 
