@@ -3,13 +3,7 @@
  */
 package net.sf.testium.executor;
 
-import net.sf.testium.executor.general.CheckListSize;
-import net.sf.testium.executor.general.CheckVariableCommand;
-import net.sf.testium.executor.general.GetListItem;
-import net.sf.testium.executor.general.PrintVars;
-import net.sf.testium.executor.general.SetVariable;
-import net.sf.testium.executor.general.WaitCommand;
-
+import net.sf.testium.executor.general.*;
 import org.testtoolinterfaces.utils.Trace;
 
 /**
@@ -30,9 +24,11 @@ public class DefaultInterface extends CustomInterface
 
 		add(new WaitCommand( this ));
 		add(new CheckVariableCommand( this ));
+		add(new Comment( this ));
 		add(new SetVariable( this));
 		add(new GetListItem(this));
 		add(new PrintVars( this ));
 		add(new CheckListSize(this));
+		add(new SetDate( this));
 	}
 }
