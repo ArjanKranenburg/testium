@@ -14,7 +14,7 @@ import org.testtoolinterfaces.utils.RunTimeData;
 import org.testtoolinterfaces.utils.RunTimeVariable;
 
 
-public class CheckVariableCommand extends GenericCommandExecutor
+public class CheckVariable extends GenericCommandExecutor
 {
 	private static final String COMMAND = "checkVariable";
 	
@@ -29,7 +29,7 @@ public class CheckVariableCommand extends GenericCommandExecutor
 	/**
 	 *
 	 */
-	public CheckVariableCommand( SutInterface aSutInterface )
+	public CheckVariable( SutInterface aSutInterface )
 	{
 		super( COMMAND, aSutInterface, new ArrayList<SpecifiedParameter>() );
 

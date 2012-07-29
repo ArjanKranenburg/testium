@@ -13,7 +13,7 @@ import org.testtoolinterfaces.testsuite.TestSuiteException;
 import org.testtoolinterfaces.utils.RunTimeData;
 
 
-public class WaitCommand extends GenericCommandExecutor
+public class Wait extends GenericCommandExecutor
 {
 	private static final String COMMAND = "wait";
 
@@ -23,7 +23,7 @@ public class WaitCommand extends GenericCommandExecutor
 			PAR_TIME, Integer.class, false, true, false, false );
 
 
-	public WaitCommand(SutInterface anInterface)
+	public Wait(SutInterface anInterface)
 	{
 		super(COMMAND, anInterface, new ArrayList<SpecifiedParameter>() );
 
