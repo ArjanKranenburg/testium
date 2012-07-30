@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>net.sf.testium</groupId>
   <artifactId>testium</artifactId>
-  <version>0.3.7</version>
+  <version>0.3.8-SNAPSHOT</version>
   <name>Testium</name>
   <description>A flexible and plugin-able test execution framework.</description>
   <url>http://testium.sf.net/</url>
@@ -76,7 +76,7 @@
   	<dependency>
   	  <groupId>org.testtoolinterfaces</groupId>
   	  <artifactId>testresultinterface</artifactId>
-  	  <version>0.3.3</version>
+  	  <version>0.3.4-SNAPSHOT</version>
   	</dependency>
   </dependencies>
 
