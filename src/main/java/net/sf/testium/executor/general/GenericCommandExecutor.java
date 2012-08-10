@@ -62,12 +62,17 @@ public abstract class GenericCommandExecutor implements TestStepCommandExecutor 
 		return this.getInterface().getInterfaceName();
 	}
 
-	protected void addParamSpec(SpecifiedParameter specifiedParameter)
+	protected final void addParamSpec(SpecifiedParameter specifiedParameter)
 	{
 		myParameterSpecs.add(specifiedParameter);
 	}
 
-	protected Iterator<SpecifiedParameter> getParametersIterator()
+	protected final ArrayList<SpecifiedParameter> getParameters()
+	{
+		return myParameterSpecs;
+	}
+
+	protected final Iterator<SpecifiedParameter> getParametersIterator()
 	{
 		return myParameterSpecs.iterator();
 	}

@@ -14,6 +14,7 @@ import org.testtoolinterfaces.testsuite.TestStep;
 import org.testtoolinterfaces.testsuite.TestStepSequence;
 import org.testtoolinterfaces.testsuite.TestSuiteException;
 import org.testtoolinterfaces.utils.RunTimeData;
+import org.testtoolinterfaces.utils.RunTimeVariable;
 
 public class CustomTestStepExecutor extends GenericCommandExecutor
 {
@@ -79,11 +80,23 @@ public class CustomTestStepExecutor extends GenericCommandExecutor
 							  File aLogDir )
 			throws Exception {
 
+	    RunTimeData rtVars = new RunTimeData( aVariables );
 		Iterator<TestStep> stepsItr = mySteps.iterator();
 		while(stepsItr.hasNext())
 		{
 		    TestStep step = stepsItr.next();
-			TestStepResult tsResult = myTestStepExecutor.execute(step, new File( "" ), aLogDir, aVariables);
+		    for ( SpecifiedParameter parameterSpec : this.getParameters() )
+		    {
+		    	Object param = this.obtainValue(aVariables, parameters, parameterSpec);
+		    	if ( param == null )
+		    	{
+		    		param = parameterSpec.getDefaultValue();
+		    	}
+		    	RunTimeVariable var = new RunTimeVariable(parameterSpec.getName(), param);
+		    	rtVars.add(var);
+		    }
+
+			TestStepResult tsResult = myTestStepExecutor.execute(step, new File( "" ), aLogDir, rtVars);
 			result.addSubStep(tsResult);
 		} 
 	}
