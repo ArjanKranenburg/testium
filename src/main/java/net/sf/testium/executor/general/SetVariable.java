@@ -18,6 +18,9 @@ public class SetVariable extends GenericCommandExecutor
 	        "name", String.class, false, true, false, false );
 	private static final SpecifiedParameter PARSPEC_VALUE = new SpecifiedParameter (
 	        "value", String.class, false, true, false, false );
+//	private static final SpecifiedParameter PARSPEC_TYPE = new SpecifiedParameter (
+//	        "type", String.class, true, true, false, false )
+//		.setDefaultValue("String");
 
 	public SetVariable(SutInterface anInterface)
 	{
@@ -25,6 +28,7 @@ public class SetVariable extends GenericCommandExecutor
 
 		this.addParamSpec(PARSPEC_NAME);
 		this.addParamSpec(PARSPEC_VALUE);
+//		this.addParamSpec(PARSPEC_TYPE);
 	}
 
 	@Override
@@ -33,10 +37,20 @@ public class SetVariable extends GenericCommandExecutor
 			throws Exception
 	{
 		String variableName = (String) this.obtainValue(aVariables, parameters, PARSPEC_NAME);
-		String variableValue = (String) this.obtainValue(aVariables, parameters, PARSPEC_VALUE);
+		String valueString = (String) this.obtainValue(aVariables, parameters, PARSPEC_VALUE);
+//		String valueType = (String) this.obtainValue(aVariables, parameters, PARSPEC_TYPE);
+//		Class<?> type;
+//		try
+//		{
+//			type = Class.forName("java.lang." + valueType);
+//		} catch (ClassNotFoundException e)
+//		{
+//			throw new TestSuiteException("No class \"" + valueType + "\" known for variable \"" + variableName + "\"" );
+//		}
 		
-		result.setDisplayName( result.getDisplayName() + " " + variableValue + " -> " + variableName );
-		RunTimeVariable rtVariable = new RunTimeVariable( variableName, variableValue );
+		result.setDisplayName( result.getDisplayName() + " " + variableName + "=\"" + valueString + "\"" );
+//		RunTimeVariable rtVariable = new RunTimeVariable( variableName, type, valueString );
+		RunTimeVariable rtVariable = new RunTimeVariable( variableName, valueString );
 		aVariables.add(rtVariable);
 	}
 }
