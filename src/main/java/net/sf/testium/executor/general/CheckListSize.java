@@ -19,7 +19,7 @@ public class CheckListSize extends GenericCommandExecutor
 	private static final SpecifiedParameter PARSPEC_LIST = new SpecifiedParameter( 
 			PAR_LIST, List.class, false, false, true, false );
 	private static final SpecifiedParameter PARSPEC_SIZE = new SpecifiedParameter( 
-			PAR_SIZE, Integer.class, false, true, false, false );
+			PAR_SIZE, Integer.class, false, true, true, false );
 
 	/**
 	 *
@@ -39,7 +39,7 @@ public class CheckListSize extends GenericCommandExecutor
 	{
 		@SuppressWarnings("unchecked")
 		List<Object> list = (List<Object>) this.obtainValue(aVariables, parameters, PARSPEC_LIST);
-		int expectedSize = (Integer) this.obtainOptionalValue(aVariables, parameters, PARSPEC_SIZE);
+		int expectedSize = (Integer) this.obtainValue(aVariables, parameters, PARSPEC_SIZE);
 
 		String listName = parameters.get(PAR_LIST).getName();
 		result.setDisplayName( result.getDisplayName() + " " + listName + " " + expectedSize );
