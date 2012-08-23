@@ -26,9 +26,12 @@ public class DefaultInterface extends CustomInterface
 		add(new CheckVariable( this ));
 		add(new Comment( this ));
 		add(new GetListItem(this));
+		add(new GetListSize(this));
 		add(new PrintVars( this ));
 		add(new SetDate( this));
 		add(new SetVariable( this));
+		add(new Sum(this));
+		add(new Substract(this));
 		add(new Wait( this ));
 	}
 }
