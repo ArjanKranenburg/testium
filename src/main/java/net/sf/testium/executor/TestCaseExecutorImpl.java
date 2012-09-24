@@ -94,8 +94,11 @@ public class TestCaseExecutorImpl implements TestCaseExecutor
     	TestStepSequence prepareSteps = testCase.getPrepareSteps();
     	executePrepareSteps(prepareSteps, result, scriptDir, logDir, aRTData);
 
-    	TestStepSequence execSteps = testCase.getExecutionSteps();
-    	executeExecSteps(execSteps, result, scriptDir, logDir, aRTData);
+    	if ( ! ( result.getResult().equals(VERDICT.FAILED) || result.getResult().equals(VERDICT.ERROR) ) )
+    	{
+        	TestStepSequence execSteps = testCase.getExecutionSteps();
+        	executeExecSteps(execSteps, result, scriptDir, logDir, aRTData);
+    	}
 
     	TestStepSequence restoreSteps = testCase.getRestoreSteps();
     	executeRestoreSteps(restoreSteps, result, scriptDir, logDir, aRTData);
@@ -121,6 +124,16 @@ public class TestCaseExecutorImpl implements TestCaseExecutor
 		    TestStep step = stepsItr.next();
 			TestStepResult tsResult = myTestStepExecutor.execute(step, aScriptDir, aLogDir, aRTData);
 			aResult.addInitialization(tsResult);
+System.out.println("Adding result of " + step.getId() + ": " + tsResult.getResult() );
+			aResult.setResult(tsResult.getResult());
+System.out.println("TC result now is " + aResult.getResult() );
+			if ( tsResult.getResult().equals(VERDICT.FAILED) )
+			{
+				aResult.setResult(VERDICT.ERROR);
+System.out.println("TC result now is (2) " + aResult.getResult() );
+				aResult.addComment( "Preparation failed: " + tsResult.getComment() );
+				return;
+			}
     	}
 	}
 
@@ -156,6 +169,11 @@ public class TestCaseExecutorImpl implements TestCaseExecutor
 		    TestStep step = stepsItr.next();
 			TestStepResult tsResult = myTestStepExecutor.execute(step, aScriptDir, aLogDir, aRTData);
 			aResult.addRestore(tsResult);
+			aResult.setResult(tsResult.getResult());
+			if ( tsResult.getResult().equals(VERDICT.FAILED) )
+			{
+				aResult.setResult(VERDICT.ERROR);
+			}
     	}
 	}
 
