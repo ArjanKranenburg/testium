@@ -5,21 +5,27 @@ import java.io.FileNotFoundException;
 import java.io.IOError;
 import java.util.Iterator;
 
+import org.testtoolinterfaces.testresult.TestCaseResult;
 import org.testtoolinterfaces.testresult.TestCaseResultLink;
 import org.testtoolinterfaces.testresult.TestGroupResult;
 import org.testtoolinterfaces.testresult.TestGroupResultLink;
+import org.testtoolinterfaces.testresult.TestResult.VERDICT;
 import org.testtoolinterfaces.testresult.TestStepResult;
 import org.testtoolinterfaces.testresultinterface.TestGroupResultWriter;
+import org.testtoolinterfaces.testsuite.TestCase;
+import org.testtoolinterfaces.testsuite.TestCaseImpl;
 import org.testtoolinterfaces.testsuite.TestCaseLink;
 import org.testtoolinterfaces.testsuite.TestEntry;
 import org.testtoolinterfaces.testsuite.TestEntrySequence;
 import org.testtoolinterfaces.testsuite.TestGroup;
+import org.testtoolinterfaces.testsuite.TestGroupImpl;
 import org.testtoolinterfaces.testsuite.TestGroupLink;
 import org.testtoolinterfaces.testsuite.TestStep;
 import org.testtoolinterfaces.testsuite.TestStepSequence;
 import org.testtoolinterfaces.testsuiteinterface.TestGroupReader;
 import org.testtoolinterfaces.utils.RunTimeData;
 import org.testtoolinterfaces.utils.Trace;
+import org.testtoolinterfaces.utils.Trace.LEVEL;
 import org.testtoolinterfaces.utils.Warning;
 
 public class TestGroupExecutorImpl implements TestGroupExecutor
@@ -155,9 +161,39 @@ public class TestGroupExecutorImpl implements TestGroupExecutor
 				if ( entry.getType() == TestEntry.TYPE.GroupLink )
 				{
 					TestGroupLink tgLink = (TestGroupLink) entry;
-					tgLink.setLinkDir( aScriptDir );
+					try
+					{
+						tgLink.setLinkDir( aScriptDir );
 
-					myTestGroupExecutor.execute(tgLink, aLogDir, aResult, rtData );
+						myTestGroupExecutor.execute(tgLink, aLogDir, aResult, rtData );
+						
+					}
+					catch (Throwable t) // wider than strictly needed, but plugins could be mal-interpreted.
+					{
+						Trace.print(LEVEL.ALL, t);
+						String tgId = tgLink.getId();
+						
+						TestGroup tg = new TestGroupImpl( tgId,
+														  tgLink.getDescription(),
+														  tgLink.getSequenceNr(),
+														  new TestStepSequence(),
+														  new TestEntrySequence(),
+														  new TestStepSequence() );
+						
+						TestGroupResult tgResult = new TestGroupResult( tg );
+						tgResult.setResult(VERDICT.ERROR);
+						tgResult.addComment(t.getMessage());
+						
+						File logDir = new File (aLogDir, tgId );
+						logDir.mkdir();
+						
+						File logFile = new File( logDir, tgId + "_log.xml" );
+				    	myTestGroupResultWriter.write( tgResult, logFile );
+
+				    	TestGroupResultLink tgResultLink = new TestGroupResultLink( tgLink, logFile );
+						tgResult.register(tgResultLink);
+						aResult.addTestGroup(tgResultLink);
+					}
 				}
 				else if ( entry.getType() == TestEntry.TYPE.CaseLink )
 				{
@@ -167,11 +203,39 @@ public class TestGroupExecutorImpl implements TestGroupExecutor
 					}
 					
 					TestCaseLink tcLink = (TestCaseLink) entry;
-					tcLink.setLinkDir( aScriptDir );
+					try
+					{
+						tcLink.setLinkDir( aScriptDir );
 
-					TestCaseResultLink tcResult = myTestCaseExecutor.execute(tcLink, aLogDir, rtData);
-					tcResult.setExecutionPath( aResult.getExecutionPath() + "." + aResult.getId() );
-					aResult.addTestCase(tcResult);
+						TestCaseResultLink tcResult = myTestCaseExecutor.execute(tcLink, aLogDir, rtData);
+						tcResult.setExecutionPath( aResult.getExecutionPath() + "." + aResult.getId() );
+						aResult.addTestCase(tcResult);
+					}
+					catch (Throwable t)
+					{
+						Trace.print(LEVEL.ALL, t);
+						String tcId = tcLink.getId();
+						
+						TestCase tc = new TestCaseImpl( tcId,
+								  tcLink.getDescription(),
+								  tcLink.getSequenceNr(),
+								  new TestStepSequence(),
+								  new TestStepSequence(),
+								  new TestStepSequence() );
+
+						TestCaseResult tcResult = new TestCaseResult( tc );
+						tcResult.setResult(VERDICT.ERROR);
+						tcResult.addComment(t.getMessage());
+						
+//						File logDir = new File (aLogDir, tcId );
+//						logDir.mkdir();
+//						
+//						File logFile = new File( logDir, tcId + "_log.xml" );
+//				    	myTestCaseResultWriter.write( tcResult, logFile );
+//
+//				    	TestCaseResultLink tcResultLink = new TestCaseResultLink( tcLink, VERDICT.ERROR, logFile );
+//						aResult.addTestCase(tcResultLink);
+					}
 				}
 				else
 				{
