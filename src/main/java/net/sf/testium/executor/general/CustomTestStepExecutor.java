@@ -22,6 +22,7 @@ public class CustomTestStepExecutor extends GenericCommandExecutor
 	private TestStepSequence mySteps;
 
 	private TestStepMetaExecutor myTestStepExecutor;
+	private ArrayList<String> myReturnParameters;
 
 	public CustomTestStepExecutor( String aCommand,
 	                               String aDescription,
@@ -29,6 +30,17 @@ public class CustomTestStepExecutor extends GenericCommandExecutor
 	                               ArrayList<SpecifiedParameter> aParameterSpecs,
 	                               TestStepSequence aSteps,
 	                               TestStepMetaExecutor aTestStepMetaExecutor )
+	{
+		this( aCommand, aDescription, anInterface, aParameterSpecs, aSteps, aTestStepMetaExecutor, new ArrayList<String>());
+	}
+
+	public CustomTestStepExecutor( String aCommand,
+								   String aDescription,
+								   CustomInterface anInterface,
+								   ArrayList<SpecifiedParameter> aParameterSpecs,
+								   TestStepSequence aSteps,
+								   TestStepMetaExecutor aTestStepMetaExecutor,
+								   ArrayList<String> aReturnParameters )
 	{
 		super(aCommand, anInterface, new ArrayList<SpecifiedParameter>());
 		for ( SpecifiedParameter parameterSpec : aParameterSpecs )
@@ -39,6 +51,8 @@ public class CustomTestStepExecutor extends GenericCommandExecutor
 		myDescription = aDescription;
 		mySteps = aSteps;
 		myTestStepExecutor = aTestStepMetaExecutor;
+		
+		myReturnParameters = aReturnParameters;
 	}
 
 	/**
@@ -74,20 +88,21 @@ public class CustomTestStepExecutor extends GenericCommandExecutor
 		return result;
 	}
 	
-	protected void doExecute( RunTimeData aVariables,
+	protected void doExecute( RunTimeData aParentVars,
 							  ParameterArrayList parameters,
 							  TestStepResult result,
 							  File aLogDir )
-			throws Exception {
+			throws Exception
+	{
 
-	    RunTimeData rtVars = new RunTimeData( aVariables );
+	    RunTimeData rtVars = new RunTimeData( aParentVars );
 		Iterator<TestStep> stepsItr = mySteps.iterator();
 		while(stepsItr.hasNext())
 		{
 		    TestStep step = stepsItr.next();
 		    for ( SpecifiedParameter parameterSpec : this.getParameters() )
 		    {
-		    	Object param = this.obtainValue(aVariables, parameters, parameterSpec);
+		    	Object param = this.obtainValue(aParentVars, parameters, parameterSpec);
 		    	if ( param == null )
 		    	{
 		    		param = parameterSpec.getDefaultValue();
@@ -99,6 +114,15 @@ public class CustomTestStepExecutor extends GenericCommandExecutor
 			TestStepResult tsResult = myTestStepExecutor.execute(step, new File( "" ), aLogDir, rtVars);
 			result.addSubStep(tsResult);
 		} 
+
+	    for ( String paramName : myReturnParameters )
+	    {
+	    	if ( ! rtVars.containsKey(paramName) )
+	    	{
+	    		throw new Error( "Return Parameter \"" + paramName + "\" is not set." );
+	    	}
+    		aParentVars.add( rtVars.get(paramName) );
+	    }
 	}
 
 	@Override

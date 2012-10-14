@@ -27,8 +27,10 @@ import org.xml.sax.XMLReader;
  * <CustomStep command="...">
  *  <description>...</description>
  *  <parameters>...</parameters>
+ *  <execute>
  *   ...
  *  </execute>
+ *  <return>...</return>
  * </CustomStep>
  */
 
@@ -39,15 +41,18 @@ public class CustomStepXmlHandler extends XmlHandler
 	private static final String	ATTR_COMMAND			= "command";
 	private static final String DESCRIPTION_ELEMENT 	= "description";
 	private static final String EXECUTE_ELEMENT 		= "execute";
+	private static final String RETURN_ELEMENT 			= "return";
 
 	private String myCommand;
 	private String myDescription;
     private TestStepSequence myExecutionSteps;
     private ArrayList<SpecifiedParameter> myParameterSpecs;
+    private ArrayList<String> myReturnParameters;
 
 	private GenericTagAndStringXmlHandler myDescriptionXmlHandler;
 	private TestStepSequenceXmlHandler myExecutionXmlHandler;
 	private ParameterSpecificationXmlHandler myParameterSpecXmlHandler;
+	private GenericTagAndStringXmlHandler myReturnXmlHandler;
 
 	private TestStepMetaExecutor myTestStepExecutor;
 
@@ -75,6 +80,9 @@ public class CustomStepXmlHandler extends XmlHandler
 		myParameterSpecXmlHandler = new ParameterSpecificationXmlHandler(anXmlReader);
 		this.addElementHandler(myParameterSpecXmlHandler);
 		
+		myReturnXmlHandler = new GenericTagAndStringXmlHandler(anXmlReader, RETURN_ELEMENT);
+		this.addElementHandler(myReturnXmlHandler);
+
 	    reset();
 	}
 
@@ -149,6 +157,13 @@ public class CustomStepXmlHandler extends XmlHandler
     		
 			myParameterSpecXmlHandler.reset();
     	}
+    	else if (aQualifiedName.equalsIgnoreCase(RETURN_ELEMENT))
+    	{
+    		String returnParameter = myReturnXmlHandler.getValue();
+    		myReturnParameters.add( returnParameter );
+
+    		myReturnXmlHandler.reset();
+    	}
 		else
     	{ // Programming fault
 			throw new Error( "Child XML Handler returned, but not recognized. The handler was probably defined " +
@@ -179,7 +194,8 @@ public class CustomStepXmlHandler extends XmlHandler
 		                                                                      anInterface,
 		                                                                      myParameterSpecs,
 		                                                                      myExecutionSteps,
-		                                                                      myTestStepExecutor );
+		                                                                      myTestStepExecutor,
+		                                                                      myReturnParameters );
 		
 		anInterface.add(testStepExecutor);
     }
@@ -190,5 +206,6 @@ public class CustomStepXmlHandler extends XmlHandler
 		myDescription = "";
 	    myExecutionSteps = new TestStepSequence();
 	    myParameterSpecs = new ArrayList<SpecifiedParameter>();
+	    myReturnParameters = new ArrayList<String>();
 	}
 }
