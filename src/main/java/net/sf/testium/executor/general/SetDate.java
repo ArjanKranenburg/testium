@@ -76,7 +76,7 @@ public class SetDate extends GenericCommandExecutor {
 		}
 
 		String dateString = dateFormatter.format( date );
-		result.setDisplayName( result.getDisplayName() + " " + dateString + " -> " + varName );
+		result.setDisplayName( result.getDisplayName() + " " + varName + "=\"" + dateString + "\"" );
 
 		RunTimeVariable dateVar = new RunTimeVariable(varName, dateString);
 		aVariables.add(dateVar);
