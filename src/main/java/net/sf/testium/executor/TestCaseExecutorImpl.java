@@ -124,13 +124,10 @@ public class TestCaseExecutorImpl implements TestCaseExecutor
 		    TestStep step = stepsItr.next();
 			TestStepResult tsResult = myTestStepExecutor.execute(step, aScriptDir, aLogDir, aRTData);
 			aResult.addInitialization(tsResult);
-System.out.println("Adding result of " + step.getId() + ": " + tsResult.getResult() );
 			aResult.setResult(tsResult.getResult());
-System.out.println("TC result now is " + aResult.getResult() );
 			if ( tsResult.getResult().equals(VERDICT.FAILED) )
 			{
 				aResult.setResult(VERDICT.ERROR);
-System.out.println("TC result now is (2) " + aResult.getResult() );
 				aResult.addComment( "Preparation failed: " + tsResult.getComment() );
 				return;
 			}
