@@ -45,6 +45,7 @@ public class TestCaseExecutorImpl implements TestCaseExecutor
 
 	public TestCaseResultLink execute(TestCaseLink aTestCaseLink, File aLogDir, RunTimeData aRTData)
 	{
+
 		if ( !aLogDir.isDirectory() )
 		{
 			FileNotFoundException exc = new FileNotFoundException("Directory does not exist: " + aLogDir.getAbsolutePath());

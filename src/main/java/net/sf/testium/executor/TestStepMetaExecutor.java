@@ -2,14 +2,18 @@ package net.sf.testium.executor;
 
 import java.io.File;
 import java.util.Hashtable;
+import java.util.Iterator;
 
 import net.sf.testium.systemundertest.SutInterface;
 
 import org.testtoolinterfaces.testresult.TestResult;
 import org.testtoolinterfaces.testresult.TestStepResult;
+import org.testtoolinterfaces.testresult.TestResult.VERDICT;
+import org.testtoolinterfaces.testresult.TestStepResultList;
 import org.testtoolinterfaces.testsuite.TestStep;
 import org.testtoolinterfaces.testsuite.TestStepScript;
 import org.testtoolinterfaces.testsuite.TestStepCommand;
+import org.testtoolinterfaces.testsuite.TestStepSelection;
 import org.testtoolinterfaces.testsuite.TestStepSequence;
 import org.testtoolinterfaces.testsuite.TestSuiteException;
 import org.testtoolinterfaces.utils.RunTimeData;
@@ -29,7 +33,7 @@ public class TestStepMetaExecutor
 
 		mySutInterfaces = new SupportedInterfaceList();
 		myScriptExecutors = new Hashtable<String, TestStepScriptExecutor>();
-		mySetExecutor = new TestStepSetExecutor();
+		mySetExecutor = new TestStepSetExecutor(this);
 	}
 
 	public TestStepResult execute(TestStep aStep, File aScriptDir, File aLogDir, RunTimeData aRTData)
@@ -49,6 +53,10 @@ public class TestStepMetaExecutor
 			return executeCommand(aStep, aRTData, aLogDir);
 		}//else
 
+		if ( aStep instanceof TestStepSelection ) {
+			return executeSelection( (TestStepSelection) aStep, aScriptDir, aLogDir, aRTData);
+		}//else
+		
 		throw new Error( "Don't know how to execute " + aStep.getClass().getSimpleName() );
 	}
 
@@ -114,6 +122,29 @@ public class TestStepMetaExecutor
 			}
 		}
 
+		return result;
+	}
+	
+	private TestStepResult executeSelection( TestStepSelection selectionStep, File aScriptDir, File aLogDir, RunTimeData aRTData ) {
+		TestStepResult result = new TestStepResult(selectionStep);
+
+		TestStep ifStep = selectionStep.getIfStep();
+		TestStepResult ifResult = this.execute(ifStep, aScriptDir, aLogDir, aRTData);
+
+		TestStepResultList subStepResults = new TestStepResultList();
+		if ( ifResult.getResult().equals(VERDICT.PASSED) ) {
+			TestStepSequence thenSteps = selectionStep.getThenSteps();
+			this.mySetExecutor.execute_alt(thenSteps, subStepResults, aScriptDir, aLogDir, aRTData);
+		} else {
+			TestStepSequence elseSteps = selectionStep.getElseSteps();
+			this.mySetExecutor.execute_alt(elseSteps, subStepResults, aScriptDir, aLogDir, aRTData);
+		}
+		
+		Iterator<TestStepResult> subResultItr = subStepResults.iterator();
+		while ( subResultItr.hasNext() ) {
+			result.addSubStep( subResultItr.next() );
+		}
+		
 		return result;
 	}
 

@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>net.sf.testium</groupId>
   <artifactId>testium</artifactId>
-  <version>0.3.12</version>
+  <version>0.3.13-SNAPSHOT</version>
   <name>Testium</name>
   <description>A flexible and plugin-able test execution framework.</description>
   <url>http://testium.sf.net/</url>
@@ -23,9 +23,9 @@
   </licenses>
 
   <scm>
-    <connection>scm:git:ssh://testium.git.sourceforge.net/gitroot/testium/testium</connection>
-    <developerConnection>scm:git:ssh://testium.git.sourceforge.net/gitroot/testium/testium</developerConnection>
-    <url>ssh://testium.git.sourceforge.net/gitroot/testium/testium</url>
+    <connection>scm:git:git@github.com:ArjanKranenburg/testium.git</connection>
+    <developerConnection>scm:git:git@github.com:ArjanKranenburg/testium.git</developerConnection>
+    <url>git@github.com:ArjanKranenburg/testium.git</url>
   </scm>
  
   <developers>
@@ -46,7 +46,7 @@
   	<dependency>
   	  <groupId>org.testtoolinterfaces</groupId>
   	  <artifactId>utils</artifactId>
-  	  <version>0.1.6</version>
+  	  <version>0.1.7</version>
   	</dependency>
   	<dependency>
   	  <groupId>org.testtoolinterfaces</groupId>
@@ -66,17 +66,17 @@
   	<dependency>
   	  <groupId>org.testtoolinterfaces</groupId>
   	  <artifactId>testresult</artifactId>
-  	  <version>0.3.6</version>
+  	  <version>0.3.7</version>
   	</dependency>
   	<dependency>
   	  <groupId>org.testtoolinterfaces</groupId>
   	  <artifactId>testsuiteinterface</artifactId>
-  	  <version>0.3.2</version>
+  	  <version>0.3.3</version>
   	</dependency>
   	<dependency>
   	  <groupId>org.testtoolinterfaces</groupId>
   	  <artifactId>testresultinterface</artifactId>
-  	  <version>0.3.6</version>
+  	  <version>0.3.7</version>
   	</dependency>
   </dependencies>
 
