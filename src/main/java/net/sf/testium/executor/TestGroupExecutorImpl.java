@@ -205,7 +205,20 @@ public class TestGroupExecutorImpl implements TestGroupExecutor
 					TestCaseLink tcLink = (TestCaseLink) entry;
 					try
 					{
-						tcLink.setLinkDir( aScriptDir );
+						String fileName = tcLink.getLink().getPath();
+						String updatedFileName = rtData.substituteVars(fileName);
+						File linkFile = new File(updatedFileName);
+						File linkDir = linkFile.getParentFile();
+						if ( linkDir != null ) {
+							if ( linkFile.isAbsolute() ) {
+								tcLink.setLinkDir( linkDir );
+							} else {
+								File newParentDir = new File( aScriptDir, linkDir.getPath() );
+								tcLink.setLinkDir( newParentDir );
+							}
+						} else {
+							tcLink.setLinkDir( aScriptDir );
+						}
 
 						TestCaseResultLink tcResult = myTestCaseExecutor.execute(tcLink, aLogDir, rtData);
 						tcResult.setExecutionPath( aResult.getExecutionPath() + "." + aResult.getId() );
