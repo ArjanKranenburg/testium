@@ -36,7 +36,7 @@ public class Wait extends GenericCommandExecutor
 			throws Exception
 	{
 		int time = (Integer) this.obtainValue(aVariables, parameters, PARSPEC_TIME);
-		result.setDisplayName( result.getDisplayName() + " " + time + "s" );
+		result.setDisplayName( this.toString() + " " + time + "s" );
 
 		long sleeptime = new Long(time * 1000);
 		try

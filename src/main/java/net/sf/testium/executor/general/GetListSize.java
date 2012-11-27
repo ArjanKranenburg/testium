@@ -56,6 +56,6 @@ public class GetListSize extends GenericCommandExecutor {
 		RunTimeVariable rtVariable = new RunTimeVariable( varName, size );
 		aVariables.add(rtVariable);
 
-		result.setDisplayName( result.getDisplayName() + " " + varName + " = " + size );
+		result.setDisplayName( this.toString() + " " + varName + " = " + size );
 	}
 }

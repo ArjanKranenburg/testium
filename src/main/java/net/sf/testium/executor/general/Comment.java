@@ -52,6 +52,6 @@ public class Comment extends GenericCommandExecutor {
 		{
 			System.out.println( comment );
 		}
-		result.setDisplayName( result.getDisplayName() + "\"" + comment + "\"" );
+		result.setDisplayName( this.toString() + "\"" + comment + "\"" );
 	}
 }

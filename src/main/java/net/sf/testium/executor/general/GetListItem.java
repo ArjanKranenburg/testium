@@ -57,7 +57,7 @@ public class GetListItem extends GenericCommandExecutor
 //		}
 
 		String listName = parameters.get(PAR_LIST).getName();
-		result.setDisplayName( result.getDisplayName() + " " + listName + " " + index + " -> " + outputName );
+		result.setDisplayName( this.toString() + " " + listName + " " + index + " -> " + outputName );
 
 		if ( list.size() <= index )
 		{

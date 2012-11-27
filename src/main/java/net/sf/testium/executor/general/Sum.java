@@ -56,7 +56,7 @@ public class Sum extends GenericCommandExecutor {
 
 		String varName = (String) obtainValue(aVariables, parameters, PARSPEC_RESULT);
 		int sum = int1 + int2;
-		result.setDisplayName( result.getDisplayName() + " " +  varName + " = " + int1 + " + " + int2 );
+		result.setDisplayName( this.toString() + " " +  varName + " = " + int1 + " + " + int2 );
 		
 		RunTimeVariable rtVariable = new RunTimeVariable( varName, sum );
 		aVariables.add(rtVariable);

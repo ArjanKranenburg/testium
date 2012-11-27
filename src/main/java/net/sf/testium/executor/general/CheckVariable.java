@@ -47,7 +47,7 @@ public class CheckVariable extends GenericCommandExecutor
 		String variableName = variablePar.getVariableName();
 		ParameterImpl valuePar = (ParameterImpl) parameters.get(PAR_VALUE);
 
-		result.setDisplayName( result.getDisplayName() + " " + variableName + " " + valuePar.getValue().toString() );
+		result.setDisplayName( this.toString() + " " + variableName + " " + valuePar.getValue().toString() );
 		RunTimeVariable rtVariable = aVariables.get( variableName );
 		if ( rtVariable == null )
 		{

@@ -48,7 +48,7 @@ public class SetVariable extends GenericCommandExecutor
 //			throw new TestSuiteException("No class \"" + valueType + "\" known for variable \"" + variableName + "\"" );
 //		}
 		
-		result.setDisplayName( result.getDisplayName() + " " + variableName + "=\"" + valueString + "\"" );
+		result.setDisplayName( this.toString() + " " + variableName + "=\"" + valueString + "\"" );
 //		RunTimeVariable rtVariable = new RunTimeVariable( variableName, type, valueString );
 		RunTimeVariable rtVariable = new RunTimeVariable( variableName, valueString );
 		aVariables.add(rtVariable);

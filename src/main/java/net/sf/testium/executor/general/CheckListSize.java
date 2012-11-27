@@ -42,7 +42,7 @@ public class CheckListSize extends GenericCommandExecutor
 		int expectedSize = (Integer) this.obtainValue(aVariables, parameters, PARSPEC_SIZE);
 
 		String listName = parameters.get(PAR_LIST).getName();
-		result.setDisplayName( result.getDisplayName() + " " + listName + " " + expectedSize );
+		result.setDisplayName( this.toString() + " " + listName + " " + expectedSize );
 
 		if ( list.size() != expectedSize )
 		{

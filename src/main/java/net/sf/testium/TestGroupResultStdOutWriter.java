@@ -82,7 +82,7 @@ public class TestGroupResultStdOutWriter implements TestGroupResultWriter
 		Hashtable<Integer, TestStepResult> prepareResults = aTestGroupResult.getPrepareResults();
     	for (int key = 0; key < prepareResults.size(); key++)
     	{
-    		String tsId = prepareResults.get(key).getDisplayName();
+    		String tsId = prepareResults.get(key).getId();
     		if ( ! myPrintedPrepares.get(tgLongId).contains(tsId) )
     		{
     			myTsResultWriter.print(prepareResults.get(key));
@@ -119,7 +119,7 @@ public class TestGroupResultStdOutWriter implements TestGroupResultWriter
 		Hashtable<Integer, TestStepResult> restoreResults = aTestGroupResult.getRestoreResults();
     	for (int key = 0; key < restoreResults.size(); key++)
     	{
-    		String tsId = restoreResults.get(key).getDisplayName();
+    		String tsId = restoreResults.get(key).getId();
     		if ( ! myPrintedRestores.get(tgLongId).contains(tsId) )
     		{
     			myTsResultWriter.print(restoreResults.get(key));
