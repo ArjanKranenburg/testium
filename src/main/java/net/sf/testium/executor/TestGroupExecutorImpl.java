@@ -20,6 +20,7 @@ import org.testtoolinterfaces.testsuite.TestEntrySequence;
 import org.testtoolinterfaces.testsuite.TestGroup;
 import org.testtoolinterfaces.testsuite.TestGroupImpl;
 import org.testtoolinterfaces.testsuite.TestGroupLink;
+import org.testtoolinterfaces.testsuite.TestLinkImpl;
 import org.testtoolinterfaces.testsuite.TestStep;
 import org.testtoolinterfaces.testsuite.TestStepSequence;
 import org.testtoolinterfaces.testsuiteinterface.TestGroupReader;
@@ -163,7 +164,14 @@ public class TestGroupExecutorImpl implements TestGroupExecutor
 					TestGroupLink tgLink = (TestGroupLink) entry;
 					try
 					{
-						tgLink.setLinkDir( aScriptDir );
+						String fileName = tgLink.getLink().getPath();
+						String updatedFileName = rtData.substituteVars(fileName);
+						if ( ! fileName.equals(updatedFileName) ) {
+							TestLinkImpl newLink = new TestLinkImpl( updatedFileName, tgLink.getLinkType() );
+							tgLink.setLink(newLink);
+						} else {
+							tgLink.setLinkDir( aScriptDir );
+						}
 
 						myTestGroupExecutor.execute(tgLink, aLogDir, aResult, rtData );
 						
@@ -207,15 +215,9 @@ public class TestGroupExecutorImpl implements TestGroupExecutor
 					{
 						String fileName = tcLink.getLink().getPath();
 						String updatedFileName = rtData.substituteVars(fileName);
-						File linkFile = new File(updatedFileName);
-						File linkDir = linkFile.getParentFile();
-						if ( linkDir != null ) {
-							if ( linkFile.isAbsolute() ) {
-								tcLink.setLinkDir( linkDir );
-							} else {
-								File newParentDir = new File( aScriptDir, linkDir.getPath() );
-								tcLink.setLinkDir( newParentDir );
-							}
+						if ( ! fileName.equals(updatedFileName) ) {
+							TestLinkImpl newLink = new TestLinkImpl( updatedFileName, tcLink.getLinkType() );
+							tcLink.setLink(newLink);
 						} else {
 							tcLink.setLinkDir( aScriptDir );
 						}
