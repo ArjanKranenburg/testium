@@ -18,8 +18,8 @@ public class CheckVariable extends GenericCommandExecutor
 {
 	private static final String COMMAND = "checkVariable";
 	
-	private static final String PAR_VARIABLE = "VARIABLE";
-	private static final String PAR_VALUE = "VALUE";
+	private static final String PAR_VARIABLE = "variable";
+	private static final String PAR_VALUE = "value";
 
 	private static final SpecifiedParameter PARSPEC_VARIABLE = new SpecifiedParameter( 
 			PAR_VARIABLE, String.class, false, false, true, false );

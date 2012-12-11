@@ -17,7 +17,7 @@ public class Wait extends GenericCommandExecutor
 {
 	private static final String COMMAND = "wait";
 
-	private static final String PAR_TIME = "TIME";
+	private static final String PAR_TIME = "time";
 	
 	private static final SpecifiedParameter PARSPEC_TIME = new SpecifiedParameter (
 			PAR_TIME, Integer.class, false, true, false, false );
