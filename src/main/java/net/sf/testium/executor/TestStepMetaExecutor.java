@@ -129,10 +129,12 @@ public class TestStepMetaExecutor
 		TestStepResult result = new TestStepResult(selectionStep);
 
 		TestStep ifStep = selectionStep.getIfStep();
+		boolean negator = selectionStep.getNegator();
 		TestStepResult ifResult = this.execute(ifStep, aScriptDir, aLogDir, aRTData);
 
 		TestStepResultList subStepResults = new TestStepResultList();
-		if ( ifResult.getResult().equals(VERDICT.PASSED) ) {
+// TODO: If error or unknown, we break!
+		if ( ifResult.getResult().equals( negator ? VERDICT.FAILED : VERDICT.PASSED) ) {
 			TestStepSequence thenSteps = selectionStep.getThenSteps();
 			this.mySetExecutor.execute_alt(thenSteps, subStepResults, aScriptDir, aLogDir, aRTData);
 		} else {
