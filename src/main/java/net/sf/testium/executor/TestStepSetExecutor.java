@@ -3,13 +3,10 @@ package net.sf.testium.executor;
 import java.io.File;
 import java.util.Iterator;
 
-import org.testtoolinterfaces.testresult.TestResult;
-import org.testtoolinterfaces.testresult.TestStepResult;
 import org.testtoolinterfaces.testresult.TestResult.VERDICT;
+import org.testtoolinterfaces.testresult.TestStepResult;
 import org.testtoolinterfaces.testresult.TestStepResultList;
-import org.testtoolinterfaces.testsuite.ParameterArrayList;
 import org.testtoolinterfaces.testsuite.TestStep;
-import org.testtoolinterfaces.testsuite.TestStepCommand;
 import org.testtoolinterfaces.testsuite.TestStepSequence;
 import org.testtoolinterfaces.utils.RunTimeData;
 
@@ -21,20 +18,7 @@ public class TestStepSetExecutor
 		myTestStepExecutor = testStepExecutor;
 	}
 
-	public TestStepResult execute(TestStep aStep, File aScriptDir, File aLogDir)
-	{
-		TestStepCommand testStep = new TestStepCommand( aStep.getSequenceNr(),
-		                                              "",
-		                                              "set",
-		                                              null, //TestInterface. TODO this will probably give an NPE
-		                                              new ParameterArrayList() );
-		TestStepResult result = new TestStepResult( testStep );
-		result.setResult(TestResult.UNKNOWN);
-		
-		return result;
-	}
-	
-	public void execute_alt( TestStepSequence steps,
+	public void execute( TestStepSequence steps,
 			TestStepResultList stepResultSet,
             File aScriptDir,
             File aLogDir,

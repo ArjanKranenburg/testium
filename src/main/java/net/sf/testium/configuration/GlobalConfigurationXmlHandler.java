@@ -29,7 +29,7 @@ import org.xml.sax.XMLReader;
  *    <TestFile>...</TestFile>
  *    <ExitCodeOnFailures>...</ExitCodeOnFailures>
  *    <ExitCodeOnErrors>...</ExitCodeOnErrors>
- *    <Interfaces>...</Interfaces>
+// *    <Interfaces>...</Interfaces>
  *  ...
  *  </GlobalConfiguration>
  * 
@@ -81,6 +81,8 @@ public class GlobalConfigurationXmlHandler extends XmlHandler
 	    this.addElementHandler(new GenericTagAndStringXmlHandler(anXmlReader, CFG_TRACE_CLASS));
 	    this.addElementHandler(new GenericTagAndStringXmlHandler(anXmlReader, CFG_TRACE_LEVEL));
 	    this.addElementHandler(new GenericTagAndStringXmlHandler(anXmlReader, CFG_TRACE_DEPTH));
+	    
+//	    this.addElementHandler(new InterfacesXmlHandler(anXmlReader, aRtData, null, null));
 	    
 	    // Set default values
 		myRunTimeData.add( new RunTimeVariable(Testium.EXITCODEONFAILURES, new Integer(0)) );

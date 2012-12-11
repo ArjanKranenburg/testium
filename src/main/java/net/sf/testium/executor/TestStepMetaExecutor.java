@@ -38,19 +38,21 @@ public class TestStepMetaExecutor
 
 	public TestStepResult execute(TestStep aStep, File aScriptDir, File aLogDir, RunTimeData aRTData)
 	{
-		if ( aStep.getClass().equals(TestStepSequence.class) )
-		{
-			return mySetExecutor.execute(aStep, aScriptDir, aLogDir);
-		}// else
+//		if ( aStep.getClass().equals(TestStepSequence.class) )
+//		{
+////			return mySetExecutor.execute(aStep, aScriptDir, aLogDir);
+//			TestStepResultList subStepResults = new TestStepResultList();
+//			return mySetExecutor.execute_alt(aStep, subStepResults, aScriptDir, aLogDir, aRTData);
+//		}// else
 		
-		if ( aStep.getClass().equals(TestStepScript.class) )
+		if ( aStep instanceof TestStepScript )
 		{
-			return executeScript(aStep, aScriptDir, aLogDir);
+			return executeScript( (TestStepScript) aStep, aScriptDir, aLogDir);
 		}//else
 
-		if ( aStep.getClass().equals(TestStepCommand.class) )
+		if ( aStep instanceof TestStepCommand )
 		{
-			return executeCommand(aStep, aRTData, aLogDir);
+			return executeCommand( (TestStepCommand) aStep, aRTData, aLogDir);
 		}//else
 
 		if ( aStep instanceof TestStepSelection ) {
@@ -61,29 +63,28 @@ public class TestStepMetaExecutor
 	}
 
 	/**
-	 * @param aStep
+	 * @param aStepScript
 	 * @param aScriptDir
 	 * @param aLogDir
 	 * @return
 	 */
-	private TestStepResult executeScript( TestStep aStep,
+	private TestStepResult executeScript( TestStepScript aStepScript,
 	                                      File aScriptDir,
 	                                      File aLogDir )
 	{
 		TestStepResult result;
-		TestStepScript step = (TestStepScript) aStep;
 
-		if ( myScriptExecutors.containsKey( step.getScriptType() ) )
+		if ( myScriptExecutors.containsKey( aStepScript.getScriptType() ) )
 		{
-			TestStepScriptExecutor executor = myScriptExecutors.get( step.getScriptType() );
-			result = executor.execute(step, aScriptDir, aLogDir);
+			TestStepScriptExecutor executor = myScriptExecutors.get( aStepScript.getScriptType() );
+			result = executor.execute(aStepScript, aScriptDir, aLogDir);
 		}
 		else
 		{
-			String message = "Cannot execute step scripts of type '" + step.getScriptType() + "'\n"
+			String message = "Cannot execute step scripts of type '" + aStepScript.getScriptType() + "'\n"
 			+ "Trying to continue, but this may affect further execution...";
 
-			result = reportError(step, message);
+			result = reportError(aStepScript, message);
 		}
 		return result;
 	}
@@ -93,32 +94,31 @@ public class TestStepMetaExecutor
 	 * @param aLogDir
 	 * @return
 	 */
-	private TestStepResult executeCommand( TestStep aStep,
+	private TestStepResult executeCommand( TestStepCommand aStepCommand,
 	                                       RunTimeData aRtData,
 	                                       File aLogDir )
 	{
 		TestStepResult result;
-		TestStepCommand step = (TestStepCommand) aStep;
-		String command = step.getCommand();
+		String command = aStepCommand.getCommand();
 
-		String errorMsg = "Cannot execute steps with command '" + step.getCommand() + "'\n";
+		String errorMsg = "Cannot execute steps with command '" + aStepCommand.getCommand() + "'\n";
 
-		SutInterface iface = (SutInterface) step.getInterface();
+		SutInterface iface = (SutInterface) aStepCommand.getInterface();
 		if ( iface == null || ! iface.hasCommand(command) )
 		{
-			result = reportError(step, errorMsg);
+			result = reportError(aStepCommand, errorMsg);
 		}
 		else
 		{
 			TestStepCommandExecutor executor = iface.getCommandExecutor(command);
 			try
 			{
-				result = executor.execute(step, aRtData, aLogDir);
+				result = executor.execute(aStepCommand, aRtData, aLogDir);
 			}
 			catch (TestSuiteException tse)
 			{
 				String message = errorMsg + tse.getMessage();
-				result = reportError(step, message);
+				result = reportError(aStepCommand, message);
 			}
 		}
 
@@ -133,20 +133,70 @@ public class TestStepMetaExecutor
 		TestStepResult ifResult = this.execute(ifStep, aScriptDir, aLogDir, aRTData);
 
 		TestStepResultList subStepResults = new TestStepResultList();
-// TODO: If error or unknown, we break!
-		if ( ifResult.getResult().equals( negator ? VERDICT.FAILED : VERDICT.PASSED) ) {
-			TestStepSequence thenSteps = selectionStep.getThenSteps();
-			this.mySetExecutor.execute_alt(thenSteps, subStepResults, aScriptDir, aLogDir, aRTData);
+		if ( ifResult.getResult().equals(VERDICT.ERROR)
+			 || ifResult.getResult().equals(VERDICT.UNKNOWN) ) {
+			 // NOP, we don't execute the then or else!
+			
 		} else {
-			TestStepSequence elseSteps = selectionStep.getElseSteps();
-			this.mySetExecutor.execute_alt(elseSteps, subStepResults, aScriptDir, aLogDir, aRTData);
+			if ( ifResult.getResult().equals( negator ? VERDICT.FAILED : VERDICT.PASSED) ) {
+				TestStepSequence thenSteps = selectionStep.getThenSteps();
+				this.mySetExecutor.execute(thenSteps, subStepResults, aScriptDir, aLogDir, aRTData);
+
+			} else {
+				TestStepSequence elseSteps = selectionStep.getElseSteps();
+				this.mySetExecutor.execute(elseSteps, subStepResults, aScriptDir, aLogDir, aRTData);
+			}
+
+			VERDICT origVerdict = ifResult.getResult();
+			String origComment = ifResult.getComment();
+			ifResult = cloneResultWithoutVerdict(ifStep, ifResult);
+			ifResult.setResult( VERDICT.PASSED );
+			
+			String comment = "";
+			if (origVerdict.equals(VERDICT.FAILED)){
+				comment = "Result set to passed. ";
+			}
+			if ( ! origComment.isEmpty() ) {
+				comment += "Comment was: " + origComment;
+			}
+			
+			ifResult.setComment(comment);
 		}
-		
+
+		result.addSubStep( ifResult );
+
 		Iterator<TestStepResult> subResultItr = subStepResults.iterator();
 		while ( subResultItr.hasNext() ) {
 			result.addSubStep( subResultItr.next() );
 		}
 		
+		return result;
+	}
+
+	/**
+	 * @param ifStep
+	 * @param ifOriginalResult
+	 * @return
+	 */
+	private TestStepResult cloneResultWithoutVerdict( TestStep ifStep,
+													  TestStepResult originalIfResult) {
+		TestStepResult result = new TestStepResult(ifStep);
+		result.addComment( originalIfResult.getComment() );
+		result.setDisplayName( originalIfResult.getDisplayName() );
+		result.setParameterResults(originalIfResult.getParameterResults());
+		
+		Iterator<TestStepResult> subResultItr = originalIfResult.getSubSteps().iterator();
+		while ( subResultItr.hasNext() ) {
+			result.addSubStep( subResultItr.next() );
+		}
+
+		Hashtable<String, String> logs = originalIfResult.getLogs();
+		Iterator<String> logKeys = logs.keySet().iterator();
+		while ( logKeys.hasNext() ) {
+			String key = logKeys.next();
+			result.addTestLog( key, logs.get(key) );
+		}
+
 		return result;
 	}
 

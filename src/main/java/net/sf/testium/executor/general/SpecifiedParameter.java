@@ -26,7 +26,16 @@ public class SpecifiedParameter
 		myValue = value;
 		myVariable = variable;
 		myEmpty = empty;
-		myDefaultValue = null;
+		
+		if (myType.equals( String.class )) {
+			myDefaultValue = new String();
+		} else if (myType.equals( Boolean.class )) {
+			myDefaultValue = new Boolean( false );
+		} else if (myType.equals( Integer.class )) {
+			myDefaultValue = new Integer( 0 );
+		} else {
+			myDefaultValue = null;
+		}
 	}
 
 	/**
