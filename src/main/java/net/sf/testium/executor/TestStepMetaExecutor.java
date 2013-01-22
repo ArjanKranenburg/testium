@@ -10,6 +10,7 @@ import org.testtoolinterfaces.testresult.TestResult;
 import org.testtoolinterfaces.testresult.TestStepResult;
 import org.testtoolinterfaces.testresult.TestResult.VERDICT;
 import org.testtoolinterfaces.testresult.TestStepResultList;
+import org.testtoolinterfaces.testresult.TestStepSelectionResult;
 import org.testtoolinterfaces.testsuite.TestStep;
 import org.testtoolinterfaces.testsuite.TestStepScript;
 import org.testtoolinterfaces.testsuite.TestStepCommand;
@@ -126,41 +127,33 @@ public class TestStepMetaExecutor
 	}
 	
 	private TestStepResult executeSelection( TestStepSelection selectionStep, File aScriptDir, File aLogDir, RunTimeData aRTData ) {
-		TestStepResult result = new TestStepResult(selectionStep);
+		TestStepSelectionResult result = new TestStepSelectionResult(selectionStep);
 
 		TestStep ifStep = selectionStep.getIfStep();
 		boolean negator = selectionStep.getNegator();
 		TestStepResult ifResult = this.execute(ifStep, aScriptDir, aLogDir, aRTData);
 
+		result.setIfStepResult(ifResult);
+		
 		TestStepResultList subStepResults = new TestStepResultList();
 		if ( ifResult.getResult().equals(VERDICT.ERROR)
 			 || ifResult.getResult().equals(VERDICT.UNKNOWN) ) {
 			 // NOP, we don't execute the then or else!
 			
 		} else {
+			String comment = "If-step evaluated to " + ifResult.getResult();
 			if ( ifResult.getResult().equals( negator ? VERDICT.FAILED : VERDICT.PASSED) ) {
+				comment += ". Then-steps executed.";
 				TestStepSequence thenSteps = selectionStep.getThenSteps();
 				this.mySetExecutor.execute(thenSteps, subStepResults, aScriptDir, aLogDir, aRTData);
 
 			} else {
+				comment += ". Else-steps executed.";
 				TestStepSequence elseSteps = selectionStep.getElseSteps();
 				this.mySetExecutor.execute(elseSteps, subStepResults, aScriptDir, aLogDir, aRTData);
 			}
 
-			VERDICT origVerdict = ifResult.getResult();
-			String origComment = ifResult.getComment();
-			ifResult = cloneResultWithoutVerdict(ifStep, ifResult);
-			ifResult.setResult( VERDICT.PASSED );
-			
-			String comment = "";
-			if (origVerdict.equals(VERDICT.FAILED)){
-				comment = "Result set to passed. ";
-			}
-			if ( ! origComment.isEmpty() ) {
-				comment += "Comment was: " + origComment;
-			}
-			
-			ifResult.setComment(comment);
+			result.setComment(comment);
 		}
 
 		result.addSubStep( ifResult );
@@ -170,33 +163,6 @@ public class TestStepMetaExecutor
 			result.addSubStep( subResultItr.next() );
 		}
 		
-		return result;
-	}
-
-	/**
-	 * @param ifStep
-	 * @param ifOriginalResult
-	 * @return
-	 */
-	private TestStepResult cloneResultWithoutVerdict( TestStep ifStep,
-													  TestStepResult originalIfResult) {
-		TestStepResult result = new TestStepResult(ifStep);
-		result.addComment( originalIfResult.getComment() );
-		result.setDisplayName( originalIfResult.getDisplayName() );
-		result.setParameterResults(originalIfResult.getParameterResults());
-		
-		Iterator<TestStepResult> subResultItr = originalIfResult.getSubSteps().iterator();
-		while ( subResultItr.hasNext() ) {
-			result.addSubStep( subResultItr.next() );
-		}
-
-		Hashtable<String, String> logs = originalIfResult.getLogs();
-		Iterator<String> logKeys = logs.keySet().iterator();
-		while ( logKeys.hasNext() ) {
-			String key = logKeys.next();
-			result.addTestLog( key, logs.get(key) );
-		}
-
 		return result;
 	}
 
