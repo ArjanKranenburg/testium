@@ -156,7 +156,7 @@ public class TestStepMetaExecutor
 			result.setComment(comment);
 		}
 
-		result.addSubStep( ifResult );
+//		result.addSubStep( ifResult );
 
 		Iterator<TestStepResult> subResultItr = subStepResults.iterator();
 		while ( subResultItr.hasNext() ) {
