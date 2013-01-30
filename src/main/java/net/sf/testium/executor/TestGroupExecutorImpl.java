@@ -3,6 +3,7 @@ package net.sf.testium.executor;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOError;
+import java.util.ArrayList;
 import java.util.Iterator;
 
 import org.testtoolinterfaces.testresult.TestCaseResult;
@@ -16,6 +17,7 @@ import org.testtoolinterfaces.testsuite.TestCase;
 import org.testtoolinterfaces.testsuite.TestCaseImpl;
 import org.testtoolinterfaces.testsuite.TestCaseLink;
 import org.testtoolinterfaces.testsuite.TestEntry;
+import org.testtoolinterfaces.testsuite.TestEntryIteration;
 import org.testtoolinterfaces.testsuite.TestEntrySequence;
 import org.testtoolinterfaces.testsuite.TestGroup;
 import org.testtoolinterfaces.testsuite.TestGroupImpl;
@@ -25,6 +27,7 @@ import org.testtoolinterfaces.testsuite.TestStep;
 import org.testtoolinterfaces.testsuite.TestStepSequence;
 import org.testtoolinterfaces.testsuiteinterface.TestGroupReader;
 import org.testtoolinterfaces.utils.RunTimeData;
+import org.testtoolinterfaces.utils.RunTimeVariable;
 import org.testtoolinterfaces.utils.Trace;
 import org.testtoolinterfaces.utils.Trace.LEVEL;
 import org.testtoolinterfaces.utils.Warning;
@@ -139,6 +142,7 @@ public class TestGroupExecutorImpl implements TestGroupExecutor
     	}
 	}
 
+	@SuppressWarnings("unchecked")
 	public void executeExecSteps( TestEntrySequence anExecEntries,
 	                              TestGroupResult aResult,
 	                              File aScriptDir,
@@ -250,6 +254,39 @@ public class TestGroupExecutorImpl implements TestGroupExecutor
 //
 //				    	TestCaseResultLink tcResultLink = new TestCaseResultLink( tcLink, VERDICT.ERROR, logFile );
 //						aResult.addTestCase(tcResultLink);
+					}
+				}
+				else if ( entry.getType() == TestEntry.TYPE.Step )
+				{
+					if (entry instanceof TestEntryIteration) {
+						TestEntryIteration entryIteration = (TestEntryIteration) entry;
+						String listName = entryIteration.getListName();
+						String listElement = entryIteration.getItemName();
+						ArrayList<Object> list = aRTData.getValueAs(ArrayList.class, listName);
+						
+						Iterator<Object> listItr = list.iterator();
+						while (listItr.hasNext() ) {
+							Object element = listItr.next();
+							RunTimeVariable rtVariable = new RunTimeVariable( listElement, element );
+
+							rtData.add(rtVariable);
+							TestEntrySequence doSteps = new TestEntrySequence( entryIteration.getSequence() );
+// TODO result, (scriptDir,) & logDir
+//							this.executeExecSteps(doSteps, aResult, aScriptDir, aLogDir, rtData);
+							Iterator<TestEntry> stepsItr = doSteps.iterator();
+							while(stepsItr.hasNext())
+							{
+								TestEntry subEntry = stepsItr.next();
+								if (subEntry instanceof TestStep) {
+									TestStep step = (TestStep) subEntry;
+									TestStepResult tsResult = myTestStepExecutor.execute(step, aScriptDir, aLogDir, rtData);
+									tsResult.setExecutionPath( aResult.getExecutionPath() + "." + aResult.getId() );
+									aResult.addRestore(tsResult);
+								}
+					    	}
+						}
+					} else {
+						throw new InvalidTestTypeException( entry.getType().toString(), "Only steps of  " + entry.getType() );
 					}
 				}
 				else

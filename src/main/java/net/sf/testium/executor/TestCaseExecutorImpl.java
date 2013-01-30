@@ -76,9 +76,7 @@ public class TestCaseExecutorImpl implements TestCaseExecutor
 	                                     new ArrayList<String>(),
 	                                     new TestStepSequence(),
 	                                     new TestStepSequence(),
-	                                     new TestStepSequence(),
-	                                     new Hashtable<String, String>(),
-	                                     new Hashtable<String, String>() );
+	                                     new TestStepSequence() );
 			
 			result = new TestCaseResult( testCase );
     		result.addComment( e.getLocalizedMessage() );

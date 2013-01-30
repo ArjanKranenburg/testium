@@ -88,9 +88,7 @@ public abstract class TestCaseAbstractExecutor implements TestCaseExecutor
 		                                      requirements,
 		                                      new TestStepSequence(),
 		                                      new TestStepSequence(),
-		                                      new TestStepSequence(),
-		                                      new Hashtable<String, String>(),
-		                                      new Hashtable<String, String>());
+		                                      new TestStepSequence());
 		TestCaseResult result = new TestCaseResult( testCase );
     	myTestCaseResultWriter.write( result, resultFile );
 

@@ -29,6 +29,7 @@ public class DefaultInterface extends CustomInterface
 		add(new GetListSize(this));
 		add(new PrintVars( this ));
 		add(new SetDate( this));
+		add(new SetList( this));
 		add(new SetVariable( this));
 		add(new Sum(this));
 		add(new Substract(this));
