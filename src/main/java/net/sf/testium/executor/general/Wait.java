@@ -20,7 +20,7 @@ public class Wait extends GenericCommandExecutor
 	private static final String PAR_TIME = "time";
 	
 	private static final SpecifiedParameter PARSPEC_TIME = new SpecifiedParameter (
-			PAR_TIME, Integer.class, false, true, false, false );
+			PAR_TIME, Integer.class, false, true, true, false );
 
 
 	public Wait(SutInterface anInterface)
