@@ -17,9 +17,10 @@ import org.testtoolinterfaces.testsuite.TestCase;
 import org.testtoolinterfaces.testsuite.TestCaseImpl;
 import org.testtoolinterfaces.testsuite.TestCaseLink;
 import org.testtoolinterfaces.testsuite.TestEntry;
-import org.testtoolinterfaces.testsuite.TestEntryIteration;
-import org.testtoolinterfaces.testsuite.TestEntrySequence;
 import org.testtoolinterfaces.testsuite.TestGroup;
+import org.testtoolinterfaces.testsuite.TestGroupEntry;
+import org.testtoolinterfaces.testsuite.TestGroupEntryIteration;
+import org.testtoolinterfaces.testsuite.TestGroupEntrySequence;
 import org.testtoolinterfaces.testsuite.TestGroupImpl;
 import org.testtoolinterfaces.testsuite.TestGroupLink;
 import org.testtoolinterfaces.testsuite.TestLinkImpl;
@@ -113,7 +114,7 @@ public class TestGroupExecutorImpl implements TestGroupExecutor
     	TestStepSequence prepareSteps = aTestGroup.getPrepareSteps();
     	executePrepareSteps(prepareSteps, aTestGroupResult, aScriptDir, aLogDir, aRTData);
 
-    	TestEntrySequence execSteps = aTestGroup.getExecutionEntries();
+    	TestGroupEntrySequence execSteps = aTestGroup.getExecutionEntries();
 		executeExecSteps(execSteps, aTestGroupResult, aScriptDir, aLogDir, aRTData);
 
     	TestStepSequence restoreSteps = aTestGroup.getRestoreSteps();
@@ -143,7 +144,7 @@ public class TestGroupExecutorImpl implements TestGroupExecutor
 	}
 
 	@SuppressWarnings("unchecked")
-	public void executeExecSteps( TestEntrySequence anExecEntries,
+	public void executeExecSteps( TestGroupEntrySequence anExecEntries,
 	                              TestGroupResult aResult,
 	                              File aScriptDir,
 	                              File aLogDir,
@@ -156,10 +157,10 @@ public class TestGroupExecutorImpl implements TestGroupExecutor
 			            + aLogDir.getPath() + ", "
 						+ aRTData.size() + " Variables )", true );
 
-		Iterator<TestEntry> entriesItr = anExecEntries.iterator();
+		Iterator<TestGroupEntry> entriesItr = anExecEntries.iterator();
 		while(entriesItr.hasNext())
 		{
-			TestEntry entry = entriesItr.next();
+			TestGroupEntry entry = entriesItr.next();
 			RunTimeData rtData = new RunTimeData( aRTData );
 			try
 			{
@@ -189,7 +190,7 @@ public class TestGroupExecutorImpl implements TestGroupExecutor
 														  tgLink.getDescription(),
 														  tgLink.getSequenceNr(),
 														  new TestStepSequence(),
-														  new TestEntrySequence(),
+														  new TestGroupEntrySequence(),
 														  new TestStepSequence() );
 						
 						TestGroupResult tgResult = new TestGroupResult( tg );
@@ -203,6 +204,7 @@ public class TestGroupExecutorImpl implements TestGroupExecutor
 				    	myTestGroupResultWriter.write( tgResult, logFile );
 
 				    	TestGroupResultLink tgResultLink = new TestGroupResultLink( tgLink, logFile );
+				    	tgResultLink.setSummary( tgResult.getSummary() );
 						tgResult.register(tgResultLink);
 						aResult.addTestGroup(tgResultLink);
 					}
@@ -256,37 +258,48 @@ public class TestGroupExecutorImpl implements TestGroupExecutor
 //						aResult.addTestCase(tcResultLink);
 					}
 				}
-				else if ( entry.getType() == TestEntry.TYPE.Step )
+				else if ( entry.getType() == TestEntry.TYPE.Group )
 				{
-					if (entry instanceof TestEntryIteration) {
-						TestEntryIteration entryIteration = (TestEntryIteration) entry;
+					if (entry instanceof TestGroupEntryIteration) {
+						TestGroupEntryIteration entryIteration = (TestGroupEntryIteration) entry;
 						String listName = entryIteration.getListName();
 						String listElement = entryIteration.getItemName();
 						ArrayList<Object> list = aRTData.getValueAs(ArrayList.class, listName);
-						
+
+						TestGroupEntrySequence doSteps = new TestGroupEntrySequence( entryIteration.getSequence() );
+
 						Iterator<Object> listItr = list.iterator();
+						int seqNr = entry.getSequenceNr();
 						while (listItr.hasNext() ) {
 							Object element = listItr.next();
-							RunTimeVariable rtVariable = new RunTimeVariable( listElement, element );
+							String tgId = entry.getId() + "_" + element.toString();
 
-							rtData.add(rtVariable);
-							TestEntrySequence doSteps = new TestEntrySequence( entryIteration.getSequence() );
-// TODO result, (scriptDir,) & logDir
-//							this.executeExecSteps(doSteps, aResult, aScriptDir, aLogDir, rtData);
-							Iterator<TestEntry> stepsItr = doSteps.iterator();
-							while(stepsItr.hasNext())
-							{
-								TestEntry subEntry = stepsItr.next();
-								if (subEntry instanceof TestStep) {
-									TestStep step = (TestStep) subEntry;
-									TestStepResult tsResult = myTestStepExecutor.execute(step, aScriptDir, aLogDir, rtData);
-									tsResult.setExecutionPath( aResult.getExecutionPath() + "." + aResult.getId() );
-									aResult.addRestore(tsResult);
-								}
-					    	}
+							TestGroup tg = new TestGroupImpl(tgId, seqNr,
+									new TestStepSequence(), doSteps, new TestStepSequence());
+							TestGroupResult groupResult = new TestGroupResult( tg );
+
+							RunTimeVariable rtVariable = new RunTimeVariable( listElement, element );
+	
+							RunTimeData subRtData = new RunTimeData( rtData );
+							subRtData.add(rtVariable);
+
+							File logDir = new File (aLogDir, tgId );
+							logDir.mkdir();
+
+							this.executeExecSteps(doSteps, groupResult, aScriptDir, logDir, subRtData);
+
+							File logFile = new File( logDir, tgId + "_log.xml" );
+					    	myTestGroupResultWriter.write( groupResult, logFile );
+					    	
+					    	TestGroupLink tgLink = new TestGroupLink(tgId, seqNr, logFile.getName());
+
+					    	TestGroupResultLink tgResultLink = new TestGroupResultLink( tgLink, logFile );
+					    	tgResultLink.setSummary( groupResult.getSummary() );
+					    	groupResult.register(tgResultLink);
+							aResult.addTestGroup(tgResultLink);
 						}
 					} else {
-						throw new InvalidTestTypeException( entry.getType().toString(), "Only steps of  " + entry.getType() );
+						throw new InvalidTestTypeException( entry.getType().toString(), "Only foreach groups are allowed:  " + entry.getId() );
 					}
 				}
 				else

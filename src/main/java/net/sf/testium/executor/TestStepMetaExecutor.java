@@ -1,6 +1,7 @@
 package net.sf.testium.executor;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Iterator;
 
@@ -11,13 +12,18 @@ import org.testtoolinterfaces.testresult.TestStepResult;
 import org.testtoolinterfaces.testresult.TestResult.VERDICT;
 import org.testtoolinterfaces.testresult.TestStepResultList;
 import org.testtoolinterfaces.testresult.TestStepSelectionResult;
+import org.testtoolinterfaces.testsuite.ParameterArrayList;
+import org.testtoolinterfaces.testsuite.TestGroupEntryIteration;
+import org.testtoolinterfaces.testsuite.TestGroupEntrySequence;
 import org.testtoolinterfaces.testsuite.TestStep;
+import org.testtoolinterfaces.testsuite.TestStepIteration;
 import org.testtoolinterfaces.testsuite.TestStepScript;
 import org.testtoolinterfaces.testsuite.TestStepCommand;
 import org.testtoolinterfaces.testsuite.TestStepSelection;
 import org.testtoolinterfaces.testsuite.TestStepSequence;
 import org.testtoolinterfaces.testsuite.TestSuiteException;
 import org.testtoolinterfaces.utils.RunTimeData;
+import org.testtoolinterfaces.utils.RunTimeVariable;
 import org.testtoolinterfaces.utils.Trace;
 import org.testtoolinterfaces.utils.Warning;
 
@@ -59,6 +65,11 @@ public class TestStepMetaExecutor
 		if ( aStep instanceof TestStepSelection ) {
 			return executeSelection( (TestStepSelection) aStep, aScriptDir, aLogDir, aRTData);
 		}//else
+
+		if ( aStep instanceof TestStepIteration ) {
+			return executeIteration( (TestStepIteration) aStep, aScriptDir, aLogDir, aRTData);
+		}//else
+System.out.println( "CHECK B: Don't know how to execute " + aStep.getDisplayName() );
 		
 		throw new Error( "Don't know how to execute " + aStep.getClass().getSimpleName() );
 	}
@@ -164,6 +175,49 @@ public class TestStepMetaExecutor
 		}
 		
 		return result;
+	}
+
+	private TestStepResult executeIteration(TestStepIteration aStep,
+			File aScriptDir, File aLogDir, RunTimeData aRTData) {
+		String listName = aStep.getListName();
+		String listElement = aStep.getItemName();
+		@SuppressWarnings("unchecked")
+		ArrayList<Object> list = aRTData.getValueAs(ArrayList.class, listName);
+
+		aStep.setDisplayName("Foreach " + listElement + " in " + listName);
+		TestStepResult stepResult = new TestStepResult(aStep);
+		TestStepSequence doSteps = new TestStepSequence( aStep.getSequence() );
+
+		Iterator<Object> listItr = list.iterator();
+		int seqNr = 0;
+		while (listItr.hasNext() ) {
+			Object element = listItr.next();
+			RunTimeVariable rtVariable = new RunTimeVariable( listElement, element );
+
+			RunTimeData rtData = new RunTimeData( aRTData );
+			rtData.add(rtVariable);
+
+			TestStepCommand iterationStep = new TestStepCommand( seqNr,
+					"do " + listElement + " = " + element.toString(),
+					"do " + listElement, this.mySutInterfaces.getInterface( DefaultInterface.NAME ), 
+					new ParameterArrayList() );
+			iterationStep.setDisplayName("do");
+			TestStepResult iterationStepResult = new TestStepResult(iterationStep);
+
+// TODO result, (scriptDir,) & logDir
+			TestStepResultList stepResultSet = new TestStepResultList();
+			this.mySetExecutor.execute(doSteps, stepResultSet , aScriptDir, aLogDir, rtData);
+			
+			Iterator<TestStepResult> resultSetItr = stepResultSet.iterator();
+			while (resultSetItr.hasNext() ) {
+				iterationStepResult.addSubStep(resultSetItr.next());
+			}
+			
+			stepResult.addSubStep(iterationStepResult);
+			seqNr++;
+		}
+
+		return stepResult;
 	}
 
 	public void addSutInterface(SutInterface aSutInterface)

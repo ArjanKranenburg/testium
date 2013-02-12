@@ -39,7 +39,7 @@ public abstract class TestStepScriptAbstractExecutor implements TestStepScriptEx
 		}
 
 		Trace.println(Trace.EXEC_PLUS, "execute( "
-				+ aStep.getId() + ", "
+				+ aStep.getDisplayName() + ", "
 				+ aScriptDir.getAbsolutePath() + ", "
 	            + aLogDir.getAbsolutePath() + " )", true );
 
