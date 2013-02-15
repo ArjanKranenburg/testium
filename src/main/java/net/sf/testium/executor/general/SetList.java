@@ -17,12 +17,13 @@ import org.testtoolinterfaces.utils.RunTimeVariable;
 public class SetList extends GenericCommandExecutor
 {
 	private static final String COMMAND = "setList";
+	private static final String PAR_NAME  = "name";
 	private static final String PAR_VALUE = "value";
 
 	private static final SpecifiedParameter PARSPEC_NAME = new SpecifiedParameter (
-	        "name", String.class, false, true, false, false );
+			PAR_NAME, String.class, false, true, false, false );
 	private static final SpecifiedParameter PARSPEC_VALUE = new SpecifiedParameter (
-			PAR_VALUE, String.class, false, true, false, false );
+			PAR_VALUE, Object.class, false, true, false, false );
 
 	public SetList(SutInterface anInterface)
 	{
