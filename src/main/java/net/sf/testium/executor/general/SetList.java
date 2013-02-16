@@ -2,6 +2,7 @@ package net.sf.testium.executor.general;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import net.sf.testium.systemundertest.SutInterface;
 
@@ -18,12 +19,12 @@ public class SetList extends GenericCommandExecutor
 {
 	private static final String COMMAND = "setList";
 	private static final String PAR_NAME  = "name";
-	private static final String PAR_VALUE = "value";
+	public static final String PAR_VALUE = "value";
 
 	private static final SpecifiedParameter PARSPEC_NAME = new SpecifiedParameter (
 			PAR_NAME, String.class, false, true, false, false );
 	private static final SpecifiedParameter PARSPEC_VALUE = new SpecifiedParameter (
-			PAR_VALUE, String.class, false, true, false, false );
+			PAR_VALUE, String.class, false, true, true, true );
 
 	public SetList(SutInterface anInterface)
 	{
@@ -39,24 +40,37 @@ public class SetList extends GenericCommandExecutor
 			throws Exception
 	{
 		String listName = (String) this.obtainValue(aVariables, parameters, PARSPEC_NAME);
-
 		ArrayList<Object> list = new ArrayList<Object>();
+
+		addValuesToList( list, parameters, aVariables);
+
+		RunTimeVariable rtVariable = new RunTimeVariable( listName, list );
+		aVariables.add(rtVariable);
+	}
+
+	/**
+	 * @param list
+	 * @param parameters
+	 * @param aVariables
+	 */
+	public static void addValuesToList(List<Object> list,
+			ParameterArrayList parameters, RunTimeData aVariables) {
 		Iterator<Parameter> paramItr = parameters.iterator();
 		
 		while ( paramItr.hasNext() ) {
 			Parameter par = paramItr.next();
-			if ( par.getName().equals(PAR_VALUE) && par instanceof ParameterImpl ) {
-				list.add( ((ParameterImpl) par).getValue() );
-			} else if ( par instanceof ParameterVariable ) {
-				String valName = ((ParameterVariable) par).getVariableName();
-				Object value = aVariables.getValue(valName);
+			if ( par.getName().equals(PAR_VALUE) ) {
+				if ( par instanceof ParameterImpl ) {
+					list.add( ((ParameterImpl) par).getValue() );
+				}
+				else if ( par instanceof ParameterVariable ) {
+					String valName = ((ParameterVariable) par).getVariableName();
+					Object value = aVariables.getValue(valName);
 
-				// TODO what if value is null
-				list.add(value);
+					// TODO what if value is null
+					list.add(value);
+				}
 			}
 		}
-
-		RunTimeVariable rtVariable = new RunTimeVariable( listName, list );
-		aVariables.add(rtVariable);
 	}
 }
