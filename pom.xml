@@ -61,17 +61,17 @@
   	<dependency>
   	  <groupId>org.testtoolinterfaces</groupId>
   	  <artifactId>testsuite</artifactId>
-  	  <version>0.3.8</version>
+  	  <version>0.3.9</version>
   	</dependency>
   	<dependency>
   	  <groupId>org.testtoolinterfaces</groupId>
   	  <artifactId>testresult</artifactId>
-  	  <version>0.3.10</version>
+  	  <version>0.3.11</version>
   	</dependency>
   	<dependency>
   	  <groupId>org.testtoolinterfaces</groupId>
   	  <artifactId>testsuiteinterface</artifactId>
-  	  <version>0.3.8</version>
+  	  <version>0.3.9</version>
   	</dependency>
   	<dependency>
   	  <groupId>org.testtoolinterfaces</groupId>

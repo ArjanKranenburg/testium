@@ -16,10 +16,10 @@ import org.testtoolinterfaces.testresultinterface.TestGroupResultWriter;
 import org.testtoolinterfaces.testsuite.TestCase;
 import org.testtoolinterfaces.testsuite.TestCaseImpl;
 import org.testtoolinterfaces.testsuite.TestCaseLink;
-import org.testtoolinterfaces.testsuite.TestEntry;
 import org.testtoolinterfaces.testsuite.TestGroup;
 import org.testtoolinterfaces.testsuite.TestGroupEntry;
 import org.testtoolinterfaces.testsuite.TestGroupEntryIteration;
+import org.testtoolinterfaces.testsuite.TestGroupEntrySelection;
 import org.testtoolinterfaces.testsuite.TestGroupEntrySequence;
 import org.testtoolinterfaces.testsuite.TestGroupImpl;
 import org.testtoolinterfaces.testsuite.TestGroupLink;
@@ -164,90 +164,132 @@ public class TestGroupExecutorImpl implements TestGroupExecutor
 			RunTimeData rtData = new RunTimeData( aRTData );
 			try
 			{
-				if ( entry.getType() == TestEntry.TYPE.GroupLink )
-				{
-					TestGroupLink tgLink = (TestGroupLink) entry;
-					try
-					{
-						String fileName = tgLink.getLink().getPath();
-						String updatedFileName = rtData.substituteVars(fileName);
-						if ( ! fileName.equals(updatedFileName) ) {
-							TestLinkImpl newLink = new TestLinkImpl( updatedFileName, tgLink.getLinkType() );
-							tgLink.setLink(newLink);
-						} else {
-							tgLink.setLinkDir( aScriptDir );
-						}
+				if (entry instanceof TestGroupLink) {
+					executeTestGroupLink(aResult, aScriptDir, aLogDir, entry, rtData);
+				} else if (entry instanceof TestCaseLink) {
+					executeTestCaseLink(aResult, aScriptDir, aLogDir, entry, rtData);
+				} else if (entry instanceof TestGroupEntryIteration) {
+					executeForeach(entry, aResult, aScriptDir, aLogDir,	rtData);
+				} else if (entry instanceof TestGroupEntrySelection) {
 
-						myTestGroupExecutor.execute(tgLink, aLogDir, aResult, rtData );
-						
-					}
-					catch (Throwable t) // wider than strictly needed, but plugins could be mal-interpreted.
-					{
-						Trace.print(LEVEL.ALL, t);
-						String tgId = tgLink.getId();
-						
-						TestGroup tg = new TestGroupImpl( tgId,
-														  tgLink.getDescription(),
-														  tgLink.getSequenceNr(),
-														  new TestStepSequence(),
-														  new TestGroupEntrySequence(),
-														  new TestStepSequence() );
-						
-						TestGroupResult tgResult = new TestGroupResult( tg );
-						tgResult.setResult(VERDICT.ERROR);
-						tgResult.addComment(t.getMessage());
-						
-						File logDir = new File (aLogDir, tgId );
-						logDir.mkdir();
-						
-						File logFile = new File( logDir, tgId + "_log.xml" );
-				    	myTestGroupResultWriter.write( tgResult, logFile );
-
-				    	TestGroupResultLink tgResultLink = new TestGroupResultLink( tgLink, logFile );
-				    	tgResultLink.setSummary( tgResult.getSummary() );
-						tgResult.register(tgResultLink);
-						aResult.addTestGroup(tgResultLink);
-					}
+				} else {
+					throw new InvalidTestTypeException( entry.getClass().getSimpleName(),
+							"Cannot execute execution entries of type " + entry.getClass().getSimpleName() );
 				}
-				else if ( entry.getType() == TestEntry.TYPE.CaseLink )
-				{
-					if ( myTestCaseExecutor == null )
-					{
-						throw new Error("No Executor is defined for TestCaseLinks");
-					}
-					
-					TestCaseLink tcLink = (TestCaseLink) entry;
-					try
-					{
-						String fileName = tcLink.getLink().getPath();
-						String updatedFileName = rtData.substituteVars(fileName);
-						if ( ! fileName.equals(updatedFileName) ) {
-							TestLinkImpl newLink = new TestLinkImpl( updatedFileName, tcLink.getLinkType() );
-							tcLink.setLink(newLink);
-						} else {
-							tcLink.setLinkDir( aScriptDir );
-						}
+			}
+			catch (Throwable t) // wider than strictly needed, but plugins can be mal-implemented.
+			{
+				String message = "Execution of " + entry.getClass().getSimpleName() + " " + entry.getId() + " failed:\n"
+					+ t.getMessage()
+					+ "\nTrying to continue, but this may affect further execution...";
+				aResult.addComment(message);
+				Warning.println(message);
+				Trace.print(Trace.ALL, t);
+			}
+    	}
+	}
 
-						TestCaseResultLink tcResult = myTestCaseExecutor.execute(tcLink, aLogDir, rtData);
-						tcResult.setExecutionPath( aResult.getExecutionPath() + "." + aResult.getId() );
-						aResult.addTestCase(tcResult);
-					}
-					catch (Throwable t)
-					{
-						Trace.print(LEVEL.ALL, t);
-						String tcId = tcLink.getId();
-						
-						TestCase tc = new TestCaseImpl( tcId,
-								  tcLink.getDescription(),
-								  tcLink.getSequenceNr(),
-								  new TestStepSequence(),
-								  new TestStepSequence(),
-								  new TestStepSequence() );
+	/**
+	 * @param aResult
+	 * @param aScriptDir
+	 * @param aLogDir
+	 * @param entry
+	 * @param rtData
+	 */
+	private void executeTestGroupLink(TestGroupResult aResult, File aScriptDir,
+			File aLogDir, TestGroupEntry entry, RunTimeData rtData) {
+		TestGroupLink tgLink = (TestGroupLink) entry;
+		try
+		{
+			String fileName = tgLink.getLink().getPath();
+			String updatedFileName = rtData.substituteVars(fileName);
+			if ( ! fileName.equals(updatedFileName) ) {
+				TestLinkImpl newLink = new TestLinkImpl( updatedFileName, tgLink.getLinkType() );
+				tgLink.setLink(newLink);
+			} else {
+				tgLink.setLinkDir( aScriptDir );
+			}
 
-						TestCaseResult tcResult = new TestCaseResult( tc );
-						tcResult.setResult(VERDICT.ERROR);
-						tcResult.addComment(t.getMessage());
-						
+			myTestGroupExecutor.execute(tgLink, aLogDir, aResult, rtData );
+			
+		}
+		catch (Throwable t) // wider than strictly needed, but plugins could be mal-interpreted.
+		{
+			Trace.print(LEVEL.ALL, t);
+			String tgId = tgLink.getId();
+			
+			TestGroup tg = new TestGroupImpl( tgId,
+											  tgLink.getDescription(),
+											  tgLink.getSequenceNr(),
+											  new TestStepSequence(),
+											  new TestGroupEntrySequence(),
+											  new TestStepSequence() );
+			
+			TestGroupResult tgResult = new TestGroupResult( tg );
+			tgResult.setResult(VERDICT.ERROR);
+			tgResult.addComment(t.getMessage());
+			
+			File logDir = new File (aLogDir, tgId );
+			logDir.mkdir();
+			
+			File logFile = new File( logDir, tgId + "_log.xml" );
+			myTestGroupResultWriter.write( tgResult, logFile );
+
+			TestGroupResultLink tgResultLink = new TestGroupResultLink( tgLink, logFile );
+			tgResultLink.setSummary( tgResult.getSummary() );
+			tgResult.register(tgResultLink);
+			aResult.addTestGroup(tgResultLink);
+		}
+	}
+
+	/**
+	 * @param aResult
+	 * @param aScriptDir
+	 * @param aLogDir
+	 * @param entry
+	 * @param rtData
+	 * @throws Error
+	 */
+	private void executeTestCaseLink(TestGroupResult aResult, File aScriptDir,
+			File aLogDir, TestGroupEntry entry, RunTimeData rtData)
+			throws Error {
+		if ( myTestCaseExecutor == null )
+		{
+			throw new Error("No Executor is defined for TestCaseLinks");
+		}
+		
+		TestCaseLink tcLink = (TestCaseLink) entry;
+		try
+		{
+			String fileName = tcLink.getLink().getPath();
+			String updatedFileName = rtData.substituteVars(fileName);
+			if ( ! fileName.equals(updatedFileName) ) {
+				TestLinkImpl newLink = new TestLinkImpl( updatedFileName, tcLink.getLinkType() );
+				tcLink.setLink(newLink);
+			} else {
+				tcLink.setLinkDir( aScriptDir );
+			}
+
+			TestCaseResultLink tcResult = myTestCaseExecutor.execute(tcLink, aLogDir, rtData);
+			tcResult.setExecutionPath( aResult.getExecutionPath() + "." + aResult.getId() );
+			aResult.addTestCase(tcResult);
+		}
+		catch (Throwable t)
+		{
+			Trace.print(LEVEL.ALL, t);
+			String tcId = tcLink.getId();
+			
+			TestCase tc = new TestCaseImpl( tcId,
+					  tcLink.getDescription(),
+					  tcLink.getSequenceNr(),
+					  new TestStepSequence(),
+					  new TestStepSequence(),
+					  new TestStepSequence() );
+
+			TestCaseResult tcResult = new TestCaseResult( tc );
+			tcResult.setResult(VERDICT.ERROR);
+			tcResult.addComment(t.getMessage());
+			
 //						File logDir = new File (aLogDir, tcId );
 //						logDir.mkdir();
 //						
@@ -256,67 +298,57 @@ public class TestGroupExecutorImpl implements TestGroupExecutor
 //
 //				    	TestCaseResultLink tcResultLink = new TestCaseResultLink( tcLink, VERDICT.ERROR, logFile );
 //						aResult.addTestCase(tcResultLink);
-					}
-				}
-				else if ( entry.getType() == TestEntry.TYPE.Group )
-				{
-					if (entry instanceof TestGroupEntryIteration) {
-						TestGroupEntryIteration entryIteration = (TestGroupEntryIteration) entry;
-						String listName = entryIteration.getListName();
-						String listElement = entryIteration.getItemName();
-						ArrayList<Object> list = aRTData.getValueAs(ArrayList.class, listName);
+		}
+	}
 
-						TestGroupEntrySequence doSteps = new TestGroupEntrySequence( entryIteration.getSequence() );
+	/**
+	 * @param entry
+	 * @param aResult
+	 * @param aScriptDir
+	 * @param aLogDir
+	 * @param aRTData
+	 * @param rtData
+	 */
+	private void executeForeach(TestGroupEntry entry, TestGroupResult aResult,
+			File aScriptDir, File aLogDir, RunTimeData rtData) {
+		TestGroupEntryIteration entryIteration = (TestGroupEntryIteration) entry;
+		String listName = entryIteration.getListName();
+		String listElement = entryIteration.getItemName();
+		@SuppressWarnings("unchecked")
+		ArrayList<Object> list = rtData.getValueAs(ArrayList.class, listName);
 
-						Iterator<Object> listItr = list.iterator();
-						int seqNr = entry.getSequenceNr();
-						while (listItr.hasNext() ) {
-							Object element = listItr.next();
-							String tgId = entry.getId() + "_" + element.toString();
+		TestGroupEntrySequence doSteps = new TestGroupEntrySequence( entryIteration.getSequence() );
 
-							TestGroup tg = new TestGroupImpl(tgId, seqNr,
-									new TestStepSequence(), doSteps, new TestStepSequence());
-							TestGroupResult groupResult = new TestGroupResult( tg );
+		Iterator<Object> listItr = list.iterator();
+		int seqNr = entry.getSequenceNr();
+		while (listItr.hasNext() ) {
+			Object element = listItr.next();
+			String tgId = entry.getId() + "_" + element.toString();
 
-							RunTimeVariable rtVariable = new RunTimeVariable( listElement, element );
-	
-							RunTimeData subRtData = new RunTimeData( rtData );
-							subRtData.add(rtVariable);
+			TestGroup tg = new TestGroupImpl(tgId, seqNr,
+					new TestStepSequence(), doSteps, new TestStepSequence());
+			TestGroupResult groupResult = new TestGroupResult( tg );
 
-							File logDir = new File (aLogDir, tgId );
-							logDir.mkdir();
+			RunTimeVariable rtVariable = new RunTimeVariable( listElement, element );
 
-							this.executeExecSteps(doSteps, groupResult, aScriptDir, logDir, subRtData);
+			RunTimeData subRtData = new RunTimeData( rtData );
+			subRtData.add(rtVariable);
 
-							File logFile = new File( logDir, tgId + "_log.xml" );
-					    	myTestGroupResultWriter.write( groupResult, logFile );
-					    	
-					    	TestGroupLink tgLink = new TestGroupLink(tgId, seqNr, logFile.getName());
+			File logDir = new File (aLogDir, tgId );
+			logDir.mkdir();
 
-					    	TestGroupResultLink tgResultLink = new TestGroupResultLink( tgLink, logFile );
-					    	tgResultLink.setSummary( groupResult.getSummary() );
-					    	groupResult.register(tgResultLink);
-							aResult.addTestGroup(tgResultLink);
-						}
-					} else {
-						throw new InvalidTestTypeException( entry.getType().toString(), "Only foreach groups are allowed:  " + entry.getId() );
-					}
-				}
-				else
-				{
-					throw new InvalidTestTypeException( entry.getType().toString(), "Cannot execute execution entries of type " + entry.getType() );
-				}
-			}
-			catch (Throwable t) // wider than strictly needed, but plugins could be mal-interpreted.
-			{
-				String message = "Execution of " + entry.getType() + " " + entry.getId() + " failed:\n"
-					+ t.getMessage()
-					+ "\nTrying to continue, but this may affect further execution...";
-				aResult.addComment(message);
-				Warning.println(message);
-				Trace.print(Trace.ALL, t);
-			}
-    	}
+			this.executeExecSteps(doSteps, groupResult, aScriptDir, logDir, subRtData);
+
+			File logFile = new File( logDir, tgId + "_log.xml" );
+			myTestGroupResultWriter.write( groupResult, logFile );
+			
+			TestGroupLink tgLink = new TestGroupLink(tgId, seqNr, logFile.getName());
+
+			TestGroupResultLink tgResultLink = new TestGroupResultLink( tgLink, logFile );
+			tgResultLink.setSummary( groupResult.getSummary() );
+			groupResult.register(tgResultLink);
+			aResult.addTestGroup(tgResultLink);
+		}
 	}
 
 	public void executeRestoreSteps( TestStepSequence aRestoreSteps,
