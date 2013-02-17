@@ -8,17 +8,15 @@ import java.util.Iterator;
 import net.sf.testium.systemundertest.SutInterface;
 
 import org.testtoolinterfaces.testresult.TestResult;
-import org.testtoolinterfaces.testresult.TestStepResult;
 import org.testtoolinterfaces.testresult.TestResult.VERDICT;
+import org.testtoolinterfaces.testresult.TestStepResult;
 import org.testtoolinterfaces.testresult.TestStepResultList;
 import org.testtoolinterfaces.testresult.TestStepSelectionResult;
 import org.testtoolinterfaces.testsuite.ParameterArrayList;
-import org.testtoolinterfaces.testsuite.TestGroupEntryIteration;
-import org.testtoolinterfaces.testsuite.TestGroupEntrySequence;
 import org.testtoolinterfaces.testsuite.TestStep;
+import org.testtoolinterfaces.testsuite.TestStepCommand;
 import org.testtoolinterfaces.testsuite.TestStepIteration;
 import org.testtoolinterfaces.testsuite.TestStepScript;
-import org.testtoolinterfaces.testsuite.TestStepCommand;
 import org.testtoolinterfaces.testsuite.TestStepSelection;
 import org.testtoolinterfaces.testsuite.TestStepSequence;
 import org.testtoolinterfaces.testsuite.TestSuiteException;
@@ -159,8 +157,13 @@ System.out.println( "CHECK B: Don't know how to execute " + aStep.getDisplayName
 				this.mySetExecutor.execute(thenSteps, subStepResults, aScriptDir, aLogDir, aRTData);
 
 			} else {
-				comment += ". Else-steps executed.";
 				TestStepSequence elseSteps = selectionStep.getElseSteps();
+				if ( elseSteps.isEmpty() ) {
+					comment += ". Nothing executed.";
+				} else {					
+					comment += ". Else-steps executed.";
+				}
+				comment += ". Else-steps executed.";
 				this.mySetExecutor.execute(elseSteps, subStepResults, aScriptDir, aLogDir, aRTData);
 			}
 
