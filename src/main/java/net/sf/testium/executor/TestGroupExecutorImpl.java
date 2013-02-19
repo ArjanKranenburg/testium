@@ -62,6 +62,77 @@ public class TestGroupExecutorImpl implements TestGroupExecutor
 		myTestGroupReader = new TestGroupReader( myTestStepExecutor.getInterfaces(), true );
 	}
 
+	/**
+	 * Executes the TestGroupLink
+	 * The preparation must have been done
+	 * 
+	 * @param aTestGroupLink
+	 * @param aParentTgResult
+	 * @param aParentEnv
+	 */
+	public void execute( TestGroupLink aTestGroupLink,
+            TestGroupResult aParentTgResult,
+            ExecutionEnvironment aParentEnv ) {
+
+		TestGroup testGroup = this.readTgLink(aTestGroupLink);
+		ExecutionEnvironment execEnv = this.setExecutionEnvironment(aTestGroupLink,
+				aParentEnv.getLogDir(), aParentTgResult.getExecutionIdPath(), aParentEnv.getRtData());
+		
+		File logFile = execEnv.getLogFile( testGroup.getId() );
+		TestGroupResult tgResult = createTgResult(testGroup, execEnv, logFile);
+		tgResult.setExecutionPath( aParentTgResult.getExecutionIdPath() );
+
+    	TestGroupResultLink tgResultLink = new TestGroupResultLink( aTestGroupLink,
+                logFile );
+    	tgResult.register(tgResultLink);
+    	aParentTgResult.addTestGroup(tgResultLink);
+		
+		execute( testGroup, tgResult, execEnv );
+	}
+
+	private ExecutionEnvironment setExecutionEnvironment( TestGroupLink aTestGroupLink,
+	                     File aLogDir, String anExecutionPath, RunTimeData aRTData ) {
+		if ( !aLogDir.isDirectory() )
+		{
+			FileNotFoundException exc = new FileNotFoundException("Directory does not exist: " + aLogDir.getPath());
+			throw new IOError( exc );
+		}
+		Trace.println(Trace.EXEC, "setExecutionEnvironment( " 
+				+ aTestGroupLink.getId() + ", "
+	            + aLogDir.getPath() + ", "
+	            + anExecutionPath + ", "
+				+ aRTData.size() + " Variables )", true );
+
+		File testGroupFile = aTestGroupLink.getLink();
+		File scriptDir = testGroupFile.getParentFile();
+
+		File groupLogDir = new File(aLogDir, aTestGroupLink.getId());
+		groupLogDir.mkdir();
+
+		return new ExecutionEnvironment(scriptDir, groupLogDir, aRTData );
+	}
+
+	private TestGroup readTgLink( TestGroupLink aTestGroupLink ) {
+		
+		File testGroupFile = aTestGroupLink.getLink();
+		return myTestGroupReader.readTgFile(testGroupFile);
+	}
+
+	/**
+	 * @param testGroup
+	 * @param execEnv
+	 * @param logFile
+	 * @return testGrouResult
+	 */
+	private TestGroupResult createTgResult(TestGroup testGroup,
+			ExecutionEnvironment execEnv, File logFile) {
+		TestGroupResult tgResult = new TestGroupResult( testGroup );
+    	myTestGroupResultWriter.write( tgResult, logFile );
+
+    	return tgResult;
+	}
+
+	@Deprecated
 	public void execute( TestGroupLink aTestGroupLink,
 	                     File aLogDir,
 	                     TestGroupResult aTestGroupResult,
@@ -98,6 +169,21 @@ public class TestGroupExecutorImpl implements TestGroupExecutor
 		execute( testGroup, scriptDir, groupLogDir, tgResult, aRTData );
 	}
 
+	public void execute(TestGroup aTestGroup, TestGroupResult aTestGroupResult, ExecutionEnvironment anEnv) {
+		Trace.println(Trace.EXEC, "execute( " + aTestGroup.getId() + " )", true);
+
+		TestStepSequence prepareSteps = aTestGroup.getPrepareSteps();
+		executePrepareSteps(prepareSteps, aTestGroupResult, anEnv);
+
+		TestGroupEntrySequence execSteps = aTestGroup.getExecutionEntries();
+		executeExecSteps(execSteps, aTestGroupResult, anEnv.getScriptDir(), 
+				anEnv.getLogDir(), anEnv.getRtData());
+
+		TestStepSequence restoreSteps = aTestGroup.getRestoreSteps();
+		executeRestoreSteps(restoreSteps, aTestGroupResult, anEnv);
+	}
+
+	@Deprecated
 	public void execute( TestGroup aTestGroup,
 	                     File aScriptDir,
 	                     File aLogDir,
@@ -121,28 +207,40 @@ public class TestGroupExecutorImpl implements TestGroupExecutor
     	executeRestoreSteps(restoreSteps, aTestGroupResult, aScriptDir, aLogDir, aRTData);
 	}
 
-	public void executePrepareSteps( TestStepSequence aPrepareSteps,
-	                                 TestGroupResult aResult,
-	                                 File aScriptDir,
-	                                 File aLogDir,
-	                                 RunTimeData aRTData )
-	{
-		Trace.println(Trace.EXEC_PLUS, "executePrepareSteps( " 
-						+ aPrepareSteps + ", "
-						+ aResult + ", "
-			            + aLogDir.getPath()
-			            + " )", true );
+	public void executePrepareSteps(TestStepSequence aPrepareSteps,
+			TestGroupResult aResult, ExecutionEnvironment anEnv) {
+		Trace.println(Trace.EXEC_PLUS, "executePrepareSteps( " + aPrepareSteps
+				+ ", " + aResult + " )", true);
 
 		Iterator<TestStep> stepsItr = aPrepareSteps.iterator();
-		while(stepsItr.hasNext())
-		{
-		    TestStep step = stepsItr.next();
-			TestStepResult tsResult = myTestStepExecutor.execute(step, aScriptDir, aLogDir, aRTData);
-			tsResult.setExecutionPath( aResult.getExecutionPath() + "." + aResult.getId() );
+		while (stepsItr.hasNext()) {
+			TestStep step = stepsItr.next();
+			TestStepResult tsResult = myTestStepExecutor.execute(step,
+					anEnv.getScriptDir(), anEnv.getLogDir(), anEnv.getRtData());
+			tsResult.setExecutionPath(aResult.getExecutionPath() + "."
+					+ aResult.getId());
 			aResult.addInitialization(tsResult);
-    	}
+		}
 	}
 
+	@Deprecated
+	public void executePrepareSteps(TestStepSequence aPrepareSteps,
+			TestGroupResult aResult, File aScriptDir, File aLogDir,
+			RunTimeData aRTData) {
+		Trace.println(Trace.EXEC_PLUS, "executePrepareSteps( " + aPrepareSteps
+				+ ", " + aResult + ", " + aLogDir.getPath() + " )", true);
+
+		Iterator<TestStep> stepsItr = aPrepareSteps.iterator();
+		while (stepsItr.hasNext()) {
+			TestStep step = stepsItr.next();
+			TestStepResult tsResult = myTestStepExecutor.execute(step,
+					aScriptDir, aLogDir, aRTData);
+			tsResult.setExecutionPath(aResult.getExecutionPath() + "."
+					+ aResult.getId());
+			aResult.addInitialization(tsResult);
+		}
+	}
+	
 	public void executeExecSteps( TestGroupEntrySequence anExecEntries,
 	                              TestGroupResult aResult,
 	                              File aScriptDir,
@@ -321,9 +419,10 @@ public class TestGroupExecutorImpl implements TestGroupExecutor
 
 		Iterator<Object> listItr = list.iterator();
 		int seqNr = entryIteration.getSequenceNr();
+		int foreachSeqNr = 0;
 		while (listItr.hasNext() ) {
 			Object element = listItr.next();
-			String tgId = entryIteration.getId() + "_" + element.toString();
+			String tgId = entryIteration.getId() + "_" + foreachSeqNr++;
 
 			TestGroup tg = new TestGroupImpl(tgId, seqNr,
 					new TestStepSequence(), doSteps, new TestStepSequence());
@@ -440,28 +539,40 @@ public class TestGroupExecutorImpl implements TestGroupExecutor
 		return tgResultLink;
 	}
 
-	public void executeRestoreSteps( TestStepSequence aRestoreSteps,
-	                                 TestGroupResult aResult,
-	                                 File aScriptDir,
-	                                 File aLogDir,
-	                                 RunTimeData aRTData )
-	{
-		Trace.println(Trace.EXEC_PLUS, "executeRestoreSteps( " 
-						+ aRestoreSteps + ", "
-						+ aResult + ", "
-			            + aLogDir.getPath()
-			            + " )", true );
+	public void executeRestoreSteps(TestStepSequence aRestoreSteps,
+			TestGroupResult aResult, ExecutionEnvironment anEnv ) {
+		Trace.println(Trace.EXEC_PLUS, "executeRestoreSteps( " + aRestoreSteps
+				+ ", " + aResult + " )", true);
 
 		Iterator<TestStep> stepsItr = aRestoreSteps.iterator();
-		while(stepsItr.hasNext())
-		{
-		    TestStep step = stepsItr.next();
-			TestStepResult tsResult = myTestStepExecutor.execute(step, aScriptDir, aLogDir, aRTData);
-			tsResult.setExecutionPath( aResult.getExecutionPath() + "." + aResult.getId() );
+		while (stepsItr.hasNext()) {
+			TestStep step = stepsItr.next();
+			TestStepResult tsResult = myTestStepExecutor.execute(step,
+					anEnv.getScriptDir(), anEnv.getLogDir(), anEnv.getRtData());
+			tsResult.setExecutionPath(aResult.getExecutionPath() + "."
+					+ aResult.getId());
 			aResult.addRestore(tsResult);
-    	}
+		}
 	}
 	
+	@Deprecated
+	public void executeRestoreSteps(TestStepSequence aRestoreSteps,
+			TestGroupResult aResult, File aScriptDir, File aLogDir,
+			RunTimeData aRTData) {
+		Trace.println(Trace.EXEC_PLUS, "executeRestoreSteps( " + aRestoreSteps
+				+ ", " + aResult + ", " + aLogDir.getPath() + " )", true);
+
+		Iterator<TestStep> stepsItr = aRestoreSteps.iterator();
+		while (stepsItr.hasNext()) {
+			TestStep step = stepsItr.next();
+			TestStepResult tsResult = myTestStepExecutor.execute(step,
+					aScriptDir, aLogDir, aRTData);
+			tsResult.setExecutionPath(aResult.getExecutionPath() + "."
+					+ aResult.getId());
+			aResult.addRestore(tsResult);
+		}
+	}
+
 	public String getType()
 	{
 		return TYPE;
