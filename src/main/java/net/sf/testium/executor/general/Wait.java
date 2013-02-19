@@ -53,13 +53,15 @@ public class Wait extends GenericCommandExecutor
 	public boolean verifyParameters( ParameterArrayList aParameters ) throws TestSuiteException
 	{
 		if ( ! super.verifyParameters(aParameters) ) return false;
-		
-		Parameter timePar_tmp = aParameters.get(PAR_TIME);
-		ParameterImpl timePar = (ParameterImpl) timePar_tmp;
-		if ( timePar.getValueAsInt() == 0 )
-		{
-			throw new TestSuiteException( "Parameter " + PAR_TIME + " must be positive",
-			                              DefaultInterface.NAME + "." + COMMAND );
+
+		Parameter timePar = aParameters.get(PAR_TIME);
+
+		if ( timePar instanceof ParameterImpl ) {
+			if ( ((ParameterImpl) timePar).getValueAsInt() <= 0 )
+			{
+				throw new TestSuiteException( "Parameter " + PAR_TIME + " must be positive",
+				                              DefaultInterface.NAME + "." + COMMAND );
+			}
 		}
 		
 		return true;
