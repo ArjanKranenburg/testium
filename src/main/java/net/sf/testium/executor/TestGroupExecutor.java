@@ -14,15 +14,25 @@ import org.testtoolinterfaces.utils.RunTimeData;
 public interface TestGroupExecutor
 {
 	public void execute( TestGroupLink aTestGroupLink,
-	                     File aLogDir,
 	                     TestGroupResult aTestGroupResult ,
-	                     RunTimeData aRTData );
+	                     ExecutionEnvironment aParentEnv );
 
 	public void execute( TestGroup aTestGroup,
-	                     File aScriptDir,
-	                     File aLogDir,
 	                     TestGroupResult aTestGroupResult,
-	                     RunTimeData aRTData );
+	                     ExecutionEnvironment aParentEnv );
+
+	@Deprecated
+	public void execute( TestGroupLink aTestGroupLink,
+            File aLogDir,
+            TestGroupResult aTestGroupResult ,
+            RunTimeData aRTData );
+
+	@Deprecated
+	public void execute( TestGroup aTestGroup,
+            File aScriptDir,
+            File aLogDir,
+            TestGroupResult aTestGroupResult,
+            RunTimeData aRTData );
 
 	public String getType();
 }

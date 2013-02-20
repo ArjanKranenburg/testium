@@ -83,11 +83,8 @@ public class TestRunExecutorImpl
 		TestGroupResult tgResult = new TestGroupResult( aTestGroup );
 		result.setTestGroup(tgResult);
 		tgResult.setExecutionPath(aSut.getName());
-		myTestGroupExecutor.execute( aTestGroup,
-		                             aBaseExecutionDir,
-		                             logDir,
-		                             tgResult,
-		                             anRtData );
+		myTestGroupExecutor.execute( aTestGroup, tgResult,
+				new ExecutionEnvironment(aBaseExecutionDir, logDir, anRtData) );
 		
 		Calendar endDate = Calendar.getInstance();
 		endDate.setTimeInMillis(System.currentTimeMillis());
