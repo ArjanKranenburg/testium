@@ -17,7 +17,7 @@ public class SetVariable extends GenericCommandExecutor
 	private static final SpecifiedParameter PARSPEC_NAME = new SpecifiedParameter (
 	        "name", String.class, false, true, false, false );
 	private static final SpecifiedParameter PARSPEC_VALUE = new SpecifiedParameter (
-	        "value", String.class, false, true, false, false );
+	        "value", String.class, false, true, true, false );
 //	private static final SpecifiedParameter PARSPEC_TYPE = new SpecifiedParameter (
 //	        "type", String.class, true, true, false, false )
 //		.setDefaultValue("String");
