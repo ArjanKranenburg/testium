@@ -224,7 +224,7 @@ public abstract class GenericCommandExecutor implements TestStepCommandExecutor 
 	 */
 	public String toString()
 	{
-		return this.getInterfaceName() + "." + this.getCommand();
+		return this.getInterfaceName() + ":" + this.getCommand();
 	}
 
 	public boolean verifyParameters( ParameterArrayList aParameters)
