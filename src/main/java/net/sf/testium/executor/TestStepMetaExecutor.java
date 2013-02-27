@@ -67,7 +67,6 @@ public class TestStepMetaExecutor
 		if ( aStep instanceof TestStepIteration ) {
 			return executeIteration( (TestStepIteration) aStep, aScriptDir, aLogDir, aRTData);
 		}//else
-System.out.println( "CHECK B: Don't know how to execute " + aStep.getDisplayName() );
 		
 		throw new Error( "Don't know how to execute " + aStep.getClass().getSimpleName() );
 	}
