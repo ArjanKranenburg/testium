@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>net.sf.testium</groupId>
   <artifactId>testium</artifactId>
-  <version>0.3.26-SNAPSHOT</version>
+  <version>0.3.26</version>
   <name>Testium</name>
   <description>A flexible and plugin-able test execution framework.</description>
   <url>http://testium.sf.net/</url>
