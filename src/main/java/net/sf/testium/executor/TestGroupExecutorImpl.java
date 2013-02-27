@@ -337,6 +337,8 @@ public class TestGroupExecutorImpl implements TestGroupExecutor
 
 		TestGroupEntrySequence doSteps = new TestGroupEntrySequence( entryIteration.getSequence() );
 
+		TestStep untilStep = entryIteration.getUntilStep();
+
 		Iterator<Object> listItr = list.iterator();
 		int seqNr = entryIteration.getSequenceNr();
 		int foreachSeqNr = 0;
@@ -357,6 +359,13 @@ public class TestGroupExecutorImpl implements TestGroupExecutor
 			TestGroupResultLink groupResultLink = executeTestGroupEntries(tg, env);
 			aResult.addTestGroup(groupResultLink);
 		
+			if ( untilStep != null ) {
+				TestStepResult myUntilResult = myTestStepExecutor.execute(untilStep, env.getScriptDir(), env.getLogDir(), env.getRtData());
+				if (myUntilResult.getResult() == VERDICT.PASSED) {
+					aResult.addRestore(myUntilResult);
+					break;
+				}
+			}
 		}
 	}
 

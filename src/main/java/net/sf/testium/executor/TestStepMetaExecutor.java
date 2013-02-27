@@ -188,7 +188,9 @@ public class TestStepMetaExecutor
 
 		aStep.setDisplayName("Foreach " + listElement + " in " + listName);
 		TestStepResult stepResult = new TestStepResult(aStep);
+
 		TestStepSequence doSteps = new TestStepSequence( aStep.getSequence() );
+		TestStep untilStep = aStep.getUntilStep();
 
 		Iterator<Object> listItr = list.iterator();
 		int seqNr = 0;
@@ -216,6 +218,15 @@ public class TestStepMetaExecutor
 			}
 			
 			stepResult.addSubStep(iterationStepResult);
+			
+			if ( untilStep != null ) {
+				TestStepResult myUntilResult = this.execute(untilStep, aScriptDir, aLogDir, rtData);
+				if (myUntilResult.getResult() == VERDICT.PASSED) {
+					stepResult.addSubStep(myUntilResult);
+					break;
+				}
+			}
+
 			seqNr++;
 		}
 
