@@ -24,7 +24,7 @@ public class SetList extends GenericCommandExecutor
 	private static final SpecifiedParameter PARSPEC_NAME = new SpecifiedParameter (
 			PAR_NAME, String.class, false, true, false, false );
 	private static final SpecifiedParameter PARSPEC_VALUE = new SpecifiedParameter (
-			PAR_VALUE, String.class, false, true, true, true );
+			PAR_VALUE, String.class, true, true, true, true );
 
 	public SetList(SutInterface anInterface)
 	{
