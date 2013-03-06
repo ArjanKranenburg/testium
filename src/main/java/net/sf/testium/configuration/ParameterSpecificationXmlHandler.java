@@ -187,9 +187,15 @@ public class ParameterSpecificationXmlHandler extends XmlHandler {
 		try
 		{
 			type = Class.forName("java.lang." + myType);
-		} catch (ClassNotFoundException e)
+		} catch (ClassNotFoundException e1)
 		{
-			throw new TestSuiteException("No class \"" + myType + "\" known for parameter \"" + myName + "\"" );
+			try
+			{
+				type = Class.forName("java.util." + myType);
+			} catch (ClassNotFoundException e2)
+			{
+				throw new TestSuiteException("No class \"" + myType + "\" known for parameter \"" + myName + "\"" );
+			}
 		}
 
 		SpecifiedParameter paramSpec = new SpecifiedParameter(myName, type, myOptional, myValueAllowed, myVariableAllowed, myEmptyAllowed);
