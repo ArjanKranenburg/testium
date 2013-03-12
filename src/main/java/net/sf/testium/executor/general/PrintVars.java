@@ -9,6 +9,7 @@ import java.util.Enumeration;
 
 import net.sf.testium.systemundertest.SutInterface;
 
+import org.testtoolinterfaces.testresult.TestStepCommandResult;
 import org.testtoolinterfaces.testresult.TestStepResult;
 import org.testtoolinterfaces.testsuite.ParameterArrayList;
 import org.testtoolinterfaces.utils.RunTimeData;
@@ -38,7 +39,7 @@ public class PrintVars extends GenericCommandExecutor
 
 	@Override
 	protected void doExecute(RunTimeData aVariables,
-			ParameterArrayList parameters, TestStepResult result)
+			ParameterArrayList parameters, TestStepCommandResult result)
 			throws Exception
 	{
     	result.addComment("Current Variables:" );

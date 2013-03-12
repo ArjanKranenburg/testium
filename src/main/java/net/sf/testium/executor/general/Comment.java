@@ -5,13 +5,11 @@ package net.sf.testium.executor.general;
 
 import java.util.ArrayList;
 
-import org.testtoolinterfaces.testresult.TestStepResult;
+import net.sf.testium.systemundertest.SutInterface;
+
+import org.testtoolinterfaces.testresult.TestStepCommandResult;
 import org.testtoolinterfaces.testsuite.ParameterArrayList;
 import org.testtoolinterfaces.utils.RunTimeData;
-
-import net.sf.testium.executor.general.GenericCommandExecutor;
-import net.sf.testium.executor.general.SpecifiedParameter;
-import net.sf.testium.systemundertest.SutInterface;
 
 /**
  * Prints a comment to the screen and the log
@@ -41,7 +39,7 @@ public class Comment extends GenericCommandExecutor {
 
 	@Override
 	protected void doExecute(RunTimeData aVariables,
-			ParameterArrayList parameters, TestStepResult result)
+			ParameterArrayList parameters, TestStepCommandResult result)
 			throws Exception {
 
 		String comment = (String) this.obtainValue(aVariables, parameters, PARSPEC_COMMENT);

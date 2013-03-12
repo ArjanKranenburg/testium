@@ -8,6 +8,7 @@ import net.sf.testium.Testium;
 import org.testtoolinterfaces.testresult.SutInfo;
 import org.testtoolinterfaces.testresult.TestGroupResult;
 import org.testtoolinterfaces.testresult.TestRunResult;
+import org.testtoolinterfaces.testresult.impl.TestGroupResultImpl;
 import org.testtoolinterfaces.testresultinterface.TestGroupResultWriter;
 import org.testtoolinterfaces.testresultinterface.TestRunResultWriter;
 import org.testtoolinterfaces.testsuite.TestGroup;
@@ -80,7 +81,7 @@ public class TestRunExecutorImpl
 			throw new Error("No Executor is defined for TestGroupLinks");
 		}
 
-		TestGroupResult tgResult = new TestGroupResult( aTestGroup );
+		TestGroupResult tgResult = new TestGroupResultImpl( aTestGroup );
 		result.setTestGroup(tgResult);
 		tgResult.setExecutionPath(aSut.getName());
 		myTestGroupExecutor.execute( aTestGroup, tgResult,

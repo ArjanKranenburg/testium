@@ -8,9 +8,13 @@ import net.sf.testium.executor.CustomInterface;
 import net.sf.testium.executor.TestStepMetaExecutor;
 
 import org.testtoolinterfaces.testresult.TestResult.VERDICT;
+import org.testtoolinterfaces.testresult.TestStepCommandResult;
 import org.testtoolinterfaces.testresult.TestStepResult;
+import org.testtoolinterfaces.testresult.TestStepResultBase;
+import org.testtoolinterfaces.testresult.impl.TestStepCommandResultImpl;
 import org.testtoolinterfaces.testsuite.ParameterArrayList;
 import org.testtoolinterfaces.testsuite.TestStep;
+import org.testtoolinterfaces.testsuite.TestStepCommand;
 import org.testtoolinterfaces.testsuite.TestStepSequence;
 import org.testtoolinterfaces.testsuite.TestSuiteException;
 import org.testtoolinterfaces.utils.RunTimeData;
@@ -60,7 +64,7 @@ public class CustomTestStepExecutor extends GenericCommandExecutor
 	 *
 	 * @see net.sf.testium.executor.general.GenericCommandExecutor#execute(org.testtoolinterfaces.testsuite.TestStep, org.testtoolinterfaces.utils.RunTimeData, java.io.File)
 	 */
-	public TestStepResult execute( TestStep aStep,
+	public TestStepResult execute( TestStepCommand aStep,
 								   RunTimeData aVariables,
 								   File aLogDir )
 				throws TestSuiteException
@@ -68,7 +72,7 @@ public class CustomTestStepExecutor extends GenericCommandExecutor
 		ParameterArrayList parameters = aStep.getParameters();
 		verifyParameters(parameters);
 		
-		TestStepResult result = new TestStepResult( aStep );
+		TestStepCommandResult result = new TestStepCommandResultImpl( aStep );
 
 		if ( ! myDescription.isEmpty() )
 		{
@@ -90,7 +94,7 @@ public class CustomTestStepExecutor extends GenericCommandExecutor
 	
 	protected void doExecute( RunTimeData aParentVars,
 							  ParameterArrayList parameters,
-							  TestStepResult result,
+							  TestStepCommandResult result,
 							  File aLogDir )
 			throws Exception
 	{
@@ -111,7 +115,7 @@ public class CustomTestStepExecutor extends GenericCommandExecutor
 		    	rtVars.add(var);
 		    }
 
-			TestStepResult tsResult = myTestStepExecutor.execute(step, new File( "" ), aLogDir, rtVars);
+			TestStepResultBase tsResult = myTestStepExecutor.execute(step, new File( "" ), aLogDir, rtVars);
 			result.addSubStep(tsResult);
 		} 
 
@@ -128,7 +132,7 @@ public class CustomTestStepExecutor extends GenericCommandExecutor
 	@Override
 	protected void doExecute( RunTimeData aVariables,
 							  ParameterArrayList parameters,
-							  TestStepResult result) throws Exception {
+							  TestStepCommandResult result) throws Exception {
 		throw new Error( "Method should not have been called" );
 	}
 }

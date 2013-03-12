@@ -8,11 +8,10 @@ import java.util.ArrayList;
 import java.util.Hashtable;
 
 import org.testtoolinterfaces.testresult.TestCaseResultLink;
+import org.testtoolinterfaces.testresult.TestGroupEntryResult;
 import org.testtoolinterfaces.testresult.TestGroupResult;
-//import org.testtoolinterfaces.testresult.TestGroupResultLink;
-import org.testtoolinterfaces.testresult.TestStepResult;
+import org.testtoolinterfaces.testresult.TestStepResultBase;
 import org.testtoolinterfaces.testresultinterface.TestGroupResultWriter;
-
 import org.testtoolinterfaces.utils.Trace;
 
 /**
@@ -79,14 +78,14 @@ public class TestGroupResultStdOutWriter implements TestGroupResultWriter
 	    }
 	    
 		// Prepare Steps
-		Hashtable<Integer, TestStepResult> prepareResults = aTestGroupResult.getPrepareResults();
+		Hashtable<Integer, TestStepResultBase> prepareResults = aTestGroupResult.getPrepareResults();
     	for (int key = 0; key < prepareResults.size(); key++)
     	{
-    		String tsId = prepareResults.get(key).getId();
-    		if ( ! myPrintedPrepares.get(tgLongId).contains(tsId) )
+    		String tsDisplayName = prepareResults.get(key).getDisplayName();
+    		if ( ! myPrintedPrepares.get(tgLongId).contains(tsDisplayName) )
     		{
     			myTsResultWriter.print(prepareResults.get(key));
-    			myPrintedPrepares.get(tgLongId).add( tsId );
+    			myPrintedPrepares.get(tgLongId).add( tsDisplayName );
     		}
     	}
 
@@ -104,26 +103,30 @@ public class TestGroupResultStdOutWriter implements TestGroupResultWriter
 //    	}
 
 		// Test Cases
-		Hashtable<Integer, TestCaseResultLink> tcResults = aTestGroupResult.getTestCaseResultLinks();
-    	for (int key = 0; key < tcResults.size(); key++)
+		Hashtable<Integer,TestGroupEntryResult> teResults = aTestGroupResult.getTestGroupEntryResultsTable();
+    	for (int key = 0; key < teResults.size(); key++)
     	{
-    		String tcId = tcResults.get(key).getId();
-    		if ( ! myPrintedTCs.get(tgLongId).contains(tcId) )
-    		{
-        		myTcResultWriter.print(tcResults.get(key));
-        		myPrintedTCs.get(tgLongId).add( tcId );
+    		TestGroupEntryResult teResult = teResults.get(key);
+    		if ( teResult instanceof TestCaseResultLink ) {
+    			TestCaseResultLink tcResultLink = (TestCaseResultLink) teResult;
+	    		String idPath = tcResultLink.getExecutionIdPath();
+	    		if ( ! myPrintedTCs.get(tgLongId).contains(idPath) )
+	    		{
+	        		myTcResultWriter.print(tcResultLink);
+	        		myPrintedTCs.get(tgLongId).add( idPath );
+	    		}
     		}
     	}
 
 		// Restoration Steps
-		Hashtable<Integer, TestStepResult> restoreResults = aTestGroupResult.getRestoreResults();
+		Hashtable<Integer, TestStepResultBase> restoreResults = aTestGroupResult.getRestoreResults();
     	for (int key = 0; key < restoreResults.size(); key++)
     	{
-    		String tsId = restoreResults.get(key).getId();
-    		if ( ! myPrintedRestores.get(tgLongId).contains(tsId) )
+    		String tsDisplayName = restoreResults.get(key).getDisplayName();
+    		if ( ! myPrintedRestores.get(tgLongId).contains(tsDisplayName) )
     		{
     			myTsResultWriter.print(restoreResults.get(key));
-    			myPrintedRestores.get(tgLongId).add( tsId );
+    			myPrintedRestores.get(tgLongId).add( tsDisplayName );
     		}
     	}
 	}

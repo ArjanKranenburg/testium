@@ -8,14 +8,13 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 
-import org.testtoolinterfaces.testresult.TestStepResult;
+import net.sf.testium.systemundertest.SutInterface;
+
+import org.testtoolinterfaces.testresult.TestStepCommandResult;
 import org.testtoolinterfaces.testsuite.ParameterArrayList;
 import org.testtoolinterfaces.testsuite.TestSuiteException;
 import org.testtoolinterfaces.utils.RunTimeData;
 import org.testtoolinterfaces.utils.RunTimeVariable;
-
-import net.sf.testium.executor.general.SpecifiedParameter;
-import net.sf.testium.systemundertest.SutInterface;
 
 /**
  * Sets a variable with a specific date in a defined format.
@@ -50,7 +49,7 @@ public class SetDate extends GenericCommandExecutor {
 
 	@Override
 	protected void doExecute(RunTimeData aVariables,
-			ParameterArrayList parameters, TestStepResult result)
+			ParameterArrayList parameters, TestStepCommandResult result)
 			throws Exception {
 
 		String varName = (String) this.obtainValue(aVariables, parameters, PARSPEC_NAME);

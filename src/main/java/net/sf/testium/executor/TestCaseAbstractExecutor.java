@@ -4,11 +4,12 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOError;
 import java.util.ArrayList;
-import java.util.Hashtable;
 
 import org.testtoolinterfaces.testresult.TestCaseResult;
 import org.testtoolinterfaces.testresult.TestCaseResultLink;
 import org.testtoolinterfaces.testresult.TestResult.VERDICT;
+import org.testtoolinterfaces.testresult.impl.TestCaseResultImpl;
+import org.testtoolinterfaces.testresult.impl.TestCaseResultLinkImpl;
 import org.testtoolinterfaces.testresultinterface.TestCaseResultWriter;
 import org.testtoolinterfaces.testsuite.TestCase;
 import org.testtoolinterfaces.testsuite.TestCaseImpl;
@@ -89,7 +90,7 @@ public abstract class TestCaseAbstractExecutor implements TestCaseExecutor
 		                                      new TestStepSequence(),
 		                                      new TestStepSequence(),
 		                                      new TestStepSequence());
-		TestCaseResult result = new TestCaseResult( testCase );
+		TestCaseResult result = new TestCaseResultImpl( testCase );
     	myTestCaseResultWriter.write( result, resultFile );
 
 		File executable = aTestCaseLink.getLink();
@@ -112,7 +113,7 @@ public abstract class TestCaseAbstractExecutor implements TestCaseExecutor
     		}
     	}
     	
-		return new TestCaseResultLink( aTestCaseLink,
+		return new TestCaseResultLinkImpl( aTestCaseLink,
 		                               result.getResult(),
 		                               resultFile );
     }

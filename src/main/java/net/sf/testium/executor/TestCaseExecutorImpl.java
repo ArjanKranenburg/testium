@@ -4,13 +4,14 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOError;
 import java.util.ArrayList;
-import java.util.Hashtable;
 import java.util.Iterator;
 
 import org.testtoolinterfaces.testresult.TestCaseResult;
 import org.testtoolinterfaces.testresult.TestCaseResultLink;
-import org.testtoolinterfaces.testresult.TestStepResult;
 import org.testtoolinterfaces.testresult.TestResult.VERDICT;
+import org.testtoolinterfaces.testresult.TestStepResultBase;
+import org.testtoolinterfaces.testresult.impl.TestCaseResultImpl;
+import org.testtoolinterfaces.testresult.impl.TestCaseResultLinkImpl;
 import org.testtoolinterfaces.testresultinterface.TestCaseResultWriter;
 import org.testtoolinterfaces.testsuite.TestCase;
 import org.testtoolinterfaces.testsuite.TestCaseImpl;
@@ -66,7 +67,7 @@ public class TestCaseExecutorImpl implements TestCaseExecutor
     	try
 		{
 			testCase = myTestCaseReader.readTcFile(testCaseFile);
-			result = new TestCaseResult( testCase );
+			result = new TestCaseResultImpl( testCase );
 		}
 		catch (TestSuiteException e)
 		{
@@ -78,7 +79,7 @@ public class TestCaseExecutorImpl implements TestCaseExecutor
 	                                     new TestStepSequence(),
 	                                     new TestStepSequence() );
 			
-			result = new TestCaseResult( testCase );
+			result = new TestCaseResultImpl( testCase );
     		result.addComment( e.getLocalizedMessage() );
     		result.addComment( e.getStackTrace().toString() );
 			result.setResult(VERDICT.ERROR);
@@ -102,7 +103,7 @@ public class TestCaseExecutorImpl implements TestCaseExecutor
     	TestStepSequence restoreSteps = testCase.getRestoreSteps();
     	executeRestoreSteps(restoreSteps, result, scriptDir, logDir, aRTData);
 
-		TestCaseResultLink tcResultLink = new TestCaseResultLink( aTestCaseLink,
+		TestCaseResultLink tcResultLink = new TestCaseResultLinkImpl( aTestCaseLink,
     	                                       result.getResult(),
     	                                       logFile );
 
@@ -121,7 +122,7 @@ public class TestCaseExecutorImpl implements TestCaseExecutor
 		while(stepsItr.hasNext())
 		{
 		    TestStep step = stepsItr.next();
-			TestStepResult tsResult = myTestStepExecutor.execute(step, aScriptDir, aLogDir, aRTData);
+			TestStepResultBase tsResult = myTestStepExecutor.execute(step, aScriptDir, aLogDir, aRTData);
 			aResult.addInitialization(tsResult);
 			aResult.setResult(tsResult.getResult());
 			if ( tsResult.getResult().equals(VERDICT.FAILED) )
@@ -143,7 +144,7 @@ public class TestCaseExecutorImpl implements TestCaseExecutor
 		while(stepsItr.hasNext())
 		{
 		    TestStep step = stepsItr.next();
-			TestStepResult tsResult = myTestStepExecutor.execute(step, aScriptDir, aLogDir, aRTData);
+			TestStepResultBase tsResult = myTestStepExecutor.execute(step, aScriptDir, aLogDir, aRTData);
 			aResult.addExecution(tsResult);
 			
 			if ( aResult.getResult().equals(VERDICT.ERROR) )
@@ -163,7 +164,7 @@ public class TestCaseExecutorImpl implements TestCaseExecutor
 		while(stepsItr.hasNext())
 		{
 		    TestStep step = stepsItr.next();
-			TestStepResult tsResult = myTestStepExecutor.execute(step, aScriptDir, aLogDir, aRTData);
+		    TestStepResultBase tsResult = myTestStepExecutor.execute(step, aScriptDir, aLogDir, aRTData);
 			aResult.addRestore(tsResult);
 			aResult.setResult(tsResult.getResult());
 			if ( tsResult.getResult().equals(VERDICT.FAILED) )

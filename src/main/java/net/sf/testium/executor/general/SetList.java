@@ -6,7 +6,7 @@ import java.util.List;
 
 import net.sf.testium.systemundertest.SutInterface;
 
-import org.testtoolinterfaces.testresult.TestStepResult;
+import org.testtoolinterfaces.testresult.TestStepCommandResult;
 import org.testtoolinterfaces.testsuite.Parameter;
 import org.testtoolinterfaces.testsuite.ParameterArrayList;
 import org.testtoolinterfaces.testsuite.ParameterImpl;
@@ -36,7 +36,7 @@ public class SetList extends GenericCommandExecutor
 
 	@Override
 	protected void doExecute(RunTimeData aVariables,
-			ParameterArrayList parameters, TestStepResult result)
+			ParameterArrayList parameters, TestStepCommandResult result)
 			throws Exception
 	{
 		String listName = (String) this.obtainValue(aVariables, parameters, PARSPEC_NAME);

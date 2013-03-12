@@ -4,7 +4,7 @@ import java.io.File;
 import java.util.Iterator;
 
 import org.testtoolinterfaces.testresult.TestResult.VERDICT;
-import org.testtoolinterfaces.testresult.TestStepResult;
+import org.testtoolinterfaces.testresult.TestStepResultBase;
 import org.testtoolinterfaces.testresult.TestStepResultList;
 import org.testtoolinterfaces.testsuite.TestStep;
 import org.testtoolinterfaces.testsuite.TestStepSequence;
@@ -27,7 +27,7 @@ public class TestStepSetExecutor
 		Iterator<TestStep> stepsItr = steps.iterator();
 		while (stepsItr.hasNext()) {
 			TestStep step = stepsItr.next();
-			TestStepResult tsResult = myTestStepExecutor.execute(step,
+			TestStepResultBase tsResult = myTestStepExecutor.execute(step,
 					aScriptDir, aLogDir, aRTData);
 			stepResultSet.add(tsResult);
 		}
@@ -43,7 +43,7 @@ public class TestStepSetExecutor
 		Iterator<TestStep> stepsItr = steps.iterator();
 		while (stepsItr.hasNext()) {
 			TestStep step = stepsItr.next();
-			TestStepResult tsResult = myTestStepExecutor.execute(step,
+			TestStepResultBase tsResult = myTestStepExecutor.execute(step,
 					aScriptDir, aLogDir, aRTData);
 			stepResultSet.add(tsResult);
 

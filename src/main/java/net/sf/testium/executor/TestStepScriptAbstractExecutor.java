@@ -4,6 +4,7 @@ import java.io.File;
 
 import org.testtoolinterfaces.testresult.TestStepResult;
 import org.testtoolinterfaces.testresult.TestResult.VERDICT;
+import org.testtoolinterfaces.testresult.impl.TestStepResultImpl;
 import org.testtoolinterfaces.testsuite.TestStepScript;
 import org.testtoolinterfaces.utils.Trace;
 
@@ -23,7 +24,7 @@ public abstract class TestStepScriptAbstractExecutor implements TestStepScriptEx
 	 */
 	public TestStepResult execute( TestStepScript aStep, File aScriptDir, File aLogDir )
 	{
-		TestStepResult result = new TestStepResult( aStep );
+		TestStepResult result = TestStepResultImpl.createResult( aStep );
 		if ( !aScriptDir.isDirectory() )
 		{
 			result.addComment( "Execution Failed: Script Directory does not exist: " + aScriptDir.getAbsolutePath() );

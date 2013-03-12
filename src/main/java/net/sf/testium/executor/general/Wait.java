@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import net.sf.testium.executor.DefaultInterface;
 import net.sf.testium.systemundertest.SutInterface;
 
-import org.testtoolinterfaces.testresult.TestStepResult;
+import org.testtoolinterfaces.testresult.TestStepCommandResult;
 import org.testtoolinterfaces.testsuite.Parameter;
 import org.testtoolinterfaces.testsuite.ParameterArrayList;
 import org.testtoolinterfaces.testsuite.ParameterImpl;
@@ -32,7 +32,7 @@ public class Wait extends GenericCommandExecutor
 
 	@Override
 	protected void doExecute(RunTimeData aVariables,
-			ParameterArrayList parameters, TestStepResult result)
+			ParameterArrayList parameters, TestStepCommandResult result)
 			throws Exception
 	{
 		int time = (Integer) this.obtainValue(aVariables, parameters, PARSPEC_TIME);

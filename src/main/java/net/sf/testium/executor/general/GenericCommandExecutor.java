@@ -8,12 +8,14 @@ import net.sf.testium.executor.TestStepCommandExecutor;
 import net.sf.testium.systemundertest.SutInterface;
 
 import org.testtoolinterfaces.testresult.TestResult.VERDICT;
+import org.testtoolinterfaces.testresult.TestStepCommandResult;
 import org.testtoolinterfaces.testresult.TestStepResult;
+import org.testtoolinterfaces.testresult.impl.TestStepCommandResultImpl;
 import org.testtoolinterfaces.testsuite.Parameter;
 import org.testtoolinterfaces.testsuite.ParameterArrayList;
 import org.testtoolinterfaces.testsuite.ParameterImpl;
 import org.testtoolinterfaces.testsuite.ParameterVariable;
-import org.testtoolinterfaces.testsuite.TestStep;
+import org.testtoolinterfaces.testsuite.TestStepCommand;
 import org.testtoolinterfaces.testsuite.TestSuiteException;
 import org.testtoolinterfaces.utils.RunTimeData;
 
@@ -32,7 +34,7 @@ public abstract class GenericCommandExecutor implements TestStepCommandExecutor 
 	 */
 	abstract protected void doExecute( RunTimeData aVariables,
 	                                   ParameterArrayList parameters,
-	                                   TestStepResult result) throws Exception;
+	                                   TestStepCommandResult result) throws Exception;
 
 	/**
 	 * @param command
@@ -77,14 +79,14 @@ public abstract class GenericCommandExecutor implements TestStepCommandExecutor 
 		return myParameterSpecs.iterator();
 	}
 
-	public TestStepResult execute( TestStep aStep,
+	public TestStepResult execute( TestStepCommand aStep,
 	                               RunTimeData aVariables,
 	                               File aLogDir ) throws TestSuiteException
 	{
 		ParameterArrayList parameters = aStep.getParameters();
 		verifyParameters(parameters);
 
-		TestStepResult result = new TestStepResult( aStep );
+		TestStepCommandResult result = new TestStepCommandResultImpl( aStep );
 
 		try
 		{

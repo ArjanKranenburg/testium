@@ -5,6 +5,7 @@ import java.util.Hashtable;
 
 import org.testtoolinterfaces.testresult.TestCaseResultLink;
 import org.testtoolinterfaces.testresult.TestResult.VERDICT;
+import org.testtoolinterfaces.testresult.impl.TestCaseResultLinkImpl;
 import org.testtoolinterfaces.testsuite.TestCaseLink;
 import org.testtoolinterfaces.utils.RunTimeData;
 import org.testtoolinterfaces.utils.Trace;
@@ -40,7 +41,7 @@ public class TestCaseMetaExecutor
 			catch (TestCaseLinkExecutionException e)
 			{
 				Trace.print(Trace.EXEC_PLUS, e);
-				result = new TestCaseResultLink( aTestCaseLink,
+				result = new TestCaseResultLinkImpl( aTestCaseLink,
 				                                 VERDICT.ERROR,
 				                                 null );
 				result.addComment(e.getMessage());
@@ -48,7 +49,7 @@ public class TestCaseMetaExecutor
 		}
 		else
 		{
-			result = new TestCaseResultLink( aTestCaseLink,
+			result = new TestCaseResultLinkImpl( aTestCaseLink,
 			                                 VERDICT.ERROR,
 			                                 null );
 

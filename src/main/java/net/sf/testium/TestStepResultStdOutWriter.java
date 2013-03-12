@@ -2,6 +2,7 @@ package net.sf.testium;
 
 import org.testtoolinterfaces.testresult.TestStepResult;
 import org.testtoolinterfaces.testresult.TestResult.VERDICT;
+import org.testtoolinterfaces.testresult.TestStepResultBase;
 import org.testtoolinterfaces.utils.Trace;
 
 public class TestStepResultStdOutWriter
@@ -22,7 +23,7 @@ public class TestStepResultStdOutWriter
 	 * @param aResult	the Test Case Result
 	 * 
 	 */
-	public void print(TestStepResult aResult)
+	public void print(TestStepResultBase aResult)
 	{
 		Trace.println(Trace.UTIL);
 

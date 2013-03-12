@@ -5,16 +5,12 @@ package net.sf.testium.executor.general;
 
 import java.util.ArrayList;
 
-import org.testtoolinterfaces.testresult.TestStepResult;
+import net.sf.testium.executor.DefaultInterface;
+
+import org.testtoolinterfaces.testresult.TestStepCommandResult;
 import org.testtoolinterfaces.testsuite.ParameterArrayList;
 import org.testtoolinterfaces.utils.RunTimeData;
 import org.testtoolinterfaces.utils.RunTimeVariable;
-
-import net.sf.testium.executor.general.GenericCommandExecutor;
-
-import net.sf.testium.executor.DefaultInterface;
-
-import net.sf.testium.executor.general.SpecifiedParameter;
 
 /**
  * 
@@ -48,7 +44,7 @@ public class Substract extends GenericCommandExecutor {
 
 	@Override
 	protected void doExecute(RunTimeData aVariables,
-			ParameterArrayList parameters, TestStepResult result)
+			ParameterArrayList parameters, TestStepCommandResult result)
 			throws Exception
 	{
 		Integer int1 = (Integer) obtainValue( aVariables, parameters, PARSPEC_INT1 );

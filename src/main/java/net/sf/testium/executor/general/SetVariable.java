@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 import net.sf.testium.systemundertest.SutInterface;
 
-import org.testtoolinterfaces.testresult.TestStepResult;
+import org.testtoolinterfaces.testresult.TestStepCommandResult;
 import org.testtoolinterfaces.testsuite.ParameterArrayList;
 import org.testtoolinterfaces.utils.RunTimeData;
 import org.testtoolinterfaces.utils.RunTimeVariable;
@@ -33,7 +33,7 @@ public class SetVariable extends GenericCommandExecutor
 
 	@Override
 	protected void doExecute(RunTimeData aVariables,
-			ParameterArrayList parameters, TestStepResult result)
+			ParameterArrayList parameters, TestStepCommandResult result)
 			throws Exception
 	{
 		String variableName = (String) this.obtainValue(aVariables, parameters, PARSPEC_NAME);

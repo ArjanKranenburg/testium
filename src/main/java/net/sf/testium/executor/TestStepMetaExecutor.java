@@ -9,10 +9,14 @@ import net.sf.testium.systemundertest.SutInterface;
 
 import org.testtoolinterfaces.testresult.TestResult;
 import org.testtoolinterfaces.testresult.TestResult.VERDICT;
+import org.testtoolinterfaces.testresult.TestStepIterationResult;
 import org.testtoolinterfaces.testresult.TestStepResult;
+import org.testtoolinterfaces.testresult.TestStepResultBase;
 import org.testtoolinterfaces.testresult.TestStepResultList;
 import org.testtoolinterfaces.testresult.TestStepSelectionResult;
-import org.testtoolinterfaces.testsuite.ParameterArrayList;
+import org.testtoolinterfaces.testresult.impl.TestStepIterationResultImpl;
+import org.testtoolinterfaces.testresult.impl.TestStepResultImpl;
+import org.testtoolinterfaces.testresult.impl.TestStepSelectionResultImpl;
 import org.testtoolinterfaces.testsuite.TestStep;
 import org.testtoolinterfaces.testsuite.TestStepCommand;
 import org.testtoolinterfaces.testsuite.TestStepIteration;
@@ -41,7 +45,7 @@ public class TestStepMetaExecutor
 		mySetExecutor = new TestStepSetExecutor(this);
 	}
 
-	public TestStepResult execute(TestStep aStep, File aScriptDir, File aLogDir, RunTimeData aRTData)
+	public TestStepResultBase execute(TestStep aStep, File aScriptDir, File aLogDir, RunTimeData aRTData)
 	{
 //		if ( aStep.getClass().equals(TestStepSequence.class) )
 //		{
@@ -49,7 +53,9 @@ public class TestStepMetaExecutor
 //			TestStepResultList subStepResults = new TestStepResultList();
 //			return mySetExecutor.execute_alt(aStep, subStepResults, aScriptDir, aLogDir, aRTData);
 //		}// else
-		
+
+//System.out.println( "Executing step " + aStep.getDisplayName() );
+
 		if ( aStep instanceof TestStepScript )
 		{
 			return executeScript( (TestStepScript) aStep, aScriptDir, aLogDir);
@@ -65,6 +71,7 @@ public class TestStepMetaExecutor
 		}//else
 
 		if ( aStep instanceof TestStepIteration ) {
+System.out.println( "Executing iteration " + aStep.getDisplayName() );
 			return executeIteration( (TestStepIteration) aStep, aScriptDir, aLogDir, aRTData);
 		}//else
 		
@@ -135,11 +142,11 @@ public class TestStepMetaExecutor
 	}
 	
 	private TestStepResult executeSelection( TestStepSelection selectionStep, File aScriptDir, File aLogDir, RunTimeData aRTData ) {
-		TestStepSelectionResult result = new TestStepSelectionResult(selectionStep);
+		TestStepSelectionResult result = new TestStepSelectionResultImpl(selectionStep);
 
 		TestStep ifStep = selectionStep.getIfStep();
 		boolean negator = selectionStep.getNegator();
-		TestStepResult ifResult = this.execute(ifStep, aScriptDir, aLogDir, aRTData);
+		TestStepResult ifResult = (TestStepResult) this.execute(ifStep, aScriptDir, aLogDir, aRTData);
 
 		result.setIfStepResult(ifResult);
 		
@@ -171,7 +178,7 @@ public class TestStepMetaExecutor
 
 //		result.addSubStep( ifResult );
 
-		Iterator<TestStepResult> subResultItr = subStepResults.iterator();
+		Iterator<TestStepResultBase> subResultItr = subStepResults.iterator();
 		while ( subResultItr.hasNext() ) {
 			result.addSubStep( subResultItr.next() );
 		}
@@ -179,58 +186,60 @@ public class TestStepMetaExecutor
 		return result;
 	}
 
-	private TestStepResult executeIteration(TestStepIteration aStep,
+	private TestStepIterationResult executeIteration(TestStepIteration aStep,
 			File aScriptDir, File aLogDir, RunTimeData aRTData) {
 		String listName = aStep.getListName();
 		String listElement = aStep.getItemName();
 		@SuppressWarnings("unchecked")
 		ArrayList<Object> list = aRTData.getValueAs(ArrayList.class, listName);
 
-		aStep.setDisplayName("Foreach " + listElement + " in " + listName);
-		TestStepResult stepResult = new TestStepResult(aStep);
-
 		TestStepSequence doSteps = new TestStepSequence( aStep.getSequence() );
 		TestStep untilStep = aStep.getUntilStep();
 
+		aStep.setDisplayName("Foreach " + listElement + " in " + listName);
+//		TestStepResult stepResult = TestStepResultImpl.createResult(aStep);
+		TestStepIterationResult stepIterationResult = new TestStepIterationResultImpl(aStep);
+
+
 		Iterator<Object> listItr = list.iterator();
-		int seqNr = 0;
 		while (listItr.hasNext() ) {
 			Object element = listItr.next();
+			stepIterationResult.addIterationValue(element);
+
 			RunTimeVariable rtVariable = new RunTimeVariable( listElement, element );
 
-			RunTimeData rtData = new RunTimeData( aRTData );
-			rtData.add(rtVariable);
+			RunTimeData subRtData = new RunTimeData( aRTData );
+			subRtData.add(rtVariable);
 
-			TestStepCommand iterationStep = new TestStepCommand( seqNr,
-					"do " + listElement + " = " + element.toString(),
-					"do " + listElement, this.mySutInterfaces.getInterface( DefaultInterface.NAME ), 
-					new ParameterArrayList() );
-			iterationStep.setDisplayName("do");
-			TestStepResult iterationStepResult = new TestStepResult(iterationStep);
+			TestStepResultList stepResultSet = new TestStepResultList();
+//			TestStepCommand iterationStep = new TestStepCommand( foreachSeqNr,
+//					"do " + listElement + " = " + element.toString(),
+//					"do " + listElement, this.mySutInterfaces.getInterface( DefaultInterface.NAME ), 
+//					new ParameterArrayList() );
+//			iterationStep.setDisplayName("do");
+//			TestStepResult iterationStepResult = TestStepResultImpl.createResult(iterationStep);
 
 // TODO result, (scriptDir,) & logDir
-			TestStepResultList stepResultSet = new TestStepResultList();
-			this.mySetExecutor.execute(doSteps, stepResultSet , aScriptDir, aLogDir, rtData);
+			this.mySetExecutor.execute(doSteps, stepResultSet , aScriptDir, aLogDir, subRtData);
+			stepIterationResult.addExecResult(stepResultSet);
 			
-			Iterator<TestStepResult> resultSetItr = stepResultSet.iterator();
-			while (resultSetItr.hasNext() ) {
-				iterationStepResult.addSubStep(resultSetItr.next());
-			}
-			
-			stepResult.addSubStep(iterationStepResult);
+//			Iterator<TestStepResult> resultSetItr = stepResultSet.iterator();
+//			while (resultSetItr.hasNext() ) {
+//				iterationStepResult.addSubStep(resultSetItr.next());
+//			}
+//			
+//			stepIterationResult.addSubStep(iterationStepResult);
 			
 			if ( untilStep != null ) {
-				TestStepResult myUntilResult = this.execute(untilStep, aScriptDir, aLogDir, rtData);
+				TestStepResult myUntilResult = (TestStepResult) this.execute(untilStep, aScriptDir, aLogDir, subRtData);
 				if (myUntilResult.getResult() == VERDICT.PASSED) {
-					stepResult.addSubStep(myUntilResult);
+					stepIterationResult.addUntilResult(myUntilResult);
 					break;
 				}
 			}
-
-			seqNr++;
 		}
 
-		return stepResult;
+		return stepIterationResult;
 	}
 
 	public void addSutInterface(SutInterface aSutInterface)
@@ -255,7 +264,7 @@ public class TestStepMetaExecutor
 	 */
 	private TestStepResult reportError(TestStep aStep, String message)
 	{
-		TestStepResult result = new TestStepResult( aStep );
+		TestStepResult result = TestStepResultImpl.createResult( aStep );
 		result.setResult(TestResult.ERROR);
 		result.addComment(message);
 

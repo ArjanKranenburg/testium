@@ -2,6 +2,7 @@ package net.sf.testium;
 
 import java.io.File;
 
+import org.testtoolinterfaces.testresult.ResultSummary;
 import org.testtoolinterfaces.testresult.TestRunResult;
 import org.testtoolinterfaces.testresult.TestRunResult.TEST_RUN_STATUS;
 import org.testtoolinterfaces.testresultinterface.TestRunResultWriter;
@@ -40,11 +41,12 @@ public class TestRunResultStdOutWriter implements TestRunResultWriter
    	   		// Print grand totals
    			System.out.println( "======================================================================" );
    			System.out.println();
-   			System.out.println( "Total Test Cases:         " + aRunResult.getNrOfTCs() );
-   			System.out.println( "Total Test Cases Passed:  " + aRunResult.getNrOfTCsPassed() );
-   			System.out.println( "Total Test Cases Failed:  " + aRunResult.getNrOfTCsFailed() );
-   			System.out.println( "Total Test Cases Error:   " + aRunResult.getNrOfTCsError() );
-   			System.out.println( "Total Test Cases Unknown: " + aRunResult.getNrOfTCsUnknown() );
+   			ResultSummary summary = aRunResult.getSummary();
+   			System.out.println( "Total Test Cases:         " + summary.getNrOfTCs() );
+   			System.out.println( "Total Test Cases Passed:  " + summary.getNrOfTCsPassed() );
+   			System.out.println( "Total Test Cases Failed:  " + summary.getNrOfTCsFailed() );
+   			System.out.println( "Total Test Cases Error:   " + summary.getNrOfTCsError() );
+   			System.out.println( "Total Test Cases Unknown: " + summary.getNrOfTCsUnknown() );
    			System.out.println();
    			System.out.println( "Tests finished at:       " + aRunResult.getEndDateString() + " " + aRunResult.getEndTimeString() );
    			System.out.println( "Tests started at:        " + aRunResult.getStartDateString() + " " + aRunResult.getStartTimeString() );

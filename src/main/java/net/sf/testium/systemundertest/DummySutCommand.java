@@ -9,8 +9,9 @@ import net.sf.testium.executor.TestStepCommandExecutor;
 
 import org.testtoolinterfaces.testresult.TestResult.VERDICT;
 import org.testtoolinterfaces.testresult.TestStepResult;
+import org.testtoolinterfaces.testresult.impl.TestStepResultImpl;
 import org.testtoolinterfaces.testsuite.ParameterArrayList;
-import org.testtoolinterfaces.testsuite.TestStep;
+import org.testtoolinterfaces.testsuite.TestStepCommand;
 import org.testtoolinterfaces.utils.RunTimeData;
 import org.testtoolinterfaces.utils.Trace;
 
@@ -32,12 +33,12 @@ public final class DummySutCommand implements TestStepCommandExecutor
 		myAction = anAction;
 	}
 
-	public TestStepResult execute( TestStep aStep,
+	public TestStepResult execute( TestStepCommand aStep,
 	                               RunTimeData aVariables,
 	                               File aLogDir )
 	{
 		Trace.println( Trace.EXEC );
-		TestStepResult result = new TestStepResult( aStep );
+		TestStepResult result = TestStepResultImpl.createResult( aStep );
 		result.setResult(VERDICT.PASSED);
 
 		return result;
