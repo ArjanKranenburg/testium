@@ -47,15 +47,6 @@ public class TestStepMetaExecutor
 
 	public TestStepResultBase execute(TestStep aStep, File aScriptDir, File aLogDir, RunTimeData aRTData)
 	{
-//		if ( aStep.getClass().equals(TestStepSequence.class) )
-//		{
-////			return mySetExecutor.execute(aStep, aScriptDir, aLogDir);
-//			TestStepResultList subStepResults = new TestStepResultList();
-//			return mySetExecutor.execute_alt(aStep, subStepResults, aScriptDir, aLogDir, aRTData);
-//		}// else
-
-//System.out.println( "Executing step " + aStep.getDisplayName() );
-
 		if ( aStep instanceof TestStepScript )
 		{
 			return executeScript( (TestStepScript) aStep, aScriptDir, aLogDir);
@@ -71,7 +62,6 @@ public class TestStepMetaExecutor
 		}//else
 
 		if ( aStep instanceof TestStepIteration ) {
-System.out.println( "Executing iteration " + aStep.getDisplayName() );
 			return executeIteration( (TestStepIteration) aStep, aScriptDir, aLogDir, aRTData);
 		}//else
 		

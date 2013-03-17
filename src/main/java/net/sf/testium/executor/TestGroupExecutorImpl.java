@@ -334,12 +334,9 @@ t.printStackTrace();
 	}
 
 	/**
-	 * @param entry
+	 * @param entryIteration
 	 * @param aResult
-	 * @param aScriptDir
-	 * @param aLogDir
-	 * @param aRTData
-	 * @param rtData
+	 * @param anEnv
 	 */
 	private void executeForeach(TestGroupEntryIteration entryIteration,
 			TestGroupResult aResult, ExecutionEnvironment anEnv) {
@@ -371,17 +368,14 @@ t.printStackTrace();
 			ExecutionEnvironment env = new ExecutionEnvironment( anEnv.getScriptDir(),
 					anEnv.getLogDir(), subRtData );
 
-//			TestGroupResultLink groupResultLink = executeTestGroupEntries(tg, env);
 			List<TestGroupEntryResult> tgEntryResults = executeTestGroupEntries(tg, env);
 			
-//			aResult.addTestExecItemResultLink(groupResultLink);
 			teiIterationResult.addExecResult(tgEntryResults);
 		
 			if ( untilStep != null ) {
 				TestStepResult untilResult = (TestStepResult) myTestStepExecutor.execute(untilStep, env.getScriptDir(), env.getLogDir(), env.getRtData());
 				if (untilResult.getResult() == VERDICT.PASSED) {
 					teiIterationResult.addUntilResult(untilResult);
-//					aResult.addRestore(myUntilResult);
 					break;
 				}
 			}
@@ -465,8 +459,7 @@ t.printStackTrace();
 		
 		this.executeExecSteps(doSteps, groupResult, env);
 
-		Collection<TestGroupEntryResult> results = groupResult.getTestGroupEntryResults();
-		return new ArrayList<TestGroupEntryResult>(results);
+		return groupResult.getTestGroupEntryResults();
 	}
 
 //	/**
