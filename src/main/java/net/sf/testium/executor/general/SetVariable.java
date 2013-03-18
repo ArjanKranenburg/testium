@@ -6,6 +6,7 @@ import net.sf.testium.systemundertest.SutInterface;
 
 import org.testtoolinterfaces.testresult.TestStepCommandResult;
 import org.testtoolinterfaces.testsuite.ParameterArrayList;
+import org.testtoolinterfaces.testsuite.TestSuiteException;
 import org.testtoolinterfaces.utils.RunTimeData;
 import org.testtoolinterfaces.utils.RunTimeVariable;
 
@@ -38,6 +39,7 @@ public class SetVariable extends GenericCommandExecutor
 		this.addParamSpec(PARSPEC_NAME);
 		this.addParamSpec(PARSPEC_VALUE);
 //		this.addParamSpec(PARSPEC_TYPE);
+		this.addParamSpec(PARSPEC_SCOPE);
 	}
 
 	@Override
@@ -47,8 +49,9 @@ public class SetVariable extends GenericCommandExecutor
 	{
 		String variableName = (String) this.obtainValue(aVariables, parameters, PARSPEC_NAME);
 		String valueString = (String) this.obtainValue(aVariables, parameters, PARSPEC_VALUE);
-		String scope = (String) this.obtainValue(aVariables, parameters, PARSPEC_SCOPE);
-//		String valueType = (String) this.obtainValue(aVariables, parameters, PARSPEC_TYPE);
+		String scope = (String) this.obtainOptionalValue(aVariables, parameters, PARSPEC_SCOPE);
+
+		//		String valueType = (String) this.obtainValue(aVariables, parameters, PARSPEC_TYPE);
 //		Class<?> type;
 //		try
 //		{
@@ -64,7 +67,7 @@ public class SetVariable extends GenericCommandExecutor
 		if ( scope.equalsIgnoreCase(SCOPE_PARENT) ) {
 			RunTimeData parentScope = aVariables.getParentScope();
 			if ( parentScope == null ) {
-				throw new Error( "There is no parent-scope, so the variable can't be added." );
+				throw new TestSuiteException( "There is no parent-scope, so the variable can't be added." );
 			}
 			parentScope.add(rtVariable);
 		} else {
