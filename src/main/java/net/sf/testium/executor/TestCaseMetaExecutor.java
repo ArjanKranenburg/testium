@@ -38,13 +38,13 @@ public class TestCaseMetaExecutor
 			{
 				result = executor.execute(aTestCaseLink, aLogDir, aRTData);
 			}
-			catch (TestCaseLinkExecutionException e)
+			catch (Throwable t)
 			{
-				Trace.print(Trace.EXEC_PLUS, e);
+				Trace.print(Trace.EXEC_PLUS, t);
 				result = new TestCaseResultLinkImpl( aTestCaseLink,
 				                                 VERDICT.ERROR,
 				                                 null );
-				result.addComment(e.getMessage());
+				result.addComment(t.getMessage());
 			}
 		}
 		else
