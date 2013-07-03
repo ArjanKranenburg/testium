@@ -62,13 +62,13 @@ public class CheckListSize extends GenericCommandExecutor
 		else if ( match.equalsIgnoreCase( "lessThan" ) )
 		{
 			checkLessThan(list, expectedSize,
-					"List size was " + list.size() + ". Expected " + expectedSize );
+					"List size was " + list.size() + ". Expected less than " + expectedSize );
 			return;
 		}
 		else if ( match.equalsIgnoreCase( "greaterThan" ) )
 		{
 			checkGreaterThan(list, expectedSize,
-					"List size was " + list.size() + ". Expected " + expectedSize );
+					"List size was " + list.size() + ". Expected more than " + expectedSize );
 			return;
 		}
 		else
@@ -93,14 +93,14 @@ public class CheckListSize extends GenericCommandExecutor
 
 	private void checkLessThan(List<Object> list, int referenceSize, String message)
 			throws TestSuiteException {
-		if ( list.size() < referenceSize ) {
+		if ( ! ( list.size() < referenceSize ) ) {
 			throw new TestSuiteException( message );
 		}
 	}
 
 	private void checkGreaterThan(List<Object> list, int referenceSize, String message)
 		throws TestSuiteException {
-	if ( list.size() > referenceSize ) {
+	if ( ! (list.size() > referenceSize) ) {
 		throw new TestSuiteException( message );
 	}
 	}
