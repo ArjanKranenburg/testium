@@ -16,7 +16,12 @@ public class SetVariable extends GenericCommandExecutor
 	private static final String COMMAND = "setVariable";
 	private static final String PAR_NAME  = "name";
 	private static final String PAR_VALUE = "value";
+	private static final String PAR_TYPE = "type";
 	private static final String PAR_SCOPE = "scope";
+
+//	private static final String TYPE_STRING = "String";
+	private static final String TYPE_INT  = "Int";
+	private static final String TYPE_INTEGER = "Integer";
 
 	private static final String SCOPE_CURRENT = "current";
 	private static final String SCOPE_PARENT  = "parent";
@@ -25,9 +30,9 @@ public class SetVariable extends GenericCommandExecutor
 			PAR_NAME, String.class, false, true, false, false );
 	private static final SpecifiedParameter PARSPEC_VALUE = new SpecifiedParameter (
 			PAR_VALUE, String.class, false, true, true, true );
-//	private static final SpecifiedParameter PARSPEC_TYPE = new SpecifiedParameter (
-//	        "type", String.class, true, true, false, false )
-//		.setDefaultValue("String");
+	private static final SpecifiedParameter PARSPEC_TYPE = new SpecifiedParameter (
+			PAR_TYPE, String.class, true, true, false, false )
+		.setDefaultValue("String");
 	private static final SpecifiedParameter PARSPEC_SCOPE = new SpecifiedParameter (
 			PAR_SCOPE, String.class, true, true, true, false )
 		.setDefaultValue(SCOPE_CURRENT);
@@ -38,7 +43,7 @@ public class SetVariable extends GenericCommandExecutor
 
 		this.addParamSpec(PARSPEC_NAME);
 		this.addParamSpec(PARSPEC_VALUE);
-//		this.addParamSpec(PARSPEC_TYPE);
+		this.addParamSpec(PARSPEC_TYPE);
 		this.addParamSpec(PARSPEC_SCOPE);
 	}
 
@@ -49,9 +54,13 @@ public class SetVariable extends GenericCommandExecutor
 	{
 		String variableName = (String) this.obtainValue(aVariables, parameters, PARSPEC_NAME);
 		String valueString = (String) this.obtainValue(aVariables, parameters, PARSPEC_VALUE);
+		Object value = valueString;
 		String scope = (String) this.obtainOptionalValue(aVariables, parameters, PARSPEC_SCOPE);
 
-		//		String valueType = (String) this.obtainValue(aVariables, parameters, PARSPEC_TYPE);
+		String valueType = (String) this.obtainValue(aVariables, parameters, PARSPEC_TYPE);
+		if ( valueType.equalsIgnoreCase(TYPE_INT)  || valueType.equalsIgnoreCase(TYPE_INTEGER) ) {
+			value = new Integer( valueString );
+		}
 //		Class<?> type;
 //		try
 //		{
@@ -61,9 +70,10 @@ public class SetVariable extends GenericCommandExecutor
 //			throw new TestSuiteException("No class \"" + valueType + "\" known for variable \"" + variableName + "\"" );
 //		}
 		
-		result.setDisplayName( this.toString() + " " + variableName + "=\"" + valueString + "\"" );
+		result.setDisplayName( this.toString() + " " + variableName + "=\"" + value.toString() + "\"" );
 //		RunTimeVariable rtVariable = new RunTimeVariable( variableName, type, valueString );
-		RunTimeVariable rtVariable = new RunTimeVariable( variableName, valueString );
+		RunTimeVariable rtVariable = new RunTimeVariable( variableName, value );
+
 		if ( scope.equalsIgnoreCase(SCOPE_PARENT) ) {
 			RunTimeData parentScope = aVariables.getParentScope();
 			if ( parentScope == null ) {
