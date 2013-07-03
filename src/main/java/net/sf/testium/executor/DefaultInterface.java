@@ -26,6 +26,7 @@ public class DefaultInterface extends CustomInterface
 		add(new CheckListSize(this));
 		add(new CheckVariable( this ));
 		add(new Comment( this ));
+		add(new Fail( this ));
 		add(new GetListItem(this));
 		add(new GetListSize(this));
 		add(new PrintVars( this ));
