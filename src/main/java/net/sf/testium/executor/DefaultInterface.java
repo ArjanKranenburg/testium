@@ -36,6 +36,7 @@ public class DefaultInterface extends CustomInterface
 		add(new SetVariable( this));
 		add(new Sum(this));
 		add(new Substract(this));
+		add(new SubString(this));
 		add(new Wait( this ));
 	}
 }
