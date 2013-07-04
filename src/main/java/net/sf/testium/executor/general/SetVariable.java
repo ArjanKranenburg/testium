@@ -54,12 +54,14 @@ public class SetVariable extends GenericCommandExecutor
 	{
 		String variableName = (String) this.obtainValue(aVariables, parameters, PARSPEC_NAME);
 		String valueString = (String) this.obtainValue(aVariables, parameters, PARSPEC_VALUE);
-		Object value = valueString;
 		String scope = (String) this.obtainOptionalValue(aVariables, parameters, PARSPEC_SCOPE);
-
 		String valueType = (String) this.obtainValue(aVariables, parameters, PARSPEC_TYPE);
+
+		RunTimeVariable rtVariable;
 		if ( valueType.equalsIgnoreCase(TYPE_INT)  || valueType.equalsIgnoreCase(TYPE_INTEGER) ) {
-			value = new Integer( valueString );
+			rtVariable = new RunTimeVariable( variableName, new Integer( valueString ) );
+		} else {
+			rtVariable = new RunTimeVariable( variableName, valueString );			
 		}
 //		Class<?> type;
 //		try
@@ -70,9 +72,7 @@ public class SetVariable extends GenericCommandExecutor
 //			throw new TestSuiteException("No class \"" + valueType + "\" known for variable \"" + variableName + "\"" );
 //		}
 		
-		result.setDisplayName( this.toString() + " " + variableName + "=\"" + value.toString() + "\"" );
-//		RunTimeVariable rtVariable = new RunTimeVariable( variableName, type, valueString );
-		RunTimeVariable rtVariable = new RunTimeVariable( variableName, value );
+		result.setDisplayName( this.toString() + " " + variableName + "=\"" + rtVariable.getValue().toString() + "\"" );
 
 		if ( scope.equalsIgnoreCase(SCOPE_PARENT) ) {
 			RunTimeData parentScope = aVariables.getParentScope();
