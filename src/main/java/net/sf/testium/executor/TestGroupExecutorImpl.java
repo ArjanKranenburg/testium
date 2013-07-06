@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOError;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
@@ -344,12 +343,17 @@ t.printStackTrace();
 		String listElement = entryIteration.getItemName();
 		@SuppressWarnings("unchecked")
 		ArrayList<Object> list = anEnv.getRtData().getValueAs(ArrayList.class, listName);
-
 		TestGroupEntrySequence doSteps = new TestGroupEntrySequence( entryIteration.getSequence() );
 		TestStep untilStep = entryIteration.getUntilStep();
 		
 		TestExecItemIterationResult teiIterationResult = new TestExecItemIterationResultImpl(entryIteration);
 
+		if ( list == null ) {
+			teiIterationResult.addComment("List " + listName + " is not set." );
+			aResult.addTgEntryResult(teiIterationResult);
+			return;
+		}
+		
 		Iterator<Object> listItr = list.iterator();
 		int seqNr = entryIteration.getSequenceNr();
 		int foreachSeqNr = 0;
