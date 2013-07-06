@@ -100,32 +100,43 @@ public class CustomTestStepExecutor extends GenericCommandExecutor
 	{
 
 	    RunTimeData rtVars = new RunTimeData( aParentVars );
-		Iterator<TestStep> stepsItr = mySteps.iterator();
+	    addOwnParametersToRunTimeVariables(parameters, rtVars);
+
+	    Iterator<TestStep> stepsItr = mySteps.iterator();
 		while(stepsItr.hasNext())
 		{
 		    TestStep step = stepsItr.next();
-		    for ( SpecifiedParameter parameterSpec : this.getParameters() )
-		    {
-		    	Object param = this.obtainValue(aParentVars, parameters, parameterSpec);
-		    	if ( param == null )
-		    	{
-		    		param = parameterSpec.getDefaultValue();
-		    	}
-		    	RunTimeVariable var = new RunTimeVariable(parameterSpec.getName(), param);
-		    	rtVars.add(var);
-		    }
 
 			TestStepResultBase tsResult = myTestStepExecutor.execute(step, new File( "" ), aLogDir, rtVars);
 			result.addSubStep(tsResult);
 		} 
 
-	    for ( String paramName : myReturnParameters )
+	    addReturnVarsToParentRuntimeData(rtVars);
+	}
+
+	private void addOwnParametersToRunTimeVariables(ParameterArrayList parameters, RunTimeData rtVars) throws Exception {
+		RunTimeData parentVars = rtVars.getParentScope();
+		for ( SpecifiedParameter parameterSpec : this.getParameters() )
+	    {
+	    	Object param = this.obtainValue(parentVars, parameters, parameterSpec);
+	    	if ( param == null )
+	    	{
+	    		param = parameterSpec.getDefaultValue();
+	    	}
+	    	RunTimeVariable var = new RunTimeVariable(parameterSpec.getName(), param);
+	    	rtVars.add(var);
+	    }
+	}
+
+	private void addReturnVarsToParentRuntimeData(RunTimeData rtVars) throws Error {
+		RunTimeData parentVars = rtVars.getParentScope();
+		for ( String paramName : myReturnParameters )
 	    {
 	    	if ( ! rtVars.containsKey(paramName) )
 	    	{
 	    		throw new Error( "Return Parameter \"" + paramName + "\" is not set." );
 	    	}
-    		aParentVars.add( rtVars.get(paramName) );
+	    	parentVars.add( rtVars.get(paramName) );
 	    }
 	}
 
