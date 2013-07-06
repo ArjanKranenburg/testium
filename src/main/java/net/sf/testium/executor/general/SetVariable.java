@@ -55,7 +55,7 @@ public class SetVariable extends GenericCommandExecutor
 		String variableName = (String) this.obtainValue(aVariables, parameters, PARSPEC_NAME);
 		String valueString = (String) this.obtainValue(aVariables, parameters, PARSPEC_VALUE);
 		String scope = (String) this.obtainOptionalValue(aVariables, parameters, PARSPEC_SCOPE);
-		String valueType = (String) this.obtainValue(aVariables, parameters, PARSPEC_TYPE);
+		String valueType = (String) this.obtainOptionalValue(aVariables, parameters, PARSPEC_TYPE);
 
 		RunTimeVariable rtVariable;
 		if ( valueType.equalsIgnoreCase(TYPE_INT)  || valueType.equalsIgnoreCase(TYPE_INTEGER) ) {
