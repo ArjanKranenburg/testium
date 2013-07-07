@@ -190,6 +190,10 @@ public class TestStepMetaExecutor
 //		TestStepResult stepResult = TestStepResultImpl.createResult(aStep);
 		TestStepIterationResult stepIterationResult = new TestStepIterationResultImpl(aStep);
 
+		if ( list == null ) {
+			stepIterationResult.addComment("List " + listName + " is not set." );
+			return stepIterationResult;
+		}
 
 		Iterator<Object> listItr = list.iterator();
 		while (listItr.hasNext() ) {
