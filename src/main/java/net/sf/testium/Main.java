@@ -56,6 +56,7 @@ public class Main
 
 		readGlobalConfigFile( rtData );
 		readPersonalConfigFile( rtData );
+		readGlobalSystemProperties( rtData );
 
 		PluginCollection plugins = loadPlugins( rtData );
 		Testium testium = createTestium(rtData, plugins);
@@ -142,6 +143,24 @@ public class Main
 //	    }
 //	}
 	
+	private static void readGlobalSystemProperties(RunTimeData rtData) {
+
+		Trace.println(Trace.EXEC, "readGlobalSystemProperties( rtData )", true );
+
+		String sysPropTestEnv = System.getProperty( "testium." + GlobalConfigurationXmlHandler.CFG_TESTENVIRONMENT );
+		if ( sysPropTestEnv != null ) {
+			RunTimeVariable rtVar = new RunTimeVariable(Testium.TESTENVIRONMENT, sysPropTestEnv);
+			rtData.add( rtVar );
+		}
+		
+		String sysPropTestPhase = System.getProperty( "testium." + GlobalConfigurationXmlHandler.CFG_TESTPHASE );
+		if ( sysPropTestPhase != null ) {
+			RunTimeVariable rtVar = new RunTimeVariable(Testium.TESTPHASE, sysPropTestPhase);
+			rtData.add( rtVar );
+		}
+		
+	}
+
 	/**
 	 * @param rtData
 	 */
