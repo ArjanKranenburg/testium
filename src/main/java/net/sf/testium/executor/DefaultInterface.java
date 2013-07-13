@@ -23,9 +23,10 @@ public class DefaultInterface extends CustomInterface
 		Trace.println(Trace.CONSTRUCTOR);
 
 		add(new AddToList(this));
-		add(new CheckListSize(this));
-		add(new CheckVariable( this ));
 		add(new CheckInteger( this ));
+		add(new CheckListSize(this));
+		add(new CheckString( this ));
+		add(new CheckVariable( this ));
 		add(new Comment( this ));
 		add(new Fail( this ));
 		add(new GetListItem(this));

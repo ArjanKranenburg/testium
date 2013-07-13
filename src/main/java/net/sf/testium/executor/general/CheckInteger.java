@@ -47,32 +47,31 @@ public class CheckInteger extends GenericCommandExecutor
 			ParameterArrayList parameters, TestStepCommandResult result)
 			throws Exception 
 	{
-		@SuppressWarnings("unchecked")
 		Integer integerToCheck = (Integer) this.obtainValue(aVariables, parameters, PARSPEC_INTEGER);
-		int expectedSize = (Integer) this.obtainValue(aVariables, parameters, PARSPEC_SIZE);
+		int expectedValue = (Integer) this.obtainValue(aVariables, parameters, PARSPEC_SIZE);
 		String match = (String) this.obtainOptionalValue(aVariables, parameters, PARSPEC_MATCH);
 
-		String listName = parameters.get(PAR_INTEGER).getName();
-		result.setDisplayName( this.toString() + " " + listName + " " + expectedSize );
+		String intName = parameters.get(PAR_INTEGER).getName();
+		result.setDisplayName( this.toString() + " " + intName + " " + expectedValue );
 
 		
 		
 		if ( match.equalsIgnoreCase( MATCH_EXACT ) )
 		{
-			checkExact(integerToCheck, expectedSize,
-					"Integer is " + integerToCheck + ". Expected " + expectedSize );
+			checkExact(integerToCheck, expectedValue,
+					"Integer is " + integerToCheck + ". Expected " + expectedValue );
 			return;
 		}
 		else if ( match.equalsIgnoreCase( MATCH_LESS_THAN ) )
 		{
-			checkLessThan(integerToCheck, expectedSize,
-					"Integer is " + integerToCheck + ". Expected less than " + expectedSize );
+			checkLessThan(integerToCheck, expectedValue,
+					"Integer is " + integerToCheck + ". Expected less than " + expectedValue );
 			return;
 		}
 		else if ( match.equalsIgnoreCase( MATCH_GREATER_THAN ) )
 		{
-			checkGreaterThan(integerToCheck, expectedSize,
-					"Integer is " + integerToCheck + ". Expected more than " + expectedSize );
+			checkGreaterThan(integerToCheck, expectedValue,
+					"Integer is " + integerToCheck + ". Expected more than " + expectedValue );
 			return;
 		}
 		else
