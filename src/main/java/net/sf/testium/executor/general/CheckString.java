@@ -46,27 +46,27 @@ public class CheckString extends GenericCommandExecutor
 
 		public static String valuesString() {
 			String allValues = "";
-			for( MATCH supportedValues : MATCH.values() ) {
-				allValues = (allValues.isEmpty() ? supportedValues.toString() : allValues + ", " + supportedValues);
+			for( MATCH supportedValue : MATCH.values() ) {
+				allValues = (allValues.isEmpty() ? supportedValue.toString() : allValues + ", " + supportedValue.toString());
 			}
 			return allValues;
 		}
 	}
 
-	private static final String COMMAND = "checkVariable";
+	private static final String COMMAND = "checkString";
 	
-	private static final String PAR_VARIABLE = "variable";
+	private static final String PAR_STRING = "string";
 	private static final String PAR_VALUE = "value";
 	public static final String PAR_MATCH = "match";
 	public static final String PAR_CASE = "case";
 
 	private static final SpecifiedParameter PARSPEC_VARIABLE = new SpecifiedParameter( 
-			PAR_VARIABLE, String.class, false, false, true, false );
+			PAR_STRING, String.class, false, false, true, false );
 	private static final SpecifiedParameter PARSPEC_VALUE = new SpecifiedParameter( 
 			PAR_VALUE, String.class, false, true, true, true );
 	public static final SpecifiedParameter PARSPEC_MATCH = new SpecifiedParameter( 
 			PAR_MATCH, String.class, true, true, true, false )
-				.setDefaultValue(MATCH.EXACT);
+				.setDefaultValue(MATCH.EXACT.toString());
 	public static final SpecifiedParameter PARSPEC_CASE = new SpecifiedParameter( 
 			PAR_CASE, Boolean.class, true, true, true, false )
 				.setDefaultValue( true );
@@ -92,10 +92,10 @@ public class CheckString extends GenericCommandExecutor
 		String stringToCheck = (String) this.obtainValue(aVariables, parameters, PARSPEC_VARIABLE);
 		String expectedValue = (String) this.obtainValue(aVariables, parameters, PARSPEC_VALUE);
 		String matchStr = (String) this.obtainOptionalValue(aVariables, parameters, PARSPEC_MATCH);
-		MATCH match = MATCH.valueOf(matchStr);
+		MATCH match = MATCH.enumOf(matchStr);
 		boolean caseSensitive = (Boolean) this.obtainOptionalValue(aVariables, parameters, PARSPEC_CASE);
 
-		String stringName = parameters.get(PAR_VARIABLE).getName();
+		String stringName = parameters.get(PAR_STRING).getName();
 		result.setDisplayName( this.toString() + " " + stringName + " " + expectedValue );
 
 		checkString(stringToCheck, expectedValue, match, caseSensitive, "Actual Text");
@@ -108,7 +108,7 @@ public class CheckString extends GenericCommandExecutor
 	 * @param caseSensitive
 	 * @throws Exception
 	 */
-	public void checkString(String stringToCheck, String expectedValue,
+	public static void checkString(String stringToCheck, String expectedValue,
 			MATCH match, boolean caseSensitive, String msgPrefix) throws Exception {
 		if ( match.equals( MATCH.EXACT ))	{
 			checkExact(expectedValue, stringToCheck, caseSensitive,
@@ -127,7 +127,7 @@ public class CheckString extends GenericCommandExecutor
 					msgPrefix + ": \"" + stringToCheck + "\" does not end with: \"" + expectedValue + "\"" );
 		}
 		else {
-			throw new Exception( "match criteria \"" + match + "\" is not supported. Only " + MATCH.valuesString() );
+			throw new Exception( "match criteria \"" + match.toString() + "\" is not supported. Only " + MATCH.valuesString() );
 		}
 	}
 
