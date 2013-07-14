@@ -186,7 +186,6 @@ public class TestStepMetaExecutor
 		TestStepSequence doSteps = new TestStepSequence( aStep.getSequence() );
 		TestStep untilStep = aStep.getUntilStep();
 
-		aStep.setDisplayName("Foreach " + listElement + " in " + listName);
 //		TestStepResult stepResult = TestStepResultImpl.createResult(aStep);
 		TestStepIterationResult stepIterationResult = new TestStepIterationResultImpl(aStep);
 
