@@ -147,11 +147,7 @@ public class Testium
 	{
 		Trace.println(Trace.EXEC, "execute( " + aTestGroup.getId() + " )", true);
 
-		File logDir = anRtData.getValueAsFile(Testium.RESULTBASEDIR);
-		if ( !logDir.isDirectory() )
-		{
-			logDir.mkdir();
-		}
+		File logDir = getResultBasedir(anRtData);
 
 		SutInfo sut = mySutControl.getSutInfo( logDir, anRtData );
 
@@ -175,5 +171,18 @@ public class Testium
 	{
 		// TODO Auto-generated method stub
 		
+	}
+
+	/**
+	 * @param anRtData
+	 * @return
+	 */
+	public static File getResultBasedir(RunTimeData anRtData) {
+		File logDir = anRtData.getValueAsFile(Testium.RESULTBASEDIR);
+		if ( !logDir.isDirectory() )
+		{
+			logDir.mkdir();
+		}
+		return logDir;
 	}
 }

@@ -2,7 +2,9 @@ package net.sf.testium;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.io.IOError;
+import java.io.IOException;
 import java.net.URISyntaxException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -23,14 +25,17 @@ import net.sf.testium.executor.TestExecutionException;
 import net.sf.testium.plugins.PluginClassLoader;
 import net.sf.testium.plugins.PluginCollection;
 
+import org.apache.commons.io.FileUtils;
 import org.testtoolinterfaces.cmdline.CmdLineExecutionParser;
 import org.testtoolinterfaces.cmdline.CmdLineParser;
 import org.testtoolinterfaces.cmdline.ParameterException;
+import org.testtoolinterfaces.testresultinterface.XmlWriterUtils;
 import org.testtoolinterfaces.testsuite.TestGroup;
 import org.testtoolinterfaces.testsuite.TestInterface;
 import org.testtoolinterfaces.utils.RunTimeData;
 import org.testtoolinterfaces.utils.RunTimeVariable;
 import org.testtoolinterfaces.utils.Trace;
+import org.testtoolinterfaces.utils.Warning;
 import org.xml.sax.XMLReader;
 
 
@@ -82,6 +87,10 @@ public class Main
 		else if( command.equalsIgnoreCase( CmdLineParser.KEYWORDS ) )
 		{
 			showKeywords( plugins );
+		}
+		else if( command.equalsIgnoreCase( CmdLineParser.KEYWORD_DETAILS ) )
+		{
+			saveKeywordDefinitions( plugins, rtData );
 		}
 		else
 		{
@@ -620,5 +629,59 @@ public class Main
 		    
 		    System.out.println();
 		}
+	}
+
+	private static void saveKeywordDefinitions(PluginCollection plugins, RunTimeData rtData) {
+		File baseDir = rtData.getValueAsFile(Testium.BASEDIR).getParentFile().getParentFile();
+		File keywordsDir = new File( baseDir, "keywords" );
+		if ( keywordsDir.isDirectory() ) {
+			try {
+				FileUtils.deleteDirectory(keywordsDir);
+			} catch (IOException e) {
+				System.out.println("Could not empty keywordsDir. Trying to overwrite...");
+				Trace.print(Trace.EXEC, e);
+			}
+		}
+		keywordsDir.mkdir();
+
+		SupportedInterfaceList interfaceList = plugins.getInterfaces();
+		Iterator<TestInterface> iFaceItr = interfaceList.iterator();
+		while(iFaceItr.hasNext())
+		{
+			TestInterface iFace = iFaceItr.next();
+			File ifTargetDir = new File( keywordsDir, iFace.getInterfaceName() );
+			if ( !ifTargetDir.isDirectory() )	{
+				ifTargetDir.mkdir();
+			}
+
+			ArrayList<String> commandList = iFace.getCommands();
+			Collections.sort(commandList);
+		    for (String command : commandList)
+		    {
+				File cmdFile = new File( ifTargetDir, command + ".xml" );
+				FileWriter cmdFileWriter;
+				try
+				{
+					cmdFileWriter = new FileWriter( cmdFile );
+
+					XmlWriterUtils.printXmlDeclaration(cmdFileWriter, "teststepdefinition.xsl");
+
+//					this.printXml(aTestGroupResult, cmdFileWriter, "", logDir);
+					cmdFileWriter.write("<testgroup");
+					cmdFileWriter.write(" id='" + command + "'");
+					cmdFileWriter.write(">\n");
+					cmdFileWriter.flush();
+				}
+				catch (IOException exception)
+				{
+					Warning.println("Saving Command File failed: " + exception.getMessage());
+					Trace.print(Trace.UTIL, exception);
+				}
+		    }
+
+		}
+
+		System.out.println( "See for the keyword definition files:" );
+		System.out.println( keywordsDir.getAbsolutePath() );
 	}
 }
