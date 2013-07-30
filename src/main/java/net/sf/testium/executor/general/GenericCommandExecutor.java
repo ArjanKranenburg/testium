@@ -22,6 +22,7 @@ import org.testtoolinterfaces.utils.RunTimeData;
 public abstract class GenericCommandExecutor implements TestStepCommandExecutor {
 
 	private String myCommand;
+	private String myDescription;
 	private SutInterface myInterface;
 	private ArrayList<SpecifiedParameter> myParameterSpecs;
 
@@ -41,17 +42,34 @@ public abstract class GenericCommandExecutor implements TestStepCommandExecutor 
 	 * @param parameterSpecs
 	 */
 	public GenericCommandExecutor( String aCommand,
+								   String aDescription,
 	                               SutInterface anInterface,
 								   ArrayList<SpecifiedParameter> parameterSpecs )
 	{
 		myCommand = aCommand;
+		myDescription = aDescription;
 		myInterface = anInterface;
 		myParameterSpecs = parameterSpecs;
+	}
+	
+	/**
+	 * @param command
+	 * @param parameterSpecs
+	 */
+	@Deprecated
+	public GenericCommandExecutor( String aCommand,
+	                               SutInterface anInterface,
+								   ArrayList<SpecifiedParameter> parameterSpecs ) {
+		this(aCommand, "", anInterface, parameterSpecs);
 	}
 	
 	public String getCommand()
 	{
 		return myCommand;
+	}
+	
+	public String getDescription() {
+		return myDescription;
 	}
 
 	protected SutInterface getInterface()
@@ -69,7 +87,7 @@ public abstract class GenericCommandExecutor implements TestStepCommandExecutor 
 		myParameterSpecs.add(specifiedParameter);
 	}
 
-	protected final ArrayList<SpecifiedParameter> getParameters()
+	public final ArrayList<SpecifiedParameter> getParameterSpecs()
 	{
 		return myParameterSpecs;
 	}

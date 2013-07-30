@@ -19,6 +19,7 @@ import javax.xml.parsers.SAXParserFactory;
 
 import net.sf.testium.configuration.ConfigurationException;
 import net.sf.testium.configuration.GlobalConfigurationXmlHandler;
+import net.sf.testium.configuration.KeywordDefinitionsConfiguration;
 import net.sf.testium.configuration.PersonalConfigurationXmlHandler;
 import net.sf.testium.executor.SupportedInterfaceList;
 import net.sf.testium.executor.TestExecutionException;
@@ -632,56 +633,11 @@ public class Main
 	}
 
 	private static void saveKeywordDefinitions(PluginCollection plugins, RunTimeData rtData) {
-		File baseDir = rtData.getValueAsFile(Testium.BASEDIR).getParentFile().getParentFile();
-		File keywordsDir = new File( baseDir, "keywords" );
-		if ( keywordsDir.isDirectory() ) {
-			try {
-				FileUtils.deleteDirectory(keywordsDir);
-			} catch (IOException e) {
-				System.out.println("Could not empty keywordsDir. Trying to overwrite...");
-				Trace.print(Trace.EXEC, e);
-			}
-		}
-		keywordsDir.mkdir();
+		
+		File kdwConfigFile = new File( Testium.CONFIGDIR, "KeywordDefinitionsWriter.xml");
+		KeywordDefinitionsConfiguration kdwConfig = KeywordDefinitionsWriter.readGlobalInterfaceConfiguration(kdwConfigFile, rtData);
 
-		SupportedInterfaceList interfaceList = plugins.getInterfaces();
-		Iterator<TestInterface> iFaceItr = interfaceList.iterator();
-		while(iFaceItr.hasNext())
-		{
-			TestInterface iFace = iFaceItr.next();
-			File ifTargetDir = new File( keywordsDir, iFace.getInterfaceName() );
-			if ( !ifTargetDir.isDirectory() )	{
-				ifTargetDir.mkdir();
-			}
-
-			ArrayList<String> commandList = iFace.getCommands();
-			Collections.sort(commandList);
-		    for (String command : commandList)
-		    {
-				File cmdFile = new File( ifTargetDir, command + ".xml" );
-				FileWriter cmdFileWriter;
-				try
-				{
-					cmdFileWriter = new FileWriter( cmdFile );
-
-					XmlWriterUtils.printXmlDeclaration(cmdFileWriter, "teststepdefinition.xsl");
-
-//					this.printXml(aTestGroupResult, cmdFileWriter, "", logDir);
-					cmdFileWriter.write("<testgroup");
-					cmdFileWriter.write(" id='" + command + "'");
-					cmdFileWriter.write(">\n");
-					cmdFileWriter.flush();
-				}
-				catch (IOException exception)
-				{
-					Warning.println("Saving Command File failed: " + exception.getMessage());
-					Trace.print(Trace.UTIL, exception);
-				}
-		    }
-
-		}
-
-		System.out.println( "See for the keyword definition files:" );
-		System.out.println( keywordsDir.getAbsolutePath() );
+		KeywordDefinitionsWriter kdWriter = new KeywordDefinitionsWriter( kdwConfig );
+		kdWriter.saveKeywordDefs( plugins );
 	}
 }

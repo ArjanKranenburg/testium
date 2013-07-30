@@ -116,7 +116,7 @@ public class CustomTestStepExecutor extends GenericCommandExecutor
 
 	private void addOwnParametersToRunTimeVariables(ParameterArrayList parameters, RunTimeData rtVars) throws Exception {
 		RunTimeData parentVars = rtVars.getParentScope();
-		for ( SpecifiedParameter parameterSpec : this.getParameters() )
+		for ( SpecifiedParameter parameterSpec : this.getParameterSpecs() )
 	    {
 	    	Object param = this.obtainValue(parentVars, parameters, parameterSpec);
 	    	if ( param == null )

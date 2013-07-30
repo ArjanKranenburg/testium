@@ -4,8 +4,10 @@
 package net.sf.testium.systemundertest;
 
 import java.io.File;
+import java.util.ArrayList;
 
 import net.sf.testium.executor.TestStepCommandExecutor;
+import net.sf.testium.executor.general.SpecifiedParameter;
 
 import org.testtoolinterfaces.testresult.TestResult.VERDICT;
 import org.testtoolinterfaces.testresult.TestStepResult;
@@ -53,5 +55,13 @@ public final class DummySutCommand implements TestStepCommandExecutor
 	{
 		Trace.println( Trace.EXEC_PLUS );
 		return true;
+	}
+
+	public String getDescription() {
+		return "";
+	}
+
+	public ArrayList<SpecifiedParameter> getParameterSpecs() {
+		return new ArrayList<SpecifiedParameter>();
 	}
 }

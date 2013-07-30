@@ -1,6 +1,9 @@
 package net.sf.testium.executor;
 
 import java.io.File;
+import java.util.ArrayList;
+
+import net.sf.testium.executor.general.SpecifiedParameter;
 
 import org.testtoolinterfaces.testresult.TestStepResult;
 import org.testtoolinterfaces.testsuite.ParameterArrayList;
@@ -18,4 +21,9 @@ public interface TestStepCommandExecutor
 	                        File aLogDir ) throws TestSuiteException;
 
 	boolean verifyParameters(ParameterArrayList aParameters) throws TestSuiteException;
+
+	String getDescription();
+	
+	ArrayList<SpecifiedParameter> getParameterSpecs();
+
 }
