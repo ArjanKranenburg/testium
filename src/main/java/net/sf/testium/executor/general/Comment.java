@@ -31,7 +31,8 @@ public class Comment extends GenericCommandExecutor {
 	
 
 	public Comment( SutInterface anInterface ) {
-		super( COMMAND, anInterface, new ArrayList<SpecifiedParameter>() );
+		super( COMMAND, "Prints a comment to the logfile and optionally to the screen",
+				anInterface, new ArrayList<SpecifiedParameter>() );
 
 		this.addParamSpec( PARSPEC_COMMENT );
 		this.addParamSpec( PARSPEC_TOSCREEN );

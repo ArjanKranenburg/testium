@@ -26,7 +26,8 @@ public class RemoveFromList extends GenericCommandExecutor
 
 	public RemoveFromList(SutInterface anInterface)
 	{
-		super(COMMAND, anInterface, new ArrayList<SpecifiedParameter>() );
+		super(COMMAND, "Removes the first occurance of the specified element, if any, from the list.", 
+				anInterface, new ArrayList<SpecifiedParameter>() );
 
 		this.addParamSpec(PARSPEC_LIST);
 		this.addParamSpec(PARSPEC_VALUE);
