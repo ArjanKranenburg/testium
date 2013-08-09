@@ -1,5 +1,8 @@
 package net.sf.testium.plugins;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import net.sf.testium.MetaTestCaseResultWriter;
 import net.sf.testium.MetaTestGroupResultWriter;
 import net.sf.testium.MetaTestRunResultWriter;
@@ -37,6 +40,8 @@ public class PluginCollection
 	private TestGroupMetaExecutor	myTestGroupExecutor;
 
 	private SutControl	mySutControl;
+	
+	private ArrayList<KeywordDefinitionsWriter> kdWriters;
 
 	/**
 	 * 
@@ -48,6 +53,9 @@ public class PluginCollection
 		myTestGroupResultWriter = new MetaTestGroupResultWriter();
 		myTestCaseResultWriter = new MetaTestCaseResultWriter();
 
+		// List of Keyword Definitions Writers
+		kdWriters = new ArrayList<KeywordDefinitionsWriter>();
+		
 		// Default SUT Control
 		mySutControl = new DummySutControl( );
 
@@ -173,6 +181,14 @@ public class PluginCollection
 	public void setSutControl(SutControl aSutControl)
 	{
 		mySutControl = aSutControl;
+	}
+
+	public List<KeywordDefinitionsWriter> getKdWriters() {
+		return kdWriters;
+	}
+
+	public void addKdWriters(KeywordDefinitionsWriter kdWriter) {
+		this.kdWriters.add( kdWriter );
 	}
 
 	public TestCaseResultWriter getTestCaseResultWriter()

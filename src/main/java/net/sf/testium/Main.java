@@ -12,6 +12,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Locale;
 
 import javax.xml.parsers.SAXParser;
@@ -23,6 +24,7 @@ import net.sf.testium.configuration.KeywordDefinitionsConfiguration;
 import net.sf.testium.configuration.PersonalConfigurationXmlHandler;
 import net.sf.testium.executor.SupportedInterfaceList;
 import net.sf.testium.executor.TestExecutionException;
+import net.sf.testium.plugins.KeywordDefinitionsWriter;
 import net.sf.testium.plugins.PluginClassLoader;
 import net.sf.testium.plugins.PluginCollection;
 
@@ -634,11 +636,11 @@ public class Main
 
 	private static void saveKeywordDefinitions(PluginCollection plugins, RunTimeData rtData) {
 		
-		File configDir = rtData.getValueAsFile(Testium.CONFIGDIR);
-		File kdwConfigFile = new File( configDir, "KeywordDefinitionsWriter.xml");
-		KeywordDefinitionsConfiguration kdwConfig = KeywordDefinitionsWriter.readGlobalInterfaceConfiguration(kdwConfigFile, rtData);
-
-		KeywordDefinitionsWriter kdWriter = new KeywordDefinitionsWriter( kdwConfig );
-		kdWriter.saveKeywordDefs( plugins );
+		List<KeywordDefinitionsWriter> kdwList = plugins.getKdWriters();
+		Iterator<KeywordDefinitionsWriter> kdwItr = kdwList.iterator();
+		while( kdwItr.hasNext() ) {
+			KeywordDefinitionsWriter kdw = kdwItr.next();
+			kdw.saveKeywordDefs(plugins);
+		}
 	}
 }
