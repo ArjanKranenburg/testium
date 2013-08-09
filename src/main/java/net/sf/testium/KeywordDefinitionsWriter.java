@@ -1,8 +1,12 @@
 package net.sf.testium;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
+import java.io.IOError;
 import java.io.IOException;
+import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -30,7 +34,6 @@ public class KeywordDefinitionsWriter {
 	/*
 	 * TODO
 	 * - Make a plugin (with what interface?)
-	 * - Copy XSL, CSS, etc.
 	 * - Add description to parameters
 	 * - Add examples (1 minimal, 1 with all optional parameters)
 	 */
@@ -42,22 +45,12 @@ public class KeywordDefinitionsWriter {
 	}
 
 	public void saveKeywordDefs(PluginCollection plugins) {
-		File keywordsDir = config.getOutputBaseDir();
-		if ( keywordsDir.isDirectory() ) {
-			try {
-				FileUtils.deleteDirectory(keywordsDir);
-			} catch (IOException e) {
-				System.out.println("Could not empty keywordsDir. Trying to overwrite...");
-				Trace.print(Trace.EXEC, e);
-			}
-		}
-		keywordsDir.mkdir();
-
-		SupportedInterfaceList interfaceList = plugins.getInterfaces();
-		KeywordDefinitionsWriter.writeInterfaceKWs(keywordsDir, interfaceList);
-
-		// TODO copy XSL to each new created dir
+		File keywordsDir = mkBaseDir();
+		copyXsl(keywordsDir);
 		
+		SupportedInterfaceList interfaceList = plugins.getInterfaces();
+		writeInterfaceKWs(keywordsDir, interfaceList);
+
 		System.out.println( "See for the keyword definition files:" );
 		System.out.println( keywordsDir.getAbsolutePath() );
 	}
@@ -78,7 +71,8 @@ System.out.println( "Warning: Configuration of KeywordDefinitionsWriter failed:"
 System.err.print( e );
 System.out.println( "Continuing with default configuration" );
 			File defOutputBaseDir = KeywordDefinitionsWriterXmlHandler.getDefaultOutputBasedir(rtData);
-			return new KeywordDefinitionsConfiguration( defOutputBaseDir, null );
+			return new KeywordDefinitionsConfiguration( defOutputBaseDir, null,
+					KeywordDefinitionsWriterXmlHandler.DEFAULT_XSL_FILENAME );
 		}
 
 		KeywordDefinitionsConfiguration kdwConfig = handler.getConfiguration( );
@@ -87,11 +81,69 @@ System.out.println( "Continuing with default configuration" );
 		return kdwConfig;
 	}
 
+
+	/**
+	 * @return
+	 */
+	private File mkBaseDir() {
+		File keywordsDir = config.getOutputBaseDir();
+		if ( keywordsDir.isDirectory() ) {
+			try {
+				FileUtils.deleteDirectory(keywordsDir);
+			} catch (IOException e) {
+				System.out.println("Could not empty keywordsDir. Trying to overwrite...");
+				Trace.print(Trace.EXEC, e);
+			}
+		}
+		keywordsDir.mkdir();
+		return keywordsDir;
+	}
+
+	private void copyXsl(File aTargetLogDir) {
+		Trace.println(Trace.UTIL, "copyXsl( " + aTargetLogDir.getName() + " )",
+				true);
+		File xslSrcDir = config.getXslSourceDir();
+		if ( xslSrcDir == null ) { return; }
+
+		File[] files = xslSrcDir.listFiles();
+		if ( files == null ) { return; }
+		for (int i = 0; i < files.length; i++) {
+			File srcFile = files[i];
+			if (!srcFile.isDirectory()) {
+				File tgtFile = new File(aTargetLogDir + File.separator
+						+ srcFile.getName());
+
+				FileChannel inChannel = null;
+				FileChannel outChannel = null;
+				try {
+					inChannel = new FileInputStream(srcFile).getChannel();
+					outChannel = new FileOutputStream(tgtFile).getChannel();
+					inChannel.transferTo(0, inChannel.size(), outChannel);
+				} catch (IOException e) {
+					throw new IOError(e);
+				} finally {
+					if (inChannel != null)
+						try {
+							inChannel.close();
+						} catch (IOException exc) {
+							throw new IOError(exc);
+						}
+					if (outChannel != null)
+						try {
+							outChannel.close();
+						} catch (IOException exc) {
+							throw new IOError(exc);
+						}
+				}
+			}
+		}
+	}
+
 	/**
 	 * @param keywordsDir
 	 * @param interfaceList
 	 */
-	private static void writeInterfaceKWs(File keywordsDir,
+	private void writeInterfaceKWs(File keywordsDir,
 			SupportedInterfaceList interfaceList) {
 		Iterator<TestInterface> iFaceItr = interfaceList.iterator();
 		while(iFaceItr.hasNext())
@@ -101,6 +153,7 @@ System.out.println( "Continuing with default configuration" );
 				File ifTargetDir = new File( keywordsDir, iFace.getInterfaceName() );
 				if ( !ifTargetDir.isDirectory() )	{
 					ifTargetDir.mkdir();
+					copyXsl(ifTargetDir);
 				}
 
 				ArrayList<String> commandList = iFace.getCommands();

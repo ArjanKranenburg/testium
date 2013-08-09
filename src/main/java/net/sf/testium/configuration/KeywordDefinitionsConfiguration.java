@@ -13,21 +13,22 @@ import org.testtoolinterfaces.utils.Trace;
  */
 public class KeywordDefinitionsConfiguration
 {
-	private File outputBaseDir;
-	private File xslSourceDir;
+	private final File outputBaseDir;
+	private final File xslSourceDir;
+	private final String xslFileName;
 
 	/**
-	 * @param myFileEnabled 
-	 * @param myStdOutEnabled 
-	 * @param aXslDir
-	 * @param aFileName 
+	 * @param outputBaseDir
+	 * @param xslSourceDir 
 	 */
-	public KeywordDefinitionsConfiguration( File outputBaseDir, File xslSourceDir )
+	public KeywordDefinitionsConfiguration( File outputBaseDir, File xslSourceDir,
+			String xslFileName )
 	{
 	    Trace.println(Trace.CONSTRUCTOR);
 
 	    this.outputBaseDir = outputBaseDir;
 	    this.xslSourceDir = xslSourceDir;
+	    this.xslFileName = xslFileName;
 	}
 
 	public File getOutputBaseDir() {
@@ -36,5 +37,9 @@ public class KeywordDefinitionsConfiguration
 
 	public File getXslSourceDir() {
 		return xslSourceDir;
+	}
+
+	public String getXslFileName() {
+		return xslFileName;
 	}
 }

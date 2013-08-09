@@ -28,16 +28,20 @@ public class KeywordDefinitionsWriterXmlHandler extends XmlHandler
 
 	private static final String CFG_OUTPUT_BASE_DIRECTORY = "OutputBaseDirectory";
 	private static final String CFG_XSL_DIRECTORY = "XslSourceDirectory";
+	private static final String CFG_XSL_FILENAME = "XslFileName";
 
 	public static final String DEFAULT_OUTPUT_BASE_DIR = "keywords";
+	public static final String DEFAULT_XSL_FILENAME = "Keywords.xsl";
 	
 	private final GenericTagAndStringXmlHandler outputBaseDirXmlHandler;
 	private final GenericTagAndStringXmlHandler xslSourceDirXmlHandler;
+	private final GenericTagAndStringXmlHandler xslFileNameXmlHandler;
 
 	private final RunTimeData rtData;
 
 	private File outputBaseDir;
 	private File xslSourceDir;
+	private String xslFileName;
 	
 	public KeywordDefinitionsWriterXmlHandler(XMLReader anXmlReader,
 			RunTimeData anRtData ) {
@@ -48,6 +52,7 @@ public class KeywordDefinitionsWriterXmlHandler extends XmlHandler
 
 		outputBaseDir = getDefaultOutputBasedir( rtData );
 		xslSourceDir = null;
+		xslFileName = DEFAULT_XSL_FILENAME;
 
 		outputBaseDirXmlHandler = new GenericTagAndStringXmlHandler(
 				anXmlReader, CFG_OUTPUT_BASE_DIRECTORY);
@@ -56,6 +61,10 @@ public class KeywordDefinitionsWriterXmlHandler extends XmlHandler
 		xslSourceDirXmlHandler = new GenericTagAndStringXmlHandler(anXmlReader,
 				CFG_XSL_DIRECTORY);
 		this.addElementHandler(xslSourceDirXmlHandler);
+
+		xslFileNameXmlHandler = new GenericTagAndStringXmlHandler(anXmlReader,
+				CFG_XSL_FILENAME);
+		this.addElementHandler(xslFileNameXmlHandler);
 	}
 
 	@Override
@@ -97,17 +106,20 @@ public class KeywordDefinitionsWriterXmlHandler extends XmlHandler
 			outputBaseDir = new File ( outputBaseDirName );
 
 		} else if (aQualifiedName.equalsIgnoreCase(CFG_XSL_DIRECTORY)) {
-			String xslDirName = outputBaseDirXmlHandler.getValue();
-			outputBaseDirXmlHandler.reset();
+			String xslDirName = xslSourceDirXmlHandler.getValue();
+			xslSourceDirXmlHandler.reset();
 
 			xslDirName = rtData.substituteVars(xslDirName);
 			xslSourceDir = new File( xslDirName );
+		} else if (aQualifiedName.equalsIgnoreCase(CFG_XSL_FILENAME)) {
+			xslFileName = xslFileNameXmlHandler.getValue();
+			xslFileNameXmlHandler.reset();
 		}
 		// else ignore
 	}
 
 	public KeywordDefinitionsConfiguration getConfiguration() {
-		return new KeywordDefinitionsConfiguration( outputBaseDir, xslSourceDir );
+		return new KeywordDefinitionsConfiguration( outputBaseDir, xslSourceDir, xslFileName );
 	}
 
 	/**

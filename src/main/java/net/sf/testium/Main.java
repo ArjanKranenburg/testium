@@ -634,7 +634,8 @@ public class Main
 
 	private static void saveKeywordDefinitions(PluginCollection plugins, RunTimeData rtData) {
 		
-		File kdwConfigFile = new File( Testium.CONFIGDIR, "KeywordDefinitionsWriter.xml");
+		File configDir = rtData.getValueAsFile(Testium.CONFIGDIR);
+		File kdwConfigFile = new File( configDir, "KeywordDefinitionsWriter.xml");
 		KeywordDefinitionsConfiguration kdwConfig = KeywordDefinitionsWriter.readGlobalInterfaceConfiguration(kdwConfigFile, rtData);
 
 		KeywordDefinitionsWriter kdWriter = new KeywordDefinitionsWriter( kdwConfig );
