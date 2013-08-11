@@ -16,13 +16,13 @@ public class AddToList extends GenericCommandExecutor
 	private static final String PAR_LIST  = "list";
 
 	private static final SpecifiedParameter PARSPEC_LIST = new SpecifiedParameter (
-			PAR_LIST, List.class, false, false, true, false );
+			PAR_LIST, List.class, "The list to be added to", false, false, true, false );
 	private static final SpecifiedParameter PARSPEC_VALUE = new SpecifiedParameter (
-			SetList.PAR_VALUE, String.class, false, true, true, true );
+			SetList.PAR_VALUE, String.class, "The value to be added to the list", false, true, true, true );
 
 	public AddToList(SutInterface anInterface)
 	{
-		super(COMMAND, anInterface, new ArrayList<SpecifiedParameter>() );
+		super(COMMAND, "Adds a value to a list", anInterface, new ArrayList<SpecifiedParameter>() );
 
 		this.addParamSpec(PARSPEC_LIST);
 		this.addParamSpec(PARSPEC_VALUE);

@@ -25,14 +25,16 @@ public class GetListSize extends GenericCommandExecutor {
 	private static final String PAR_VARIABLE = "variable";
 
 	public static final SpecifiedParameter PARSPEC_LIST = new SpecifiedParameter( 
-			PAR_LIST, List.class, false, false, true, false );
+			PAR_LIST, List.class, "The list", false, false, true, false );
 
 	private static final SpecifiedParameter PARSPEC_VARIABLE = new SpecifiedParameter( 
-			PAR_VARIABLE, String.class, false, true, false, false );
+			PAR_VARIABLE, String.class, "A variableName that will be used to store the size of the list",
+			false, true, false, false );
 
 	public GetListSize( DefaultInterface defInterface )
 	{
-		super( COMMAND, defInterface, new ArrayList<SpecifiedParameter>() );
+		super( COMMAND, "Gets the size of a list and stores it in a variable",
+				defInterface, new ArrayList<SpecifiedParameter>() );
 
 		this.addParamSpec( PARSPEC_LIST );
 		this.addParamSpec( PARSPEC_VARIABLE );

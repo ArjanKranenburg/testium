@@ -40,6 +40,7 @@ public class DefaultInterface extends CustomInterface
 		add(new Sum(this));
 		add(new Substract(this));
 		add(new SubString(this));
+		add(new Subtract(this));
 		add(new Wait( this ));
 	}
 }

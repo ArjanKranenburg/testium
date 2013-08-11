@@ -22,10 +22,11 @@ public class Fail extends GenericCommandExecutor {
 	private static final String COMMAND = "fail";
 
 	private static final SpecifiedParameter PARSPEC_MESSAGE = new SpecifiedParameter( 
-			"message", String.class, true, true, true, false );
+			"message", String.class, "A message that explains why it had to fail at this point.",
+			true, true, true, false );
 
 	public Fail( SutInterface aSutInterface ) {
-		super( COMMAND, aSutInterface, new ArrayList<SpecifiedParameter>() );
+		super( COMMAND, "Sets the result to Failed", aSutInterface, new ArrayList<SpecifiedParameter>() );
 
 		this.addParamSpec( PARSPEC_MESSAGE );
 	}

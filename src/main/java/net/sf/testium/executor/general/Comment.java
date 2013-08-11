@@ -24,10 +24,11 @@ public class Comment extends GenericCommandExecutor {
 	private static final String PAR_TOSCREEN = "toScreen";
 
 	private static final SpecifiedParameter PARSPEC_COMMENT = new SpecifiedParameter( 
-			PAR_COMMENT, String.class, false, true,	true, false );
+			PAR_COMMENT, String.class, "The comment to make",
+			false, true, true, false );
 	public static final SpecifiedParameter PARSPEC_TOSCREEN = new SpecifiedParameter( 
-			PAR_TOSCREEN, Boolean.class, true, true, false, false )
-		.setDefaultValue(Boolean.TRUE);
+			PAR_TOSCREEN, Boolean.class, "Flag to indicate if comment must be printed to stdout",
+			true, true, false, false ).setDefaultValue(Boolean.TRUE);
 	
 
 	public Comment( SutInterface anInterface ) {

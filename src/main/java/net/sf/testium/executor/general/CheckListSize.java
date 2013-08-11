@@ -19,19 +19,20 @@ public class CheckListSize extends GenericCommandExecutor
 	private static final String PAR_MATCH = "match";
 
 	private static final SpecifiedParameter PARSPEC_LIST = new SpecifiedParameter( 
-			PAR_LIST, List.class, false, false, true, false );
+			PAR_LIST, List.class, "The list to be checked", false, false, true, false );
 	private static final SpecifiedParameter PARSPEC_SIZE = new SpecifiedParameter( 
-			PAR_SIZE, Integer.class, false, true, true, false );
+			PAR_SIZE, Integer.class, "The expected size", false, true, true, false );
 	private static final SpecifiedParameter PARSPEC_MATCH = new SpecifiedParameter( 
-			PAR_MATCH, String.class, true, true, true, false )
-			.setDefaultValue("exact");
+			PAR_MATCH, String.class, "Indicator to either match exact, lessThan, or greaterThan",
+			true, true, true, false ).setDefaultValue("exact");
 
 	/**
 	 *
 	 */
 	public CheckListSize( SutInterface aSutInterface )
 	{
-		super( COMMAND, aSutInterface, new ArrayList<SpecifiedParameter>() );
+		super( COMMAND, "Checks the size of a list", 
+				aSutInterface, new ArrayList<SpecifiedParameter>() );
 
 		this.addParamSpec( PARSPEC_LIST );
 		this.addParamSpec( PARSPEC_SIZE );

@@ -3,58 +3,21 @@
  */
 package net.sf.testium.executor.general;
 
-import java.util.ArrayList;
-
 import net.sf.testium.executor.DefaultInterface;
-
-import org.testtoolinterfaces.testresult.TestStepCommandResult;
-import org.testtoolinterfaces.testsuite.ParameterArrayList;
-import org.testtoolinterfaces.utils.RunTimeData;
-import org.testtoolinterfaces.utils.RunTimeVariable;
 
 /**
  * 
  * @author Arjan Kranenburg
  *
+ * This command is deprecated because the correct (or better) spelling is subtract
  */
-public class Substract extends GenericCommandExecutor {
-	private static final String COMMAND = "substract";
+public class Substract extends Subtract {
 
-	private static final String PAR_INT1 = "int1";
-	private static final String PAR_INT2 = "int2";
-	private static final String PAR_RESULT = "result";
-
-	public static final SpecifiedParameter PARSPEC_INT1 = new SpecifiedParameter( 
-			PAR_INT1, Integer.class, false, true, true, false );
-
-	public static final SpecifiedParameter PARSPEC_INT2 = new SpecifiedParameter( 
-			PAR_INT2, Integer.class, false, true, true, false );
-
-	private static final SpecifiedParameter PARSPEC_RESULT = new SpecifiedParameter( 
-			PAR_RESULT, String.class, false, true, false, false );
-
-	public Substract( DefaultInterface defInterface )
-	{
-		super( COMMAND, defInterface, new ArrayList<SpecifiedParameter>() );
-
-		this.addParamSpec( PARSPEC_INT1 );
-		this.addParamSpec( PARSPEC_INT2 );
-		this.addParamSpec( PARSPEC_RESULT );
+	public Substract( DefaultInterface defInterface ) {
+		super( defInterface );
 	}
 
-	@Override
-	protected void doExecute(RunTimeData aVariables,
-			ParameterArrayList parameters, TestStepCommandResult result)
-			throws Exception
-	{
-		Integer int1 = (Integer) obtainValue( aVariables, parameters, PARSPEC_INT1 );
-		Integer int2 = (Integer) obtainValue( aVariables, parameters, PARSPEC_INT2 );
-
-		String varName = (String) obtainValue(aVariables, parameters, PARSPEC_RESULT);
-		int sum = int1 - int2;
-		result.setDisplayName( this.toString() + " " +  varName + " = " + int1 + " - " + int2 );
-		
-		RunTimeVariable rtVariable = new RunTimeVariable( varName, sum );
-		aVariables.add(rtVariable);
+	public String getDescription() {
+		return "DEPRECATED, use Subtract. Subtracts two integer values";
 	}
 }

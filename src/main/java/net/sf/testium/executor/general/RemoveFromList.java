@@ -1,16 +1,12 @@
 package net.sf.testium.executor.general;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import net.sf.testium.systemundertest.SutInterface;
 
 import org.testtoolinterfaces.testresult.TestStepCommandResult;
-import org.testtoolinterfaces.testsuite.Parameter;
 import org.testtoolinterfaces.testsuite.ParameterArrayList;
-import org.testtoolinterfaces.testsuite.ParameterImpl;
-import org.testtoolinterfaces.testsuite.ParameterVariable;
 import org.testtoolinterfaces.utils.RunTimeData;
 
 
@@ -20,9 +16,11 @@ public class RemoveFromList extends GenericCommandExecutor
 	private static final String PAR_LIST  = "list";
 
 	private static final SpecifiedParameter PARSPEC_LIST = new SpecifiedParameter (
-			PAR_LIST, List.class, false, false, true, false );
+			PAR_LIST, List.class, "The list", false, false, true, false );
 	private static final SpecifiedParameter PARSPEC_VALUE = new SpecifiedParameter (
-			SetList.PAR_VALUE, String.class, false, true, true, true );
+			SetList.PAR_VALUE, String.class,
+			"The value to remove. If more occurance exist in the list, the first occurance is removed",
+			false, true, true, true );
 
 	public RemoveFromList(SutInterface anInterface)
 	{

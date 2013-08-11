@@ -22,16 +22,17 @@ public class CheckVariable extends GenericCommandExecutor
 	private static final String PAR_VALUE = "value";
 
 	private static final SpecifiedParameter PARSPEC_VARIABLE = new SpecifiedParameter( 
-			PAR_VARIABLE, String.class, false, false, true, false );
+			PAR_VARIABLE, String.class, "The variable to check", false, false, true, false );
 	private static final SpecifiedParameter PARSPEC_VALUE = new SpecifiedParameter( 
-			PAR_VALUE, String.class, false, true, true, true );
+			PAR_VALUE, String.class, "The expected value", false, true, true, true );
 
 	/**
 	 *
 	 */
 	public CheckVariable( SutInterface aSutInterface )
 	{
-		super( COMMAND, aSutInterface, new ArrayList<SpecifiedParameter>() );
+		super( COMMAND, "Checks a variable. Note: Currently, the variable can only be a String and only exact matches will pass. See also CheckString",
+				aSutInterface, new ArrayList<SpecifiedParameter>() );
 
 		this.addParamSpec( PARSPEC_VARIABLE );
 		this.addParamSpec( PARSPEC_VALUE );

@@ -27,19 +27,21 @@ public class SetVariable extends GenericCommandExecutor
 	private static final String SCOPE_PARENT  = "parent";
 
 	private static final SpecifiedParameter PARSPEC_NAME = new SpecifiedParameter (
-			PAR_NAME, String.class, false, true, false, false );
+			PAR_NAME, String.class, "Name of the variable to set",
+			false, true, false, false );
 	private static final SpecifiedParameter PARSPEC_VALUE = new SpecifiedParameter (
-			PAR_VALUE, String.class, false, true, true, true );
+			PAR_VALUE, String.class, "Value to be assigned to the variable",
+			false, true, true, true );
 	private static final SpecifiedParameter PARSPEC_TYPE = new SpecifiedParameter (
-			PAR_TYPE, String.class, true, true, false, false )
-		.setDefaultValue("String");
+			PAR_TYPE, String.class, "Type of the variable",
+			true, true, false, false ).setDefaultValue("String");
 	private static final SpecifiedParameter PARSPEC_SCOPE = new SpecifiedParameter (
-			PAR_SCOPE, String.class, true, true, true, false )
-		.setDefaultValue(SCOPE_CURRENT);
+			PAR_SCOPE, String.class, "Indicator to set the variable in the current or parent scope",
+			true, true, true, false ).setDefaultValue(SCOPE_CURRENT);
 
 	public SetVariable(SutInterface anInterface)
 	{
-		super(COMMAND, anInterface, new ArrayList<SpecifiedParameter>() );
+		super(COMMAND, "Sets a variable with a value and a specific type", anInterface, new ArrayList<SpecifiedParameter>() );
 
 		this.addParamSpec(PARSPEC_NAME);
 		this.addParamSpec(PARSPEC_VALUE);

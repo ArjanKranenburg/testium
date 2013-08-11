@@ -27,12 +27,13 @@ public class PrintVars extends GenericCommandExecutor
 	private static final String PAR_TOSCREEN = "toScreen";
 
 	private static final SpecifiedParameter PARSPEC_TOSCREEN = new SpecifiedParameter( 
-			PAR_TOSCREEN, Boolean.class, true, true, false, false )
-				.setDefaultValue( true );
+			PAR_TOSCREEN, Boolean.class, "Flag to indicate if the variables must also be printed to stdout",
+			true, true, false, false ).setDefaultValue( true );
 
 	public PrintVars( SutInterface aSutInterface  )
 	{
-		super( COMMAND, aSutInterface, new ArrayList<SpecifiedParameter>() );
+		super( COMMAND, "Prints a list of variables to the logs and optionally to screen",
+				aSutInterface, new ArrayList<SpecifiedParameter>() );
 
 		this.addParamSpec( PARSPEC_TOSCREEN );
 	}

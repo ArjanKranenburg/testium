@@ -22,16 +22,20 @@ public class SubString extends GenericCommandExecutor {
 	private static final String COMMAND = "subString";
 
 	private static final SpecifiedParameter PARSPEC_STRING = new SpecifiedParameter( 
-			"string", String.class, false, true, true, false );
+			"string", String.class, "The original string", false, true, true, false );
 	public static final SpecifiedParameter PARSPEC_INDEX_BEGIN = new SpecifiedParameter( 
-			"beginIndex", Integer.class, false, true, true, false );
+			"beginIndex", Integer.class, "The begin index to create the substring", 
+			false, true, true, false );
 	public static final SpecifiedParameter PARSPEC_INDEX_END = new SpecifiedParameter( 
-			"endIndex", Integer.class, true, true, true, false ).setDefaultValue( new Integer(0) );
+			"endIndex", Integer.class, "The end index to create the substring", 
+			true, true, true, false ).setDefaultValue( new Integer(0) );
 	private static final SpecifiedParameter PARSPEC_VAR_NAME = new SpecifiedParameter( 
-			"varName", String.class, false, true, true, false );	
+			"varName", String.class, "Name of the variable to store the substring",
+			false, true, true, false );	
 
 	public SubString( SutInterface aSutInterface ) {
-		super( COMMAND, aSutInterface, new ArrayList<SpecifiedParameter>() );
+		super( COMMAND, "Takes a part of a string and stores it in a variable",
+				aSutInterface, new ArrayList<SpecifiedParameter>() );
 
 		this.addParamSpec( PARSPEC_STRING );
 		this.addParamSpec( PARSPEC_INDEX_BEGIN );

@@ -61,22 +61,23 @@ public class CheckString extends GenericCommandExecutor
 	public static final String PAR_CASE = "case";
 
 	private static final SpecifiedParameter PARSPEC_VARIABLE = new SpecifiedParameter( 
-			PAR_STRING, String.class, false, false, true, false );
+			PAR_STRING, String.class, "The Variable that contains the String to check", 
+			false, false, true, false );
 	private static final SpecifiedParameter PARSPEC_VALUE = new SpecifiedParameter( 
-			PAR_VALUE, String.class, false, true, true, true );
+			PAR_VALUE, String.class, "The expected value", false, true, true, true );
 	public static final SpecifiedParameter PARSPEC_MATCH = new SpecifiedParameter( 
-			PAR_MATCH, String.class, true, true, true, false )
-				.setDefaultValue(MATCH.EXACT.toString());
+			PAR_MATCH, String.class, "Indicator to specify the way to verify. Supported values are: " + MATCH.valuesString(),
+			true, true, true, false ).setDefaultValue(MATCH.EXACT.toString());
 	public static final SpecifiedParameter PARSPEC_CASE = new SpecifiedParameter( 
-			PAR_CASE, Boolean.class, true, true, true, false )
-				.setDefaultValue( true );
+			PAR_CASE, Boolean.class, "Indicator to specify if the check is case-sensitive",
+			true, true, true, false ).setDefaultValue( true );
 
 	/**
 	 *
 	 */
 	public CheckString( SutInterface aSutInterface )
 	{
-		super( COMMAND, aSutInterface, new ArrayList<SpecifiedParameter>() );
+		super( COMMAND, "Checks the value of a String", aSutInterface, new ArrayList<SpecifiedParameter>() );
 
 		this.addParamSpec( PARSPEC_VARIABLE );
 		this.addParamSpec( PARSPEC_VALUE );

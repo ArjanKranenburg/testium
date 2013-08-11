@@ -22,13 +22,13 @@ public class SetList extends GenericCommandExecutor
 	public static final String PAR_VALUE = "value";
 
 	private static final SpecifiedParameter PARSPEC_NAME = new SpecifiedParameter (
-			PAR_NAME, String.class, false, true, false, false );
+			PAR_NAME, String.class, "Name of the list to create", false, true, false, false );
 	private static final SpecifiedParameter PARSPEC_VALUE = new SpecifiedParameter (
-			PAR_VALUE, String.class, true, true, true, true );
+			PAR_VALUE, String.class, "Value to add to the list", true, true, true, true );
 
 	public SetList(SutInterface anInterface)
 	{
-		super(COMMAND, anInterface, new ArrayList<SpecifiedParameter>() );
+		super(COMMAND, "Creates a list and optionally adds some values", anInterface, new ArrayList<SpecifiedParameter>() );
 
 		this.addParamSpec(PARSPEC_NAME);
 		this.addParamSpec(PARSPEC_VALUE);

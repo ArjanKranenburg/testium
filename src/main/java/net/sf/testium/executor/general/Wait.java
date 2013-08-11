@@ -20,12 +20,12 @@ public class Wait extends GenericCommandExecutor
 	private static final String PAR_TIME = "time";
 	
 	private static final SpecifiedParameter PARSPEC_TIME = new SpecifiedParameter (
-			PAR_TIME, Integer.class, false, true, true, false );
+			PAR_TIME, Integer.class, "The wait time, in seconds", false, true, true, false );
 
 
 	public Wait(SutInterface anInterface)
 	{
-		super(COMMAND, anInterface, new ArrayList<SpecifiedParameter>() );
+		super(COMMAND, "Waits (sleeps) for a specified time", anInterface, new ArrayList<SpecifiedParameter>() );
 
 		this.addParamSpec(PARSPEC_TIME);
 	}

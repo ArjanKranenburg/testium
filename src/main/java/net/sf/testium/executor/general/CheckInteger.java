@@ -23,19 +23,20 @@ public class CheckInteger extends GenericCommandExecutor
 	private static final String MATCH_GREATER_THAN = "greaterThan";
 	
 	private static final SpecifiedParameter PARSPEC_INTEGER = new SpecifiedParameter( 
-			PAR_INTEGER, List.class, false, false, true, false );
+			PAR_INTEGER, List.class, "The integer to check", false, false, true, false );
 	private static final SpecifiedParameter PARSPEC_SIZE = new SpecifiedParameter( 
-			PAR_SIZE, Integer.class, false, true, true, false );
+			PAR_SIZE, Integer.class, "The expected value of the integer", false, true, true, false );
 	private static final SpecifiedParameter PARSPEC_MATCH = new SpecifiedParameter( 
-			PAR_MATCH, String.class, true, true, true, false )
-			.setDefaultValue(MATCH_EXACT);
+			PAR_MATCH, String.class, "Indicator to either match exact, lessThan, or greaterThan",
+			true, true, true, false ).setDefaultValue(MATCH_EXACT);
 
 	/**
 	 *
 	 */
 	public CheckInteger( SutInterface aSutInterface )
 	{
-		super( COMMAND, aSutInterface, new ArrayList<SpecifiedParameter>() );
+		super( COMMAND, "Checks an integer and compares it with an expected value",
+				aSutInterface, new ArrayList<SpecifiedParameter>() );
 
 		this.addParamSpec( PARSPEC_INTEGER );
 		this.addParamSpec( PARSPEC_SIZE );

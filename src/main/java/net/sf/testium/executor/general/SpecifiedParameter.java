@@ -5,6 +5,7 @@ public class SpecifiedParameter
 	private String myName;
 	private Class<?> myType;
 //	private Class<?>[] myTypes;
+	private String description;
 	private boolean myOptional;
 	private boolean myValue;
 	private boolean myVariable;
@@ -14,6 +15,7 @@ public class SpecifiedParameter
 	public SpecifiedParameter( String aName,
 	                           Class<?> aType,
 //	                           Class<?>[] aTypes,
+	                           String aDescription,
 	                           boolean optional,
 	                           boolean value,
 	                           boolean variable,
@@ -22,6 +24,7 @@ public class SpecifiedParameter
 		myName = aName;
 		myType = aType;
 //		myTypes = aTypes;
+		this.description = aDescription;
 		myOptional = optional;
 		myValue = value;
 		myVariable = variable;
@@ -38,6 +41,17 @@ public class SpecifiedParameter
 		}
 	}
 
+	@Deprecated
+	public SpecifiedParameter( String aName,
+            Class<?> aType,
+//            Class<?>[] aTypes,
+            boolean optional,
+            boolean value,
+            boolean variable,
+            boolean empty ) {
+		this(aName, aType, "", optional, value, variable, empty);
+	}
+	
 	/**
 	 * @return the name
 	 */
@@ -110,6 +124,10 @@ public class SpecifiedParameter
 	public Object getDefaultValue()
 	{
 		return myDefaultValue;
+	}
+
+	public String getDescription() {
+		return this.description;
 	}
 	
 //	/**

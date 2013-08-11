@@ -30,17 +30,19 @@ public class SetDate extends GenericCommandExecutor {
 	private static final String NEXT_WEEK 	= "next_week";
 
 	private static final SpecifiedParameter PARSPEC_NAME = new SpecifiedParameter( 
-			"name", String.class, false, true, false, false );
+			"name", String.class, "The name of the variable that will get the date-string",
+			false, true, false, false );
 	public static final SpecifiedParameter PARSPEC_DAY = new SpecifiedParameter( 
-			"day", String.class, true, true, false, false )
-		.setDefaultValue(TODAY);
+			"day", String.class, "Predefined date. Allowed values are today, tomorrow, or next_week",
+			true, true, false, false ).setDefaultValue(TODAY);
 	private static final SpecifiedParameter PARSPEC_FORMAT = new SpecifiedParameter( 
-			"format", String.class, true, true, false, false )
-		.setDefaultValue("dd-MM-yyyy");
+			"format", String.class,
+			"Format to generate the string. See http://docs.oracle.com/javase/7/docs/api/java/text/SimpleDateFormat.html for the supported constructions",
+			true, true, false, false ).setDefaultValue("dd-MM-yyyy");
 	
 
 	public SetDate( SutInterface aSutInterface ) {
-		super( COMMAND, aSutInterface, new ArrayList<SpecifiedParameter>() );
+		super( COMMAND, "Sets a specific date as a string in a variable", aSutInterface, new ArrayList<SpecifiedParameter>() );
 
 		this.addParamSpec( PARSPEC_NAME );
 		this.addParamSpec( PARSPEC_DAY );

@@ -20,18 +20,21 @@ public class GetListItem extends GenericCommandExecutor
 	private static final String PAR_OUTPUT = "output";
 
 	private static final SpecifiedParameter PARSPEC_LIST = new SpecifiedParameter( 
-			PAR_LIST, List.class, false, false, true, false );
+			PAR_LIST, List.class, "List to take item from", false, false, true, false );
 	private static final SpecifiedParameter PARSPEC_INDEX = new SpecifiedParameter( 
-			PAR_INDEX, Integer.class, false, true, true, false );
+			PAR_INDEX, Integer.class, "Index that specifies which item from the list to get",
+			false, true, true, false );
 	private static final SpecifiedParameter PARSPEC_OUTPUT = new SpecifiedParameter( 
-			PAR_OUTPUT, String.class, false, true, false, false );
+			PAR_OUTPUT, String.class, "Name of the variable that will get the value of the list",
+			false, true, false, false );
 
 	/**
 	 *
 	 */
 	public GetListItem( SutInterface aSutInterface )
 	{
-		super( COMMAND, aSutInterface, new ArrayList<SpecifiedParameter>() );
+		super( COMMAND, "Gets one item from a list and stores it in a variable",
+				aSutInterface, new ArrayList<SpecifiedParameter>() );
 
 		this.addParamSpec( PARSPEC_LIST );
 		this.addParamSpec( PARSPEC_INDEX );

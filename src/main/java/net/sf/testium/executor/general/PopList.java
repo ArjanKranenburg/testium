@@ -18,9 +18,10 @@ public class PopList extends GenericCommandExecutor
 	private static final String PAR_VARIABLE = "variable";
 
 	private static final SpecifiedParameter PARSPEC_LIST = new SpecifiedParameter (
-			PAR_LIST, List.class, false, false, true, false );
+			PAR_LIST, List.class, "The list to be poped", false, false, true, false );
 	private static final SpecifiedParameter PARSPEC_VARIABLE = new SpecifiedParameter (
-			PAR_VARIABLE, String.class, true, true, true, false );
+			PAR_VARIABLE, String.class, "A variableName to be used to store the poped-value",
+			true, true, true, false );
 
 	public PopList(SutInterface anInterface)
 	{
