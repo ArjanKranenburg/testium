@@ -21,6 +21,7 @@ import org.testtoolinterfaces.utils.RunTimeData;
 import org.testtoolinterfaces.utils.RunTimeVariable;
 
 public class CustomTestStepExecutor extends GenericCommandExecutor {
+
 	private TestStepSequence mySteps;
 
 	private TestStepMetaExecutor myTestStepExecutor;
@@ -80,6 +81,10 @@ public class CustomTestStepExecutor extends GenericCommandExecutor {
 		}
 
 		return result;
+	}
+
+	public ArrayList<String> getReturnParameters() {
+		return myReturnParameters;
 	}
 
 	protected void doExecute(RunTimeData aParentVars,
