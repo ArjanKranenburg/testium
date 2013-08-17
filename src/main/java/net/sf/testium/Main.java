@@ -2,9 +2,7 @@ package net.sf.testium;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileWriter;
 import java.io.IOError;
-import java.io.IOException;
 import java.net.URISyntaxException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -20,7 +18,6 @@ import javax.xml.parsers.SAXParserFactory;
 
 import net.sf.testium.configuration.ConfigurationException;
 import net.sf.testium.configuration.GlobalConfigurationXmlHandler;
-import net.sf.testium.configuration.KeywordDefinitionsConfiguration;
 import net.sf.testium.configuration.PersonalConfigurationXmlHandler;
 import net.sf.testium.executor.SupportedInterfaceList;
 import net.sf.testium.executor.TestExecutionException;
@@ -28,17 +25,14 @@ import net.sf.testium.plugins.KeywordDefinitionsWriter;
 import net.sf.testium.plugins.PluginClassLoader;
 import net.sf.testium.plugins.PluginCollection;
 
-import org.apache.commons.io.FileUtils;
 import org.testtoolinterfaces.cmdline.CmdLineExecutionParser;
 import org.testtoolinterfaces.cmdline.CmdLineParser;
 import org.testtoolinterfaces.cmdline.ParameterException;
-import org.testtoolinterfaces.testresultinterface.XmlWriterUtils;
 import org.testtoolinterfaces.testsuite.TestGroup;
 import org.testtoolinterfaces.testsuite.TestInterface;
 import org.testtoolinterfaces.utils.RunTimeData;
 import org.testtoolinterfaces.utils.RunTimeVariable;
 import org.testtoolinterfaces.utils.Trace;
-import org.testtoolinterfaces.utils.Warning;
 import org.xml.sax.XMLReader;
 
 

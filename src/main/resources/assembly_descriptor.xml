@@ -1,0 +1,18 @@
+<assembly>
+  <id>dep</id>
+  <formats>
+    <format>jar</format>
+  </formats>
+  <includeBaseDirectory>false</includeBaseDirectory>
+  <dependencySets>
+    <dependencySet>
+      <outputDirectory>/</outputDirectory>
+      <useProjectArtifact>true</useProjectArtifact>
+      <unpack>true</unpack>
+      <scope>runtime</scope>
+      <excludes>
+        <exclude>junit:junit</exclude>
+      </excludes>
+    </dependencySet>
+  </dependencySets>
+</assembly>
