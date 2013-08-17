@@ -9,3 +9,6 @@ Testium.jar
 /build
 /target
 /pom.xml.asc
+.classpath
+.DS_Store
+release.properties
