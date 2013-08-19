@@ -100,7 +100,7 @@
 							<mainClass>net.sf.testium.Main</mainClass>
 						</manifest>
 					</archive>
-					<descriptor>src/main/resources/assembly_descriptor.xml</descriptor>
+					<descriptor>assembly_descriptor.xml</descriptor>
 				</configuration>
 				<executions>
 					<execution>
