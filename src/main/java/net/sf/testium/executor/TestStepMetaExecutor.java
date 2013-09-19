@@ -156,11 +156,11 @@ public class TestStepMetaExecutor
 				TestStepSequence elseSteps = selectionStep.getElseSteps();
 				if ( elseSteps.isEmpty() ) {
 					comment += ". Nothing executed.";
+					result.setResult(VERDICT.PASSED);
 				} else {					
 					comment += ". Else-steps executed.";
+					this.mySetExecutor.execute(elseSteps, subStepResults, aScriptDir, aLogDir, aRTData);
 				}
-				comment += ". Else-steps executed.";
-				this.mySetExecutor.execute(elseSteps, subStepResults, aScriptDir, aLogDir, aRTData);
 			}
 
 			result.setComment(comment);
