@@ -1,7 +1,6 @@
 package net.sf.testium.executor.general;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import net.sf.testium.systemundertest.SutInterface;
 
@@ -23,7 +22,7 @@ public class CheckInteger extends GenericCommandExecutor
 	private static final String MATCH_GREATER_THAN = "greaterThan";
 	
 	private static final SpecifiedParameter PARSPEC_INTEGER = new SpecifiedParameter( 
-			PAR_INTEGER, List.class, "The integer to check", false, false, true, false );
+			PAR_INTEGER, Integer.class, "The integer to check", false, false, true, false );
 	private static final SpecifiedParameter PARSPEC_SIZE = new SpecifiedParameter( 
 			PAR_SIZE, Integer.class, "The expected value of the integer", false, true, true, false );
 	private static final SpecifiedParameter PARSPEC_MATCH = new SpecifiedParameter( 
@@ -55,8 +54,6 @@ public class CheckInteger extends GenericCommandExecutor
 		String intName = parameters.get(PAR_INTEGER).getName();
 		result.setDisplayName( this.toString() + " " + intName + " " + expectedValue );
 
-		
-		
 		if ( match.equalsIgnoreCase( MATCH_EXACT ) )
 		{
 			checkExact(integerToCheck, expectedValue,
@@ -104,9 +101,9 @@ public class CheckInteger extends GenericCommandExecutor
 	}
 
 	private void checkGreaterThan(Integer integerToCheck, int referenceSize, String message)
-		throws TestSuiteException {
-	if ( ! (integerToCheck > referenceSize) ) {
-		throw new TestSuiteException( message );
-	}
+			throws TestSuiteException {
+		if ( ! (integerToCheck > referenceSize) ) {
+			throw new TestSuiteException( message );
+		}
 	}
 }
