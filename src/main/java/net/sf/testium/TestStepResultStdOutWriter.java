@@ -1,6 +1,5 @@
 package net.sf.testium;
 
-import org.testtoolinterfaces.testresult.TestStepResult;
 import org.testtoolinterfaces.testresult.TestResult.VERDICT;
 import org.testtoolinterfaces.testresult.TestStepResultBase;
 import org.testtoolinterfaces.utils.Trace;
